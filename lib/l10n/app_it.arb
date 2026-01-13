@@ -1,0 +1,63 @@
+{
+  "@@locale": "it",
+  "appTitle": "CullR",
+  "settingsTitle": "Impostazioni",
+  "deletePermanently": "Elimina definitivamente",
+  "noPhotosMarked": "Nessuna foto contrassegnata per l’eliminazione.",
+  "galleryAccessNeeded": "Accesso alla galleria richiesto",
+  "galleryAccessMessage": "CullR necessita dell’accesso alla galleria.\nConcedi l’autorizzazione per continuare.",
+  "settingsAction": "Impostazioni",
+  "tryAgainAction": "Riprova",
+  "noPhotosFound": "Nessuna foto trovata",
+  "noPhotosMessage": "La tua galleria è vuota. Aggiungi delle foto e torna per esaminarle.",
+  "reloadAction": "Aggiorna",
+  "tabDelete": "Elimina",
+  "tabKeep": "Mantieni",
+  "noPhotosKept": "Nessuna foto da mantenere.",
+  "confirmDeleteTitle": "Eliminare le foto?",
+  "confirmDeleteMessage": "{count, plural, one{Sei sicuro di voler eliminare {count} foto?} other{Sei sicuro di voler eliminare {count} foto?}}",
+  "@confirmDeleteMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cancelAction": "Annulla",
+  "deleteAction": "Elimina",
+  "highResOriginalTab": "Originale",
+  "highResDetailsTab": "Dettagli",
+  "metadataFilename": "Nome file",
+  "metadataDimensions": "Dimensioni",
+  "metadataFileSize": "Dimensione file",
+  "metadataFormat": "Formato",
+  "metadataCreated": "Creato",
+  "metadataModified": "Modificato",
+  "metadataType": "Tipo",
+  "metadataSubtype": "Sottotipo",
+  "metadataDuration": "Durata",
+  "metadataOrientation": "Orientamento",
+  "metadataLocation": "Posizione",
+  "metadataPath": "Percorso",
+  "metadataId": "ID",
+  "reEvaluateKeepTitle": "Analizzare di nuovo gli elementi mantenuti?",
+  "reEvaluateKeepMessage": "{count, plural, one{Analizzare di nuovo {count} elemento mantenuto?} other{Analizzare di nuovo {count} elementi mantenuti?}}",
+  "@reEvaluateKeepMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reEvaluateKeepAction": "Analizza di nuovo",
+  "totalSizeLabel": "Dimensione totale",
+  "languageLabel": "Lingua",
+  "settingsSummaryTitle": "Statistiche di pulizia",
+  "settingsSummarySwipes": "Scorrimenti",
+  "settingsSummaryMarked": "Contrassegnati",
+  "settingsSummaryKept": "Mantenuti",
+  "settingsSummaryDeleted": "Eliminati",
+  "settingsSummaryDeleteSize": "Spazio recuperato",
+  "allCaughtUpTitle": "Sei al passo",
+  "allCaughtUpMessage": "Al momento non ci sono altre foto da rivedere."
+}

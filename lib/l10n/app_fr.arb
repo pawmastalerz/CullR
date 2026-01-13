@@ -1,0 +1,63 @@
+{
+  "@@locale": "fr",
+  "appTitle": "CullR",
+  "settingsTitle": "Paramètres",
+  "deletePermanently": "Supprimer définitivement",
+  "noPhotosMarked": "Aucune photo marquée pour la suppression.",
+  "galleryAccessNeeded": "Accès à la galerie requis",
+  "galleryAccessMessage": "CullR a besoin d’accéder à votre galerie.\nAccordez l’autorisation pour continuer.",
+  "settingsAction": "Paramètres",
+  "tryAgainAction": "Réessayer",
+  "noPhotosFound": "Aucune photo trouvée",
+  "noPhotosMessage": "Votre galerie est vide. Ajoutez des photos et revenez pour les examiner.",
+  "reloadAction": "Actualiser",
+  "tabDelete": "Supprimer",
+  "tabKeep": "Conserver",
+  "noPhotosKept": "Aucune photo à conserver.",
+  "confirmDeleteTitle": "Supprimer les photos ?",
+  "confirmDeleteMessage": "{count, plural, one{Êtes-vous sûr de vouloir supprimer {count} photo ?} other{Êtes-vous sûr de vouloir supprimer {count} photos ?}}",
+  "@confirmDeleteMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cancelAction": "Annuler",
+  "deleteAction": "Supprimer",
+  "highResOriginalTab": "Original",
+  "highResDetailsTab": "Détails",
+  "metadataFilename": "Nom du fichier",
+  "metadataDimensions": "Dimensions",
+  "metadataFileSize": "Taille du fichier",
+  "metadataFormat": "Format",
+  "metadataCreated": "Créé",
+  "metadataModified": "Modifié",
+  "metadataType": "Type",
+  "metadataSubtype": "Sous-type",
+  "metadataDuration": "Durée",
+  "metadataOrientation": "Orientation",
+  "metadataLocation": "Emplacement",
+  "metadataPath": "Chemin",
+  "metadataId": "ID",
+  "reEvaluateKeepTitle": "Analyser à nouveau les éléments conservés ?",
+  "reEvaluateKeepMessage": "{count, plural, one{Analyser à nouveau {count} élément conservé ?} other{Analyser à nouveau {count} éléments conservés ?}}",
+  "@reEvaluateKeepMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reEvaluateKeepAction": "Analyser à nouveau",
+  "totalSizeLabel": "Taille totale",
+  "languageLabel": "Langue",
+  "settingsSummaryTitle": "Statistiques de nettoyage",
+  "settingsSummarySwipes": "Glissements",
+  "settingsSummaryMarked": "Marqués",
+  "settingsSummaryKept": "Conservés",
+  "settingsSummaryDeleted": "Supprimés",
+  "settingsSummaryDeleteSize": "Espace récupéré",
+  "allCaughtUpTitle": "Vous êtes à jour",
+  "allCaughtUpMessage": "Plus de photos à examiner pour le moment."
+}

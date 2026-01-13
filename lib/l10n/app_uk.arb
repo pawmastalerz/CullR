@@ -1,0 +1,63 @@
+{
+  "@@locale": "uk",
+  "appTitle": "CullR",
+  "settingsTitle": "Налаштування",
+  "deletePermanently": "Видалити назавжди",
+  "noPhotosMarked": "Немає фотографій для видалення.",
+  "galleryAccessNeeded": "Потрібен доступ до галереї",
+  "galleryAccessMessage": "CullR потребує доступу до вашої галереї.\nНадайте дозвіл, щоб продовжити.",
+  "settingsAction": "Налаштування",
+  "tryAgainAction": "Спробувати знову",
+  "noPhotosFound": "Фотографій не знайдено",
+  "noPhotosMessage": "Ваша галерея порожня. Додайте фотографії та поверніться, щоб переглянути їх.",
+  "reloadAction": "Оновити",
+  "tabDelete": "Видалити",
+  "tabKeep": "Зберегти",
+  "noPhotosKept": "Немає фотографій для збереження.",
+  "confirmDeleteTitle": "Видалити фотографії?",
+  "confirmDeleteMessage": "{count, plural, one{Ви впевнені, що хочете видалити {count} фотографію?} few{Ви впевнені, що хочете видалити {count} фотографії?} many{Ви впевнені, що хочете видалити {count} фотографій?} other{Ви впевнені, що хочете видалити {count} фотографій?}}",
+  "@confirmDeleteMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cancelAction": "Скасувати",
+  "deleteAction": "Видалити",
+  "highResOriginalTab": "Оригінал",
+  "highResDetailsTab": "Деталі",
+  "metadataFilename": "Назва файлу",
+  "metadataDimensions": "Розміри",
+  "metadataFileSize": "Розмір файлу",
+  "metadataFormat": "Формат",
+  "metadataCreated": "Створено",
+  "metadataModified": "Змінено",
+  "metadataType": "Тип",
+  "metadataSubtype": "Підтип",
+  "metadataDuration": "Тривалість",
+  "metadataOrientation": "Орієнтація",
+  "metadataLocation": "Місцезнаходження",
+  "metadataPath": "Шлях",
+  "metadataId": "ID",
+  "reEvaluateKeepTitle": "Повторно проаналізувати збережені елементи?",
+  "reEvaluateKeepMessage": "{count, plural, one{Повторно проаналізувати {count} збережений елемент?} few{Повторно проаналізувати {count} збережені елементи?} many{Повторно проаналізувати {count} збережених елементів?} other{Повторно проаналізувати {count} збережених елементів?}}",
+  "@reEvaluateKeepMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reEvaluateKeepAction": "Проаналізувати повторно",
+  "totalSizeLabel": "Загальний розмір",
+  "languageLabel": "Мова",
+  "settingsSummaryTitle": "Статистика очищення",
+  "settingsSummarySwipes": "Свайпи",
+  "settingsSummaryMarked": "Позначені",
+  "settingsSummaryKept": "Збережені",
+  "settingsSummaryDeleted": "Видалені",
+  "settingsSummaryDeleteSize": "Звільнене місце",
+  "allCaughtUpTitle": "Ви все переглянули",
+  "allCaughtUpMessage": "Наразі більше немає фото для перегляду."
+}

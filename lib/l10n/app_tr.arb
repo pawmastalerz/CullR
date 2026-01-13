@@ -1,0 +1,63 @@
+{
+  "@@locale": "tr",
+  "appTitle": "CullR",
+  "settingsTitle": "Ayarlar",
+  "deletePermanently": "Kalıcı olarak sil",
+  "noPhotosMarked": "Silmek için işaretlenmiş fotoğraf yok.",
+  "galleryAccessNeeded": "Galeri erişimi gerekli",
+  "galleryAccessMessage": "CullR galerinize erişim gerektirir.\nDevam etmek için izin verin.",
+  "settingsAction": "Ayarlar",
+  "tryAgainAction": "Tekrar dene",
+  "noPhotosFound": "Fotoğraf bulunamadı",
+  "noPhotosMessage": "Galeriniz boş. Fotoğraf ekleyin ve incelemek için geri dönün.",
+  "reloadAction": "Yenile",
+  "tabDelete": "Sil",
+  "tabKeep": "Sakla",
+  "noPhotosKept": "Saklanacak fotoğraf yok.",
+  "confirmDeleteTitle": "Fotoğraflar silinsin mi?",
+  "confirmDeleteMessage": "{count, plural, one{{count} fotoğrafı silmek istediğinizden emin misiniz?} other{{count} fotoğrafı silmek istediğinizden emin misiniz?}}",
+  "@confirmDeleteMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cancelAction": "İptal",
+  "deleteAction": "Sil",
+  "highResOriginalTab": "Orijinal",
+  "highResDetailsTab": "Detaylar",
+  "metadataFilename": "Dosya adı",
+  "metadataDimensions": "Boyutlar",
+  "metadataFileSize": "Dosya boyutu",
+  "metadataFormat": "Format",
+  "metadataCreated": "Oluşturulma",
+  "metadataModified": "Değiştirilme",
+  "metadataType": "Tür",
+  "metadataSubtype": "Alt tür",
+  "metadataDuration": "Süre",
+  "metadataOrientation": "Yönlendirme",
+  "metadataLocation": "Konum",
+  "metadataPath": "Yol",
+  "metadataId": "ID",
+  "reEvaluateKeepTitle": "Saklanan öğeler yeniden analiz edilsin mi?",
+  "reEvaluateKeepMessage": "{count, plural, one{{count} saklanan öğe yeniden analiz edilsin mi?} other{{count} saklanan öğeler yeniden analiz edilsin mi?}}",
+  "@reEvaluateKeepMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reEvaluateKeepAction": "Yeniden analiz et",
+  "totalSizeLabel": "Toplam boyut",
+  "languageLabel": "Dil",
+  "settingsSummaryTitle": "Temizleme istatistikleri",
+  "settingsSummarySwipes": "Kaydırmalar",
+  "settingsSummaryMarked": "İşaretlenenler",
+  "settingsSummaryKept": "Saklananlar",
+  "settingsSummaryDeleted": "Silinenler",
+  "settingsSummaryDeleteSize": "Kazanılan alan",
+  "allCaughtUpTitle": "Her şeyi gördün",
+  "allCaughtUpMessage": "Şu anda incelenecek başka fotoğraf yok."
+}

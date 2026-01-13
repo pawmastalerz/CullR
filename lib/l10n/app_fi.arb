@@ -1,0 +1,63 @@
+{
+  "@@locale": "fi",
+  "appTitle": "CullR",
+  "settingsTitle": "Asetukset",
+  "deletePermanently": "Poista pysyvästi",
+  "noPhotosMarked": "Ei poistettavaksi merkittyjä kuvia.",
+  "galleryAccessNeeded": "Gallerian käyttöoikeus vaaditaan",
+  "galleryAccessMessage": "CullR tarvitsee pääsyn galleriaasi.\nAnna lupa jatkaaksesi.",
+  "settingsAction": "Asetukset",
+  "tryAgainAction": "Yritä uudelleen",
+  "noPhotosFound": "Kuvia ei löytynyt",
+  "noPhotosMessage": "Galleriasi on tyhjä. Lisää kuvia ja palaa tarkastelemaan niitä.",
+  "reloadAction": "Päivitä",
+  "tabDelete": "Poista",
+  "tabKeep": "Säilytä",
+  "noPhotosKept": "Ei säilytettäviä kuvia.",
+  "confirmDeleteTitle": "Poistetaanko kuvat?",
+  "confirmDeleteMessage": "{count, plural, one{Haluatko varmasti poistaa {count} kuvan?} other{Haluatko varmasti poistaa {count} kuvaa?}}",
+  "@confirmDeleteMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cancelAction": "Peruuta",
+  "deleteAction": "Poista",
+  "highResOriginalTab": "Alkuperäinen",
+  "highResDetailsTab": "Tiedot",
+  "metadataFilename": "Tiedostonimi",
+  "metadataDimensions": "Mitat",
+  "metadataFileSize": "Tiedoston koko",
+  "metadataFormat": "Muoto",
+  "metadataCreated": "Luotu",
+  "metadataModified": "Muokattu",
+  "metadataType": "Tyyppi",
+  "metadataSubtype": "Alatyyppi",
+  "metadataDuration": "Kesto",
+  "metadataOrientation": "Suunta",
+  "metadataLocation": "Sijainti",
+  "metadataPath": "Polku",
+  "metadataId": "ID",
+  "reEvaluateKeepTitle": "Analysoidaanko säilytetyt kohteet uudelleen?",
+  "reEvaluateKeepMessage": "{count, plural, one{Analysoidaanko {count} säilytetty kohde uudelleen?} other{Analysoidaanko {count} säilytettyä kohdetta uudelleen?}}",
+  "@reEvaluateKeepMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reEvaluateKeepAction": "Analysoi uudelleen",
+  "totalSizeLabel": "Kokonaiskoko",
+  "languageLabel": "Kieli",
+  "settingsSummaryTitle": "Puhdistustilastot",
+  "settingsSummarySwipes": "Pyyhkäisyt",
+  "settingsSummaryMarked": "Merkitty",
+  "settingsSummaryKept": "Säilytetty",
+  "settingsSummaryDeleted": "Poistettu",
+  "settingsSummaryDeleteSize": "Vapautettu tila",
+  "allCaughtUpTitle": "Olet ajan tasalla",
+  "allCaughtUpMessage": "Ei enempää kuvia tarkistettavaksi juuri nyt."
+}

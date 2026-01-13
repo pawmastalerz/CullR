@@ -1,0 +1,63 @@
+{
+  "@@locale": "de",
+  "appTitle": "CullR",
+  "settingsTitle": "Einstellungen",
+  "deletePermanently": "Dauerhaft löschen",
+  "noPhotosMarked": "Keine Fotos zum Löschen markiert.",
+  "galleryAccessNeeded": "Zugriff auf Galerie erforderlich",
+  "galleryAccessMessage": "CullR benötigt Zugriff auf deine Galerie.\nErteile die Berechtigung, um fortzufahren.",
+  "settingsAction": "Einstellungen",
+  "tryAgainAction": "Erneut versuchen",
+  "noPhotosFound": "Keine Fotos gefunden",
+  "noPhotosMessage": "Deine Galerie ist leer. Füge Fotos hinzu und kehre zurück, um sie zu überprüfen.",
+  "reloadAction": "Neu laden",
+  "tabDelete": "Löschen",
+  "tabKeep": "Behalten",
+  "noPhotosKept": "Keine Fotos zum Behalten.",
+  "confirmDeleteTitle": "Fotos löschen?",
+  "confirmDeleteMessage": "{count, plural, one{Möchtest du wirklich {count} Foto löschen?} other{Möchtest du wirklich {count} Fotos löschen?}}",
+  "@confirmDeleteMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cancelAction": "Abbrechen",
+  "deleteAction": "Löschen",
+  "highResOriginalTab": "Original",
+  "highResDetailsTab": "Details",
+  "metadataFilename": "Dateiname",
+  "metadataDimensions": "Abmessungen",
+  "metadataFileSize": "Dateigröße",
+  "metadataFormat": "Format",
+  "metadataCreated": "Erstellt",
+  "metadataModified": "Geändert",
+  "metadataType": "Typ",
+  "metadataSubtype": "Untertyp",
+  "metadataDuration": "Dauer",
+  "metadataOrientation": "Ausrichtung",
+  "metadataLocation": "Standort",
+  "metadataPath": "Pfad",
+  "metadataId": "ID",
+  "reEvaluateKeepTitle": "Behaltene Elemente erneut analysieren?",
+  "reEvaluateKeepMessage": "{count, plural, one{Erneut {count} behaltenes Element analysieren?} other{Erneut {count} behaltene Elemente analysieren?}}",
+  "@reEvaluateKeepMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reEvaluateKeepAction": "Erneut analysieren",
+  "totalSizeLabel": "Gesamtgröße",
+  "languageLabel": "Sprache",
+  "settingsSummaryTitle": "Bereinigungsstatistiken",
+  "settingsSummarySwipes": "Wischbewegungen",
+  "settingsSummaryMarked": "Markiert",
+  "settingsSummaryKept": "Behalten",
+  "settingsSummaryDeleted": "Gelöscht",
+  "settingsSummaryDeleteSize": "Freigegebener Speicherplatz",
+  "allCaughtUpTitle": "Du bist auf dem neuesten Stand",
+  "allCaughtUpMessage": "Keine weiteren Fotos zum Durchsehen im Moment."
+}

@@ -1,0 +1,63 @@
+{
+  "@@locale": "hi",
+  "appTitle": "CullR",
+  "settingsTitle": "सेटिंग्स",
+  "deletePermanently": "स्थायी रूप से हटाएँ",
+  "noPhotosMarked": "हटाने के लिए कोई फ़ोटो चिह्नित नहीं है।",
+  "galleryAccessNeeded": "गैलरी की अनुमति आवश्यक है",
+  "galleryAccessMessage": "CullR को आपकी गैलरी तक पहुँच की आवश्यकता है।\nजारी रखने के लिए अनुमति दें।",
+  "settingsAction": "सेटिंग्स",
+  "tryAgainAction": "फिर से प्रयास करें",
+  "noPhotosFound": "कोई फ़ोटो नहीं मिली",
+  "noPhotosMessage": "आपकी गैलरी खाली है। फ़ोटो जोड़ें और फिर से देखने के लिए लौटें।",
+  "reloadAction": "रीफ़्रेश करें",
+  "tabDelete": "हटाएँ",
+  "tabKeep": "रखें",
+  "noPhotosKept": "रखने के लिए कोई फ़ोटो नहीं है।",
+  "confirmDeleteTitle": "फ़ोटो हटाएँ?",
+  "confirmDeleteMessage": "{count, plural, one{क्या आप वाकई {count} फ़ोटो हटाना चाहते हैं?} other{क्या आप वाकई {count} फ़ोटो हटाना चाहते हैं?}}",
+  "@confirmDeleteMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cancelAction": "रद्द करें",
+  "deleteAction": "हटाएँ",
+  "highResOriginalTab": "मूल",
+  "highResDetailsTab": "विवरण",
+  "metadataFilename": "फ़ाइल नाम",
+  "metadataDimensions": "आकार",
+  "metadataFileSize": "फ़ाइल आकार",
+  "metadataFormat": "फ़ॉर्मेट",
+  "metadataCreated": "निर्मित",
+  "metadataModified": "संशोधित",
+  "metadataType": "प्रकार",
+  "metadataSubtype": "उपप्रकार",
+  "metadataDuration": "अवधि",
+  "metadataOrientation": "ओरिएंटेशन",
+  "metadataLocation": "स्थान",
+  "metadataPath": "पथ",
+  "metadataId": "ID",
+  "reEvaluateKeepTitle": "सहेजे गए आइटम फिर से विश्लेषित करें?",
+  "reEvaluateKeepMessage": "{count, plural, one{{count} सहेजा गया आइटम फिर से विश्लेषित करें?} other{{count} सहेजे गए आइटम फिर से विश्लेषित करें?}}",
+  "@reEvaluateKeepMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reEvaluateKeepAction": "फिर से विश्लेषित करें",
+  "totalSizeLabel": "कुल आकार",
+  "languageLabel": "भाषा",
+  "settingsSummaryTitle": "साफ़-सफ़ाई आँकड़े",
+  "settingsSummarySwipes": "स्वाइप",
+  "settingsSummaryMarked": "चिह्नित",
+  "settingsSummaryKept": "सहेजे गए",
+  "settingsSummaryDeleted": "हटाए गए",
+  "settingsSummaryDeleteSize": "पुनः प्राप्त स्थान",
+  "allCaughtUpTitle": "सब देख लिया",
+  "allCaughtUpMessage": "अभी समीक्षा करने के लिए और फोटो नहीं हैं।"
+}

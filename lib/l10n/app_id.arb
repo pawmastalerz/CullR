@@ -1,0 +1,63 @@
+{
+  "@@locale": "id",
+  "appTitle": "CullR",
+  "settingsTitle": "Pengaturan",
+  "deletePermanently": "Hapus permanen",
+  "noPhotosMarked": "Tidak ada foto yang ditandai untuk dihapus.",
+  "galleryAccessNeeded": "Akses galeri diperlukan",
+  "galleryAccessMessage": "CullR memerlukan akses ke galeri Anda.\nBerikan izin untuk melanjutkan.",
+  "settingsAction": "Pengaturan",
+  "tryAgainAction": "Coba lagi",
+  "noPhotosFound": "Tidak ada foto ditemukan",
+  "noPhotosMessage": "Galeri Anda kosong. Tambahkan foto lalu kembali untuk meninjau.",
+  "reloadAction": "Muat ulang",
+  "tabDelete": "Hapus",
+  "tabKeep": "Simpan",
+  "noPhotosKept": "Tidak ada foto untuk disimpan.",
+  "confirmDeleteTitle": "Hapus foto?",
+  "confirmDeleteMessage": "{count, plural, one{Apakah Anda yakin ingin menghapus {count} foto?} other{Apakah Anda yakin ingin menghapus {count} foto?}}",
+  "@confirmDeleteMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cancelAction": "Batal",
+  "deleteAction": "Hapus",
+  "highResOriginalTab": "Asli",
+  "highResDetailsTab": "Detail",
+  "metadataFilename": "Nama file",
+  "metadataDimensions": "Dimensi",
+  "metadataFileSize": "Ukuran file",
+  "metadataFormat": "Format",
+  "metadataCreated": "Dibuat",
+  "metadataModified": "Diubah",
+  "metadataType": "Jenis",
+  "metadataSubtype": "Subjenis",
+  "metadataDuration": "Durasi",
+  "metadataOrientation": "Orientasi",
+  "metadataLocation": "Lokasi",
+  "metadataPath": "Path",
+  "metadataId": "ID",
+  "reEvaluateKeepTitle": "Analisis ulang item yang disimpan?",
+  "reEvaluateKeepMessage": "{count, plural, one{Analisis ulang {count} item yang disimpan?} other{Analisis ulang {count} item yang disimpan?}}",
+  "@reEvaluateKeepMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reEvaluateKeepAction": "Analisis ulang",
+  "totalSizeLabel": "Ukuran total",
+  "languageLabel": "Bahasa",
+  "settingsSummaryTitle": "Statistik pembersihan",
+  "settingsSummarySwipes": "Geser",
+  "settingsSummaryMarked": "Ditandai",
+  "settingsSummaryKept": "Disimpan",
+  "settingsSummaryDeleted": "Dihapus",
+  "settingsSummaryDeleteSize": "Ruang yang dipulihkan",
+  "allCaughtUpTitle": "Semua sudah ditinjau",
+  "allCaughtUpMessage": "Saat ini tidak ada foto lagi untuk ditinjau."
+}

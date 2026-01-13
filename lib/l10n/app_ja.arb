@@ -1,0 +1,63 @@
+{
+  "@@locale": "ja",
+  "appTitle": "CullR",
+  "settingsTitle": "設定",
+  "deletePermanently": "完全に削除",
+  "noPhotosMarked": "削除する写真はありません。",
+  "galleryAccessNeeded": "ギャラリーへのアクセスが必要です",
+  "galleryAccessMessage": "CullRはギャラリーへのアクセスが必要です。\n続行するには権限を許可してください。",
+  "settingsAction": "設定",
+  "tryAgainAction": "再試行",
+  "noPhotosFound": "写真が見つかりません",
+  "noPhotosMessage": "ギャラリーは空です。写真を追加してから戻って確認してください。",
+  "reloadAction": "更新",
+  "tabDelete": "削除",
+  "tabKeep": "保持",
+  "noPhotosKept": "保持する写真はありません。",
+  "confirmDeleteTitle": "写真を削除しますか？",
+  "confirmDeleteMessage": "{count, plural, one{{count}枚の写真を削除しますか？} other{{count}枚の写真を削除しますか？}}",
+  "@confirmDeleteMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cancelAction": "キャンセル",
+  "deleteAction": "削除",
+  "highResOriginalTab": "オリジナル",
+  "highResDetailsTab": "詳細",
+  "metadataFilename": "ファイル名",
+  "metadataDimensions": "サイズ",
+  "metadataFileSize": "ファイルサイズ",
+  "metadataFormat": "形式",
+  "metadataCreated": "作成日時",
+  "metadataModified": "更新日時",
+  "metadataType": "種類",
+  "metadataSubtype": "サブタイプ",
+  "metadataDuration": "再生時間",
+  "metadataOrientation": "向き",
+  "metadataLocation": "場所",
+  "metadataPath": "パス",
+  "metadataId": "ID",
+  "reEvaluateKeepTitle": "保持した項目を再解析しますか？",
+  "reEvaluateKeepMessage": "{count, plural, one{{count}件の保持した項目を再解析しますか？} other{{count}件の保持した項目を再解析しますか？}}",
+  "@reEvaluateKeepMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reEvaluateKeepAction": "再解析",
+  "totalSizeLabel": "合計サイズ",
+  "languageLabel": "言語",
+  "settingsSummaryTitle": "クリーンアップ統計",
+  "settingsSummarySwipes": "スワイプ",
+  "settingsSummaryMarked": "マーク済み",
+  "settingsSummaryKept": "保持",
+  "settingsSummaryDeleted": "削除済み",
+  "settingsSummaryDeleteSize": "回復した容量",
+  "allCaughtUpTitle": "すべて確認済みです",
+  "allCaughtUpMessage": "今のところ確認する写真はありません。"
+}

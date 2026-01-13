@@ -1,0 +1,63 @@
+{
+  "@@locale": "sv",
+  "appTitle": "CullR",
+  "settingsTitle": "Inställningar",
+  "deletePermanently": "Ta bort permanent",
+  "noPhotosMarked": "Inga foton markerade för borttagning.",
+  "galleryAccessNeeded": "Åtkomst till galleri krävs",
+  "galleryAccessMessage": "CullR behöver åtkomst till ditt galleri.\nGe behörighet för att fortsätta.",
+  "settingsAction": "Inställningar",
+  "tryAgainAction": "Försök igen",
+  "noPhotosFound": "Inga foton hittades",
+  "noPhotosMessage": "Ditt galleri är tomt. Lägg till foton och kom tillbaka för att granska dem.",
+  "reloadAction": "Uppdatera",
+  "tabDelete": "Ta bort",
+  "tabKeep": "Behåll",
+  "noPhotosKept": "Inga foton att behålla.",
+  "confirmDeleteTitle": "Ta bort foton?",
+  "confirmDeleteMessage": "{count, plural, one{Är du säker på att du vill ta bort {count} foto?} other{Är du säker på att du vill ta bort {count} foton?}}",
+  "@confirmDeleteMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cancelAction": "Avbryt",
+  "deleteAction": "Ta bort",
+  "highResOriginalTab": "Original",
+  "highResDetailsTab": "Detaljer",
+  "metadataFilename": "Filnamn",
+  "metadataDimensions": "Dimensioner",
+  "metadataFileSize": "Filstorlek",
+  "metadataFormat": "Format",
+  "metadataCreated": "Skapad",
+  "metadataModified": "Ändrad",
+  "metadataType": "Typ",
+  "metadataSubtype": "Undertyp",
+  "metadataDuration": "Varaktighet",
+  "metadataOrientation": "Orientering",
+  "metadataLocation": "Plats",
+  "metadataPath": "Sökväg",
+  "metadataId": "ID",
+  "reEvaluateKeepTitle": "Analysera sparade objekt igen?",
+  "reEvaluateKeepMessage": "{count, plural, one{Analysera {count} sparat objekt igen?} other{Analysera {count} sparade objekt igen?}}",
+  "@reEvaluateKeepMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reEvaluateKeepAction": "Analysera igen",
+  "totalSizeLabel": "Total storlek",
+  "languageLabel": "Språk",
+  "settingsSummaryTitle": "Rensningsstatistik",
+  "settingsSummarySwipes": "Svep",
+  "settingsSummaryMarked": "Markerade",
+  "settingsSummaryKept": "Behållna",
+  "settingsSummaryDeleted": "Borttagna",
+  "settingsSummaryDeleteSize": "Frigjort utrymme",
+  "allCaughtUpTitle": "Du är ikapp",
+  "allCaughtUpMessage": "Inga fler foton att granska just nu."
+}

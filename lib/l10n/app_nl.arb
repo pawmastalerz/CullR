@@ -1,0 +1,63 @@
+{
+  "@@locale": "nl",
+  "appTitle": "CullR",
+  "settingsTitle": "Instellingen",
+  "deletePermanently": "Permanent verwijderen",
+  "noPhotosMarked": "Geen foto’s gemarkeerd voor verwijdering.",
+  "galleryAccessNeeded": "Toegang tot galerij vereist",
+  "galleryAccessMessage": "CullR heeft toegang tot je galerij nodig.\nGeef toestemming om verder te gaan.",
+  "settingsAction": "Instellingen",
+  "tryAgainAction": "Opnieuw proberen",
+  "noPhotosFound": "Geen foto’s gevonden",
+  "noPhotosMessage": "Je galerij is leeg. Voeg foto’s toe en kom terug om ze te bekijken.",
+  "reloadAction": "Vernieuwen",
+  "tabDelete": "Verwijderen",
+  "tabKeep": "Bewaren",
+  "noPhotosKept": "Geen foto’s om te bewaren.",
+  "confirmDeleteTitle": "Foto’s verwijderen?",
+  "confirmDeleteMessage": "{count, plural, one{Weet je zeker dat je {count} foto wilt verwijderen?} other{Weet je zeker dat je {count} foto’s wilt verwijderen?}}",
+  "@confirmDeleteMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cancelAction": "Annuleren",
+  "deleteAction": "Verwijderen",
+  "highResOriginalTab": "Origineel",
+  "highResDetailsTab": "Details",
+  "metadataFilename": "Bestandsnaam",
+  "metadataDimensions": "Afmetingen",
+  "metadataFileSize": "Bestandsgrootte",
+  "metadataFormat": "Formaat",
+  "metadataCreated": "Aangemaakt",
+  "metadataModified": "Gewijzigd",
+  "metadataType": "Type",
+  "metadataSubtype": "Subtype",
+  "metadataDuration": "Duur",
+  "metadataOrientation": "Oriëntatie",
+  "metadataLocation": "Locatie",
+  "metadataPath": "Pad",
+  "metadataId": "ID",
+  "reEvaluateKeepTitle": "Bewaarde items opnieuw analyseren?",
+  "reEvaluateKeepMessage": "{count, plural, one{{count} bewaard item opnieuw analyseren?} other{{count} bewaarde items opnieuw analyseren?}}",
+  "@reEvaluateKeepMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reEvaluateKeepAction": "Opnieuw analyseren",
+  "totalSizeLabel": "Totale grootte",
+  "languageLabel": "Taal",
+  "settingsSummaryTitle": "Opschoonstatistieken",
+  "settingsSummarySwipes": "Swipes",
+  "settingsSummaryMarked": "Gemarkeerd",
+  "settingsSummaryKept": "Bewaard",
+  "settingsSummaryDeleted": "Verwijderd",
+  "settingsSummaryDeleteSize": "Vrijgemaakte ruimte",
+  "allCaughtUpTitle": "Je bent helemaal bij",
+  "allCaughtUpMessage": "Er zijn nu geen foto's meer om te bekijken."
+}

@@ -1,0 +1,63 @@
+{
+  "@@locale": "ko",
+  "appTitle": "CullR",
+  "settingsTitle": "설정",
+  "deletePermanently": "영구 삭제",
+  "noPhotosMarked": "삭제할 사진이 없습니다.",
+  "galleryAccessNeeded": "갤러리 접근 권한 필요",
+  "galleryAccessMessage": "CullR은 갤러리에 대한 접근 권한이 필요합니다.\n계속하려면 권한을 허용하세요.",
+  "settingsAction": "설정",
+  "tryAgainAction": "다시 시도",
+  "noPhotosFound": "사진을 찾을 수 없습니다",
+  "noPhotosMessage": "갤러리가 비어 있습니다. 사진을 추가한 후 다시 확인하세요.",
+  "reloadAction": "새로 고침",
+  "tabDelete": "삭제",
+  "tabKeep": "보관",
+  "noPhotosKept": "보관할 사진이 없습니다.",
+  "confirmDeleteTitle": "사진을 삭제할까요?",
+  "confirmDeleteMessage": "{count, plural, one{{count}장의 사진을 삭제하시겠습니까?} other{{count}장의 사진을 삭제하시겠습니까?}}",
+  "@confirmDeleteMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cancelAction": "취소",
+  "deleteAction": "삭제",
+  "highResOriginalTab": "원본",
+  "highResDetailsTab": "세부 정보",
+  "metadataFilename": "파일 이름",
+  "metadataDimensions": "크기",
+  "metadataFileSize": "파일 크기",
+  "metadataFormat": "형식",
+  "metadataCreated": "생성됨",
+  "metadataModified": "수정됨",
+  "metadataType": "유형",
+  "metadataSubtype": "하위 유형",
+  "metadataDuration": "재생 시간",
+  "metadataOrientation": "방향",
+  "metadataLocation": "위치",
+  "metadataPath": "경로",
+  "metadataId": "ID",
+  "reEvaluateKeepTitle": "보관된 항목을 다시 분석할까요?",
+  "reEvaluateKeepMessage": "{count, plural, one{{count}개의 보관된 항목을 다시 분석할까요?} other{{count}개의 보관된 항목을 다시 분석할까요?}}",
+  "@reEvaluateKeepMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reEvaluateKeepAction": "다시 분석",
+  "totalSizeLabel": "총 크기",
+  "languageLabel": "언어",
+  "settingsSummaryTitle": "정리 통계",
+  "settingsSummarySwipes": "스와이프",
+  "settingsSummaryMarked": "표시됨",
+  "settingsSummaryKept": "보관됨",
+  "settingsSummaryDeleted": "삭제됨",
+  "settingsSummaryDeleteSize": "확보된 공간",
+  "allCaughtUpTitle": "모두 확인했습니다",
+  "allCaughtUpMessage": "지금은 검토할 사진이 없습니다."
+}

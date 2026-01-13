@@ -1,0 +1,63 @@
+{
+  "@@locale": "pl",
+  "appTitle": "CullR",
+  "settingsTitle": "Ustawienia",
+  "deletePermanently": "Usuń trwale",
+  "noPhotosMarked": "Brak zdjęć do usunięcia.",
+  "galleryAccessNeeded": "Wymagany dostęp do galerii",
+  "galleryAccessMessage": "CullR potrzebuje dostępu do galerii.\nNadaj uprawnienia, aby kontynuować.",
+  "settingsAction": "Ustawienia",
+  "tryAgainAction": "Spróbuj ponownie",
+  "noPhotosFound": "Nie znaleziono zdjęć",
+  "noPhotosMessage": "Twoja galeria jest pusta. Dodaj zdjęcia i wróć, aby przeglądać.",
+  "reloadAction": "Odśwież",
+  "tabDelete": "Usuń",
+  "tabKeep": "Zachowaj",
+  "noPhotosKept": "Brak zdjęć do zachowania.",
+  "confirmDeleteTitle": "Usunąć zdjęcia?",
+  "confirmDeleteMessage": "{count, plural, one{Czy na pewno chcesz usunąć {count} zdjęcie?} few{Czy na pewno chcesz usunąć {count} zdjęcia?} many{Czy na pewno chcesz usunąć {count} zdjęć?} other{Czy na pewno chcesz usunąć {count} zdjęć?}}",
+  "@confirmDeleteMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cancelAction": "Anuluj",
+  "deleteAction": "Usuń",
+  "highResOriginalTab": "Oryginał",
+  "highResDetailsTab": "Szczegóły",
+  "metadataFilename": "Nazwa pliku",
+  "metadataDimensions": "Wymiary",
+  "metadataFileSize": "Rozmiar pliku",
+  "metadataFormat": "Format",
+  "metadataCreated": "Utworzono",
+  "metadataModified": "Zmieniono",
+  "metadataType": "Typ",
+  "metadataSubtype": "Podtyp",
+  "metadataDuration": "Czas trwania",
+  "metadataOrientation": "Orientacja",
+  "metadataLocation": "Lokalizacja",
+  "metadataPath": "Ścieżka",
+  "metadataId": "ID",
+  "reEvaluateKeepTitle": "Przeanalizować ponownie zachowane elementy?",
+  "reEvaluateKeepMessage": "{count, plural, one{Przeanalizować ponownie {count} zachowany element?} few{Przeanalizować ponownie {count} zachowane elementy?} other{Przeanalizować ponownie {count} zachowanych elementów?}}",
+  "@reEvaluateKeepMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reEvaluateKeepAction": "Przeanalizuj ponownie",
+  "totalSizeLabel": "Łączny rozmiar",
+  "languageLabel": "Język",
+  "settingsSummaryTitle": "Statystyki czyszczenia",
+  "settingsSummarySwipes": "Przesunięcia",
+  "settingsSummaryMarked": "Oznaczone",
+  "settingsSummaryKept": "Zachowane",
+  "settingsSummaryDeleted": "Usunięte",
+  "settingsSummaryDeleteSize": "Odzyskane miejsce",
+  "allCaughtUpTitle": "Wszystko nadrobione",
+  "allCaughtUpMessage": "Na razie nie ma więcej zdjęć do przejrzenia."
+}

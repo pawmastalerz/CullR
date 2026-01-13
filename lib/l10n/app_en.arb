@@ -1,0 +1,63 @@
+{
+  "@@locale": "en",
+  "appTitle": "CullR",
+  "settingsTitle": "Settings",
+  "deletePermanently": "Delete permanently",
+  "noPhotosMarked": "No photos marked for deletion.",
+  "galleryAccessNeeded": "Gallery access required",
+  "galleryAccessMessage": "CullR needs access to your gallery.\nGrant permission to continue.",
+  "settingsAction": "Settings",
+  "tryAgainAction": "Try again",
+  "noPhotosFound": "No photos found",
+  "noPhotosMessage": "Your gallery is empty. Add photos and come back to review them.",
+  "reloadAction": "Reload",
+  "tabDelete": "Delete",
+  "tabKeep": "Keep",
+  "noPhotosKept": "No photos to keep.",
+  "confirmDeleteTitle": "Delete photos?",
+  "confirmDeleteMessage": "{count, plural, one{Are you sure you want to delete {count} photo?} other{Are you sure you want to delete {count} photos?}}",
+  "@confirmDeleteMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cancelAction": "Cancel",
+  "deleteAction": "Delete",
+  "highResOriginalTab": "Original",
+  "highResDetailsTab": "Details",
+  "metadataFilename": "Filename",
+  "metadataDimensions": "Dimensions",
+  "metadataFileSize": "File size",
+  "metadataFormat": "Format",
+  "metadataCreated": "Created",
+  "metadataModified": "Modified",
+  "metadataType": "Type",
+  "metadataSubtype": "Subtype",
+  "metadataDuration": "Duration",
+  "metadataOrientation": "Orientation",
+  "metadataLocation": "Location",
+  "metadataPath": "Path",
+  "metadataId": "ID",
+  "reEvaluateKeepTitle": "Re-analyze kept items?",
+  "reEvaluateKeepMessage": "{count, plural, one{Re-analyze {count} kept item?} other{Re-analyze {count} kept items?}}",
+  "@reEvaluateKeepMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reEvaluateKeepAction": "Re-analyze",
+  "totalSizeLabel": "Total size",
+  "languageLabel": "Language",
+  "settingsSummaryTitle": "Cleanup statistics",
+  "settingsSummarySwipes": "Swipes",
+  "settingsSummaryMarked": "Marked",
+  "settingsSummaryKept": "Kept",
+  "settingsSummaryDeleted": "Deleted",
+  "settingsSummaryDeleteSize": "Recovered space",
+  "allCaughtUpTitle": "You are all caught up",
+  "allCaughtUpMessage": "No more photos to review right now."
+}

@@ -1,0 +1,63 @@
+{
+  "@@locale": "ar",
+  "appTitle": "CullR",
+  "settingsTitle": "الإعدادات",
+  "deletePermanently": "حذف نهائي",
+  "noPhotosMarked": "لا توجد صور محددة للحذف.",
+  "galleryAccessNeeded": "مطلوب الوصول إلى المعرض",
+  "galleryAccessMessage": "يحتاج CullR إلى الوصول إلى معرض الصور.\nيرجى منح الإذن للمتابعة.",
+  "settingsAction": "الإعدادات",
+  "tryAgainAction": "حاول مرة أخرى",
+  "noPhotosFound": "لم يتم العثور على صور",
+  "noPhotosMessage": "معرض الصور فارغ. أضف صورًا ثم عد لمراجعتها.",
+  "reloadAction": "تحديث",
+  "tabDelete": "حذف",
+  "tabKeep": "احتفاظ",
+  "noPhotosKept": "لا توجد صور للاحتفاظ بها.",
+  "confirmDeleteTitle": "حذف الصور؟",
+  "confirmDeleteMessage": "{count, plural, one{هل أنت متأكد من حذف صورة واحدة؟} other{هل أنت متأكد من حذف {count} صور؟}}",
+  "@confirmDeleteMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cancelAction": "إلغاء",
+  "deleteAction": "حذف",
+  "highResOriginalTab": "الأصل",
+  "highResDetailsTab": "التفاصيل",
+  "metadataFilename": "اسم الملف",
+  "metadataDimensions": "الأبعاد",
+  "metadataFileSize": "حجم الملف",
+  "metadataFormat": "الصيغة",
+  "metadataCreated": "تاريخ الإنشاء",
+  "metadataModified": "تاريخ التعديل",
+  "metadataType": "النوع",
+  "metadataSubtype": "النوع الفرعي",
+  "metadataDuration": "المدة",
+  "metadataOrientation": "الاتجاه",
+  "metadataLocation": "الموقع",
+  "metadataPath": "المسار",
+  "metadataId": "ID",
+  "reEvaluateKeepTitle": "إعادة تحليل العناصر المحتفَظ بها؟",
+  "reEvaluateKeepMessage": "{count, plural, one{إعادة تحليل عنصر محتفَظ به واحد؟} other{إعادة تحليل {count} عناصر محتفَظ بها؟}}",
+  "@reEvaluateKeepMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reEvaluateKeepAction": "إعادة التحليل",
+  "totalSizeLabel": "الحجم الإجمالي",
+  "languageLabel": "اللغة",
+  "settingsSummaryTitle": "إحصائيات التنظيف",
+  "settingsSummarySwipes": "السحبات",
+  "settingsSummaryMarked": "المعلَّمة",
+  "settingsSummaryKept": "المحتفَظ بها",
+  "settingsSummaryDeleted": "المحذوفة",
+  "settingsSummaryDeleteSize": "المساحة المستردة",
+  "allCaughtUpTitle": "أنت على اطلاع كامل",
+  "allCaughtUpMessage": "لا توجد صور أخرى للمراجعة الآن."
+}

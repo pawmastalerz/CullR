@@ -1,0 +1,63 @@
+{
+  "@@locale": "es",
+  "appTitle": "CullR",
+  "settingsTitle": "Ajustes",
+  "deletePermanently": "Eliminar permanentemente",
+  "noPhotosMarked": "No hay fotos marcadas para eliminar.",
+  "galleryAccessNeeded": "Se requiere acceso a la galería",
+  "galleryAccessMessage": "CullR necesita acceso a tu galería.\nConcede el permiso para continuar.",
+  "settingsAction": "Ajustes",
+  "tryAgainAction": "Intentar de nuevo",
+  "noPhotosFound": "No se encontraron fotos",
+  "noPhotosMessage": "Tu galería está vacía. Añade fotos y vuelve para revisarlas.",
+  "reloadAction": "Actualizar",
+  "tabDelete": "Eliminar",
+  "tabKeep": "Conservar",
+  "noPhotosKept": "No hay fotos para conservar.",
+  "confirmDeleteTitle": "¿Eliminar fotos?",
+  "confirmDeleteMessage": "{count, plural, one{¿Seguro que quieres eliminar {count} foto?} other{¿Seguro que quieres eliminar {count} fotos?}}",
+  "@confirmDeleteMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cancelAction": "Cancelar",
+  "deleteAction": "Eliminar",
+  "highResOriginalTab": "Original",
+  "highResDetailsTab": "Detalles",
+  "metadataFilename": "Nombre del archivo",
+  "metadataDimensions": "Dimensiones",
+  "metadataFileSize": "Tamaño del archivo",
+  "metadataFormat": "Formato",
+  "metadataCreated": "Creado",
+  "metadataModified": "Modificado",
+  "metadataType": "Tipo",
+  "metadataSubtype": "Subtipo",
+  "metadataDuration": "Duración",
+  "metadataOrientation": "Orientación",
+  "metadataLocation": "Ubicación",
+  "metadataPath": "Ruta",
+  "metadataId": "ID",
+  "reEvaluateKeepTitle": "¿Analizar de nuevo los elementos conservados?",
+  "reEvaluateKeepMessage": "{count, plural, one{¿Analizar de nuevo {count} elemento conservado?} other{¿Analizar de nuevo {count} elementos conservados?}}",
+  "@reEvaluateKeepMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reEvaluateKeepAction": "Analizar de nuevo",
+  "totalSizeLabel": "Tamaño total",
+  "languageLabel": "Idioma",
+  "settingsSummaryTitle": "Estadísticas de limpieza",
+  "settingsSummarySwipes": "Deslizamientos",
+  "settingsSummaryMarked": "Marcados",
+  "settingsSummaryKept": "Conservados",
+  "settingsSummaryDeleted": "Eliminados",
+  "settingsSummaryDeleteSize": "Espacio recuperado",
+  "allCaughtUpTitle": "Estás al día",
+  "allCaughtUpMessage": "No hay más fotos para revisar ahora."
+}
