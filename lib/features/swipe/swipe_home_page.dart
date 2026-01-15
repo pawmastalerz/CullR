@@ -337,6 +337,14 @@ class _SwipeHomePageState extends State<SwipeHomePage> {
     return value.clamp(0.0, 1.0);
   }
 
+  double _maxCardWidth(BuildContext context) {
+    final Size size = MediaQuery.sizeOf(context);
+    if (size.shortestSide >= 600) {
+      return math.min(size.width * 0.7, 720);
+    }
+    return AppSpacing.maxCardWidth;
+  }
+
   Future<void> _maybeLoadMore() async {
     if (_loadingMore || (!_hasMoreVideos && !_hasMoreOthers)) {
       return;
@@ -682,6 +690,7 @@ class _SwipeHomePageState extends State<SwipeHomePage> {
     final double progressValue = _swipeProgressValue();
     final int percentValue = (progressValue * 100).round();
     final int remaining = _remainingToSwipe();
+    final double maxCardWidth = _maxCardWidth(context);
 
     final int visibleCards = math.min(3, _assets.length);
 
@@ -694,8 +703,8 @@ class _SwipeHomePageState extends State<SwipeHomePage> {
             padding: const EdgeInsets.only(bottom: AppSpacing.md),
             child: Center(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(
-                  maxWidth: AppSpacing.maxCardWidth,
+                constraints: BoxConstraints(
+                  maxWidth: maxCardWidth,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -736,11 +745,9 @@ class _SwipeHomePageState extends State<SwipeHomePage> {
           ),
         Expanded(
           child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(
-                maxWidth: AppSpacing.maxCardWidth,
-              ),
-              child: Stack(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: maxCardWidth),
+                child: Stack(
                 fit: StackFit.expand,
                 children: [
                   CardSwiper(
