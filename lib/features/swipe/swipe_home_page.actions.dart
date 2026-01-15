@@ -42,7 +42,7 @@ class _SwipeHomeActions {
         AppConfig.thumbnailPrefetchCount,
       );
       _state._preloadFullRes(_state._currentIndex);
-      _state._gallery.maybeLoadMore();
+      unawaited(_state._maybeLoadMore());
     }
 
     if (direction.isCloseTo(CardSwiperDirection.left) &&
@@ -125,7 +125,7 @@ class _SwipeHomeActions {
       AppConfig.thumbnailPrefetchCount,
     );
     _state._preloadFullRes(_state._currentIndex);
-    _state._gallery.maybeLoadMore();
+    unawaited(_state._maybeLoadMore());
     return true;
   }
 

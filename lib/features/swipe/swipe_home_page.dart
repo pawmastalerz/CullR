@@ -8,10 +8,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../core/models/gallery_load_result.dart';
 import '../../core/l10n/locale_controller.dart';
 import '../../core/services/gallery_service.dart';
-import '../../core/services/logger_service.dart';
 import '../../core/services/photo_manager_gallery_service.dart';
 import '../../core/widgets/app_modal_sheet.dart';
 import '../../core/config/app_config.dart';
@@ -21,6 +19,7 @@ import '../../styles/spacing.dart';
 import '../../styles/typography.dart';
 import '../../l10n/app_localizations.dart';
 import 'controllers/swipe_decision_store.dart';
+import 'controllers/swipe_home_gallery_controller.dart';
 import 'controllers/swipe_media_cache.dart';
 import 'widgets/action_bar.dart';
 import 'widgets/asset_card.dart';
@@ -34,7 +33,6 @@ import 'widgets/swipe_hint_overlay.dart';
 import 'widgets/swipe_overlay.dart';
 
 part 'swipe_home_page.actions.dart';
-part 'swipe_home_page.gallery.dart';
 part 'swipe_home_page.view.dart';
 
 class SwipeHomePage extends StatefulWidget {
@@ -55,20 +53,17 @@ class _SwipeHomePageState extends State<SwipeHomePage> {
   final CardSwiperController _swiperController = CardSwiperController();
   late final GalleryService _galleryService = widget.galleryService;
   late final _SwipeHomeActions _actions = _SwipeHomeActions(this);
-  late final _SwipeHomeGallery _gallery = _SwipeHomeGallery(this);
   late final _SwipeHomeView _view = _SwipeHomeView(this);
   final SwipeHomeMediaCache _media = SwipeHomeMediaCache();
   final SwipeDecisionStore _decisionStore = SwipeDecisionStore();
-  final List<AssetEntity> _assets = [];
+  late final SwipeHomeGalleryController _galleryController =
+      SwipeHomeGalleryController(
+        galleryService: _galleryService,
+        decisionStore: _decisionStore,
+        mediaCache: _media,
+      );
   final Set<String> _openedFullResIds = {};
-  int _videoPage = 0;
-  int _otherPage = 0;
-  bool _hasMoreVideos = true;
-  bool _hasMoreOthers = true;
-  bool _loadingMore = false;
-  int _nonVideoInsertCounter = 0;
 
-  PermissionState? _permissionState;
   bool _loading = true;
   bool _programmaticSwipe = false;
   bool _animateNextStackCard = true;
@@ -81,13 +76,17 @@ class _SwipeHomePageState extends State<SwipeHomePage> {
   int _statusGlowTick = 0;
   bool _showSwipeHint = true;
   Future<void> _initialPreloadFuture = Future.value();
-  bool _initialLoadHadAssets = false;
-  int _totalSwipeTarget = 0;
+  int get _totalSwipeTarget => _galleryController.totalSwipeTarget;
+  bool get _initialLoadHadAssets => _galleryController.initialLoadHadAssets;
+  bool get _hasMoreVideos => _galleryController.hasMoreVideos;
+  bool get _hasMoreOthers => _galleryController.hasMoreOthers;
+  PermissionState? get _permissionState => _galleryController.permissionState;
+  List<AssetEntity> get _assets => _galleryController.assets;
 
   @override
   void initState() {
     super.initState();
-    _gallery.loadGallery();
+    _loadGallery();
   }
 
   @override
@@ -99,7 +98,35 @@ class _SwipeHomePageState extends State<SwipeHomePage> {
   @override
   Widget build(BuildContext context) => _view.build(context);
 
-  Future<void> _loadGallery() => _gallery.loadGallery();
+  Future<void> _loadGallery() async {
+    _markNeedsBuild(() {
+      _loading = true;
+    });
+    await _galleryController.loadGallery();
+    if (!mounted) {
+      return;
+    }
+    _currentIndex = 0;
+    _media.prefetchThumbnails(
+      _assets,
+      _currentIndex,
+      AppConfig.thumbnailPrefetchCount,
+    );
+    _initialPreloadFuture = _preloadFullRes(_currentIndex);
+    await _maybeLoadMore();
+    _markNeedsBuild(() {
+      _loading = false;
+    });
+  }
+
+  Future<void> _openGallerySettings() async {
+    final bool shouldReload = await _galleryService.openGallerySettings(
+      _permissionState,
+    );
+    if (shouldReload) {
+      await _loadGallery();
+    }
+  }
 
   void _markNeedsBuild([VoidCallback? update]) {
     if (!mounted) {
@@ -142,11 +169,13 @@ class _SwipeHomePageState extends State<SwipeHomePage> {
     }
     return AppSpacing.maxCardWidth;
   }
-}
 
-class _RemainingCounts {
-  const _RemainingCounts({required this.videos, required this.others});
-
-  final int videos;
-  final int others;
+  Future<void> _maybeLoadMore() async {
+    final bool didLoad = await _galleryController.maybeLoadMore(
+      currentIndex: _currentIndex,
+    );
+    if (didLoad) {
+      _markNeedsBuild();
+    }
+  }
 }

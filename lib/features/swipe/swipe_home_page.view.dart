@@ -81,7 +81,7 @@ class _SwipeHomeView {
         message: AppLocalizations.of(context)!.galleryAccessMessage,
         primaryAction: PermissionAction(
           label: AppLocalizations.of(context)!.settingsAction,
-          onPressed: _state._gallery.openGallerySettings,
+          onPressed: _state._openGallerySettings,
         ),
         secondaryAction: PermissionAction(
           label: AppLocalizations.of(context)!.tryAgainAction,

@@ -55,53 +55,37 @@ class SwipeHomeMediaCache {
   String? cachedFileSizeLabel(String id) => _fileSizeCache.get(id);
 
   Future<int?> fileSizeBytesFutureFor(AssetEntity entity) {
-    final int? cached = _fileSizeBytesCache.get(entity.id);
-    if (cached != null) {
-      return Future<int?>.value(cached);
-    }
-    final Future<int?>? existing = _fileSizeBytesFutures[entity.id];
-    if (existing != null) {
-      return existing;
-    }
-    final Future<int?> future = () async {
-      final File? file = await entity.originFile ?? await entity.file;
-      if (file == null) {
-        return null;
-      }
-      final int bytes = await file.length();
-      _fileSizeBytesCache.set(entity.id, bytes);
-      return bytes;
-    }();
-    _fileSizeBytesFutures[entity.id] = future;
-    future.whenComplete(() {
-      _fileSizeBytesFutures.remove(entity.id);
-    });
-    return future;
+    return _getOrLoad(
+      id: entity.id,
+      cache: _fileSizeBytesCache,
+      inflight: _fileSizeBytesFutures,
+      loader: () async {
+        final File? file = await entity.originFile ?? await entity.file;
+        if (file == null) {
+          return null;
+        }
+        final int bytes = await file.length();
+        _fileSizeBytesCache.set(entity.id, bytes);
+        return bytes;
+      },
+    );
   }
 
   Future<String?> fileSizeFutureFor(AssetEntity entity) {
-    final String? cached = _fileSizeCache.get(entity.id);
-    if (cached != null) {
-      return Future<String?>.value(cached);
-    }
-    final Future<String?>? existing = _fileSizeFutures[entity.id];
-    if (existing != null) {
-      return existing;
-    }
-    final Future<String?> future = () async {
-      final int? bytes = await fileSizeBytesFutureFor(entity);
-      if (bytes == null) {
-        return null;
-      }
-      final String label = formatFileSize(bytes);
-      _fileSizeCache.set(entity.id, label);
-      return label;
-    }();
-    _fileSizeFutures[entity.id] = future;
-    future.whenComplete(() {
-      _fileSizeFutures.remove(entity.id);
-    });
-    return future;
+    return _getOrLoad(
+      id: entity.id,
+      cache: _fileSizeCache,
+      inflight: _fileSizeFutures,
+      loader: () async {
+        final int? bytes = await fileSizeBytesFutureFor(entity);
+        if (bytes == null) {
+          return null;
+        }
+        final String label = formatFileSize(bytes);
+        _fileSizeCache.set(entity.id, label);
+        return label;
+      },
+    );
   }
 
   bool isAnimatedAsset(AssetEntity entity) {
@@ -109,26 +93,18 @@ class SwipeHomeMediaCache {
   }
 
   Future<Uint8List?> animatedBytesFutureFor(AssetEntity entity) {
-    final Uint8List? cached = _animatedBytesCache.get(entity.id);
-    if (cached != null) {
-      return Future<Uint8List?>.value(cached);
-    }
-    final Future<Uint8List?>? existing = _animatedBytesFutures[entity.id];
-    if (existing != null) {
-      return existing;
-    }
-    final Future<Uint8List?> future = () async {
-      final Uint8List? bytes = await entity.originBytes;
-      if (bytes != null) {
-        _animatedBytesCache.set(entity.id, bytes);
-      }
-      return bytes;
-    }();
-    _animatedBytesFutures[entity.id] = future;
-    future.whenComplete(() {
-      _animatedBytesFutures.remove(entity.id);
-    });
-    return future;
+    return _getOrLoad(
+      id: entity.id,
+      cache: _animatedBytesCache,
+      inflight: _animatedBytesFutures,
+      loader: () async {
+        final Uint8List? bytes = await entity.originBytes;
+        if (bytes != null) {
+          _animatedBytesCache.set(entity.id, bytes);
+        }
+        return bytes;
+      },
+    );
   }
 
   void prefetchThumbnails(List<AssetEntity> assets, int startIndex, int count) {
@@ -190,6 +166,28 @@ class SwipeHomeMediaCache {
       final String removedId = _fullResCacheOrder.removeAt(0);
       _fullResCache.remove(removedId);
     }
+  }
+
+  Future<T?> _getOrLoad<T>({
+    required String id,
+    required LruCache<String, T> cache,
+    required Map<String, Future<T?>> inflight,
+    required Future<T?> Function() loader,
+  }) {
+    final T? cached = cache.get(id);
+    if (cached != null) {
+      return Future<T?>.value(cached);
+    }
+    final Future<T?>? existing = inflight[id];
+    if (existing != null) {
+      return existing;
+    }
+    final Future<T?> future = loader();
+    inflight[id] = future;
+    future.whenComplete(() {
+      inflight.remove(id);
+    });
+    return future;
   }
 }
 
