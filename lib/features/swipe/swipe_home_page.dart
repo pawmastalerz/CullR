@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:math' as math;
 import 'dart:typed_data';
@@ -186,13 +187,13 @@ class _SwipeHomePageState extends State<SwipeHomePage> {
     if (direction.isCloseTo(CardSwiperDirection.left) &&
         previousIndex >= 0 &&
         previousIndex < _assets.length) {
-      _decisionStore.markForDelete(_assets[previousIndex]);
+      unawaited(_decisionStore.markForDelete(_assets[previousIndex]));
       shouldRebuild = true;
     }
     if (direction.isCloseTo(CardSwiperDirection.right) &&
         previousIndex >= 0 &&
         previousIndex < _assets.length) {
-      _decisionStore.markForKeep(_assets[previousIndex]);
+      unawaited(_decisionStore.markForKeep(_assets[previousIndex]));
       shouldRebuild = true;
     }
 
@@ -531,7 +532,7 @@ class _SwipeHomePageState extends State<SwipeHomePage> {
     if (direction.isCloseTo(CardSwiperDirection.right) &&
         currentIndex >= 0 &&
         currentIndex < _assets.length) {
-      _decisionStore.unmarkKeepById(_assets[currentIndex].id);
+      unawaited(_decisionStore.unmarkKeepById(_assets[currentIndex].id));
     }
     setState(() {
       _currentIndex = currentIndex;
@@ -978,7 +979,7 @@ class _SwipeHomePageState extends State<SwipeHomePage> {
 
   void _removeKeepCandidate(AssetEntity entity) {
     setState(() {
-      _decisionStore.removeKeepCandidate(entity);
+      unawaited(_decisionStore.removeKeepCandidate(entity));
     });
   }
 
@@ -1066,8 +1067,8 @@ class _SwipeHomePageState extends State<SwipeHomePage> {
     if (!mounted) {
       return false;
     }
+    await _decisionStore.clearKeeps();
     setState(() {
-      _decisionStore.clearKeeps();
       _decisionStore.clearUndo();
     });
     return true;
@@ -1090,7 +1091,7 @@ class _SwipeHomePageState extends State<SwipeHomePage> {
       _decisionStore.clearUndo();
       for (final AssetEntity entity in items) {
         _decisionStore.removeCandidate(entity);
-        _decisionStore.removeKeepCandidate(entity);
+        unawaited(_decisionStore.removeKeepCandidate(entity));
       }
       if (_currentIndex >= _assets.length) {
         _currentIndex = _assets.isEmpty ? 0 : _assets.length - 1;

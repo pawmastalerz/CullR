@@ -21,34 +21,34 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  test('markForKeep stores keep candidate and id', () {
+  test('markForKeep stores keep candidate and id', () async {
     final SwipeDecisionStore store = SwipeDecisionStore();
     final AssetEntity asset = _assetWithId('a');
 
-    store.markForKeep(asset);
+    await store.markForKeep(asset);
 
     expect(store.keepCandidates, contains(asset));
     expect(store.isKept('a'), isTrue);
     expect(store.isMarkedForDelete('a'), isFalse);
   });
 
-  test('markForDelete stores delete candidate and clears keep', () {
+  test('markForDelete stores delete candidate and clears keep', () async {
     final SwipeDecisionStore store = SwipeDecisionStore();
     final AssetEntity asset = _assetWithId('a');
 
-    store.markForKeep(asset);
-    store.markForDelete(asset);
+    await store.markForKeep(asset);
+    await store.markForDelete(asset);
 
     expect(store.keepCandidates, isNot(contains(asset)));
     expect(store.isKept('a'), isFalse);
     expect(store.isMarkedForDelete('a'), isTrue);
   });
 
-  test('removeCandidate clears delete candidate', () {
+  test('removeCandidate clears delete candidate', () async {
     final SwipeDecisionStore store = SwipeDecisionStore();
     final AssetEntity asset = _assetWithId('a');
 
-    store.markForDelete(asset);
+    await store.markForDelete(asset);
     store.removeCandidate(asset);
 
     expect(store.deleteCandidates, isEmpty);
@@ -103,12 +103,12 @@ void main() {
     expect(store.keepCandidates, isNot(contains(assetB)));
   });
 
-  test('markForDelete then markForKeep reclassifies candidate', () {
+  test('markForDelete then markForKeep reclassifies candidate', () async {
     final SwipeDecisionStore store = SwipeDecisionStore();
     final AssetEntity asset = _assetWithId('a');
 
-    store.markForDelete(asset);
-    store.markForKeep(asset);
+    await store.markForDelete(asset);
+    await store.markForKeep(asset);
 
     expect(store.isMarkedForDelete('a'), isFalse);
     expect(store.isKept('a'), isTrue);
@@ -116,12 +116,12 @@ void main() {
     expect(store.keepCandidates, contains(asset));
   });
 
-  test('markForKeep then markForDelete reclassifies candidate', () {
+  test('markForKeep then markForDelete reclassifies candidate', () async {
     final SwipeDecisionStore store = SwipeDecisionStore();
     final AssetEntity asset = _assetWithId('a');
 
-    store.markForKeep(asset);
-    store.markForDelete(asset);
+    await store.markForKeep(asset);
+    await store.markForDelete(asset);
 
     expect(store.isKept('a'), isFalse);
     expect(store.isMarkedForDelete('a'), isTrue);
@@ -129,12 +129,12 @@ void main() {
     expect(store.deleteCandidates, contains(asset));
   });
 
-  test('markForKeep is idempotent for candidates list', () {
+  test('markForKeep is idempotent for candidates list', () async {
     final SwipeDecisionStore store = SwipeDecisionStore();
     final AssetEntity asset = _assetWithId('a');
 
-    store.markForKeep(asset);
-    store.markForKeep(asset);
+    await store.markForKeep(asset);
+    await store.markForKeep(asset);
 
     expect(store.keepCandidates.length, 1);
     expect(store.keepCandidates.single, asset);
@@ -147,8 +147,7 @@ void main() {
     final SwipeDecisionStore store = SwipeDecisionStore();
 
     await store.loadKeeps();
-    store.clearKeeps();
-    await Future<void>.delayed(Duration.zero);
+    await store.clearKeeps();
 
     final SwipeDecisionStore freshStore = SwipeDecisionStore();
     await freshStore.loadKeeps();
@@ -167,8 +166,7 @@ void main() {
 
     await store.loadKeeps();
     store.syncKeeps([assetA, assetB]);
-    store.unmarkKeepById('a');
-    await Future<void>.delayed(Duration.zero);
+    await store.unmarkKeepById('a');
 
     final SwipeDecisionStore freshStore = SwipeDecisionStore();
     await freshStore.loadKeeps();

@@ -7,6 +7,7 @@ class SwipeDecisionStore {
   final List<AssetEntity> _keepCandidates = [];
   final Set<String> _keepIds = {};
   final List<AssetEntity> _recentDecisions = [];
+  Future<void> _persistQueue = Future<void>.value();
   static const String _keepStorageKey = 'keep_ids';
 
   List<AssetEntity> get deleteCandidates =>
@@ -62,13 +63,14 @@ class SwipeDecisionStore {
     return true;
   }
 
-  void markForDelete(AssetEntity entity) {
+  Future<void> markForDelete(AssetEntity entity) {
     _keepIds.remove(entity.id);
     _keepCandidates.removeWhere((item) => item.id == entity.id);
-    _persistKeeps();
+    final Future<void> persist = _persistKeeps();
     if (_deleteIds.add(entity.id)) {
       _deleteCandidates.add(entity);
     }
+    return persist;
   }
 
   void unmarkDeleteById(String id) {
@@ -81,37 +83,38 @@ class SwipeDecisionStore {
     _deleteIds.remove(entity.id);
   }
 
-  void markForKeep(AssetEntity entity) {
+  Future<void> markForKeep(AssetEntity entity) {
     _deleteIds.remove(entity.id);
     _deleteCandidates.removeWhere((item) => item.id == entity.id);
     if (_keepIds.add(entity.id)) {
       _keepCandidates.add(entity);
     }
-    _persistKeeps();
+    return _persistKeeps();
   }
 
-  void unmarkKeepById(String id) {
+  Future<void> unmarkKeepById(String id) {
     _keepIds.remove(id);
     _keepCandidates.removeWhere((entity) => entity.id == id);
-    _persistKeeps();
+    return _persistKeeps();
   }
 
-  void removeKeepCandidate(AssetEntity entity) {
+  Future<void> removeKeepCandidate(AssetEntity entity) {
     _keepCandidates.removeWhere((item) => item.id == entity.id);
     _keepIds.remove(entity.id);
-    _persistKeeps();
+    return _persistKeeps();
   }
 
-  void clearKeeps() {
+  Future<void> clearKeeps() {
     _keepCandidates.clear();
     _keepIds.clear();
-    _persistKeeps();
+    return _persistKeeps();
   }
 
-  void _persistKeeps() {
-    () async {
+  Future<void> _persistKeeps() {
+    _persistQueue = _persistQueue.then((_) async {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setStringList(_keepStorageKey, _keepIds.toList());
-    }();
+    });
+    return _persistQueue;
   }
 }
