@@ -34,4 +34,31 @@ void main() {
     expect(find.text('3'), findsOneWidget);
     expect(find.text('1024 KB'), findsOneWidget);
   });
+
+  testWidgets('SettingsSummary formats delete bytes and handles zero', (
+    WidgetTester tester,
+  ) async {
+    int? calledWith;
+    await tester.pumpWidget(
+      MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Scaffold(
+          body: SettingsSummary(
+            swipes: 0,
+            deleted: 0,
+            deleteBytes: 0,
+            formatBytes: (bytes) {
+              calledWith = bytes;
+              return '0 B';
+            },
+          ),
+        ),
+      ),
+    );
+
+    expect(calledWith, 0);
+    expect(find.text('0'), findsNWidgets(2));
+    expect(find.text('0 B'), findsOneWidget);
+  });
 }
