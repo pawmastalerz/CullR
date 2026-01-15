@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../../../styles/colors.dart';
-import '../../../styles/spacing.dart';
+import '../../styles/colors.dart';
+import '../../styles/spacing.dart';
 
-class FullscreenCloseButton extends StatelessWidget {
-  const FullscreenCloseButton({super.key, required this.onPressed});
+class CloseCircleButton extends StatelessWidget {
+  const CloseCircleButton({super.key, required this.onPressed});
 
   final VoidCallback onPressed;
 

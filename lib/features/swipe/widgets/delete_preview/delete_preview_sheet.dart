@@ -64,6 +64,24 @@ class _DeletePreviewSheetState extends State<DeletePreviewSheet>
     _totalFuture = _buildTotalFuture();
   }
 
+  @override
+  void didUpdateWidget(covariant DeletePreviewSheet oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (_sameItems(oldWidget.items, widget.items)) {
+      return;
+    }
+    setState(() {
+      _items = List<AssetEntity>.from(widget.items);
+      final Set<String> itemIds = _items.map((item) => item.id).toSet();
+      _removingIds.removeWhere((id) => !itemIds.contains(id));
+      _selectedIds.removeWhere((id) => !itemIds.contains(id));
+      if (_selectedIds.isEmpty) {
+        _multiSelect = false;
+      }
+      _totalFuture = _buildTotalFuture();
+    });
+  }
+
   void _removeAt(int index) {
     if (index < 0 || index >= _items.length) {
       return;
@@ -136,6 +154,18 @@ class _DeletePreviewSheetState extends State<DeletePreviewSheet>
       _removingIds.clear();
       _totalFuture = _buildTotalFuture();
     });
+  }
+
+  bool _sameItems(List<AssetEntity> left, List<AssetEntity> right) {
+    if (left.length != right.length) {
+      return false;
+    }
+    for (int i = 0; i < left.length; i++) {
+      if (left[i].id != right[i].id) {
+        return false;
+      }
+    }
+    return true;
   }
 
   List<AssetEntity> _itemsForTotal() {

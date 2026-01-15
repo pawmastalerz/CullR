@@ -6,4 +6,8 @@ class AppConfig {
   static const int videoInsertInterval = 4;
   static const int videoRefillThreshold = 3;
   static const int otherRefillThreshold = 10;
+  static const int thumbnailBytesCacheLimit = 200;
+  static const int fileSizeLabelCacheLimit = 400;
+  static const int fileSizeBytesCacheLimit = 400;
+  static const int animatedBytesCacheLimit = 30;
 }

@@ -11,4 +11,6 @@ abstract class GalleryService {
   });
 
   Future<bool> openGallerySettings(PermissionState? currentState);
+
+  Future<int> deleteAssets(List<AssetEntity> assets);
 }

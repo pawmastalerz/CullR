@@ -6,16 +6,25 @@ import 'package:photo_manager/photo_manager.dart';
 import '../../../core/config/app_config.dart';
 import '../../../core/utils/asset_utils.dart' as asset_utils;
 import '../../../core/utils/file_size_formatter.dart';
+import '../../../core/utils/lru_cache.dart';
 import 'thumbnail_cache.dart';
 
 class SwipeHomeMediaCache {
   final ThumbnailCache _thumbnailCache = ThumbnailCache();
-  final Map<String, String> _fileSizeCache = {};
-  final Map<String, Future<String?>> _fileSizeFutures = {};
-  final Map<String, int> _fileSizeBytesCache = {};
-  final Map<String, Future<int?>> _fileSizeBytesFutures = {};
-  final Map<String, Uint8List> _animatedBytesCache = {};
-  final Map<String, Future<Uint8List?>> _animatedBytesFutures = {};
+  final LruCache<String, String> _fileSizeCache = LruCache<String, String>(
+    AppConfig.fileSizeLabelCacheLimit,
+  );
+  final Map<String, Future<String?>> _fileSizeFutures =
+      <String, Future<String?>>{};
+  final LruCache<String, int> _fileSizeBytesCache = LruCache<String, int>(
+    AppConfig.fileSizeBytesCacheLimit,
+  );
+  final Map<String, Future<int?>> _fileSizeBytesFutures =
+      <String, Future<int?>>{};
+  final LruCache<String, Uint8List> _animatedBytesCache =
+      LruCache<String, Uint8List>(AppConfig.animatedBytesCacheLimit);
+  final Map<String, Future<Uint8List?>> _animatedBytesFutures =
+      <String, Future<Uint8List?>>{};
   final Map<String, File> _fullResCache = {};
   final List<String> _fullResCacheOrder = [];
   String? _fullResId;
@@ -43,10 +52,10 @@ class SwipeHomeMediaCache {
 
   Map<String, Uint8List> thumbnailSnapshot() => _thumbnailCache.snapshot();
 
-  String? cachedFileSizeLabel(String id) => _fileSizeCache[id];
+  String? cachedFileSizeLabel(String id) => _fileSizeCache.get(id);
 
   Future<int?> fileSizeBytesFutureFor(AssetEntity entity) {
-    final int? cached = _fileSizeBytesCache[entity.id];
+    final int? cached = _fileSizeBytesCache.get(entity.id);
     if (cached != null) {
       return Future<int?>.value(cached);
     }
@@ -60,15 +69,18 @@ class SwipeHomeMediaCache {
         return null;
       }
       final int bytes = await file.length();
-      _fileSizeBytesCache[entity.id] = bytes;
+      _fileSizeBytesCache.set(entity.id, bytes);
       return bytes;
     }();
     _fileSizeBytesFutures[entity.id] = future;
+    future.whenComplete(() {
+      _fileSizeBytesFutures.remove(entity.id);
+    });
     return future;
   }
 
   Future<String?> fileSizeFutureFor(AssetEntity entity) {
-    final String? cached = _fileSizeCache[entity.id];
+    final String? cached = _fileSizeCache.get(entity.id);
     if (cached != null) {
       return Future<String?>.value(cached);
     }
@@ -82,10 +94,13 @@ class SwipeHomeMediaCache {
         return null;
       }
       final String label = formatFileSize(bytes);
-      _fileSizeCache[entity.id] = label;
+      _fileSizeCache.set(entity.id, label);
       return label;
     }();
     _fileSizeFutures[entity.id] = future;
+    future.whenComplete(() {
+      _fileSizeFutures.remove(entity.id);
+    });
     return future;
   }
 
@@ -94,7 +109,7 @@ class SwipeHomeMediaCache {
   }
 
   Future<Uint8List?> animatedBytesFutureFor(AssetEntity entity) {
-    final Uint8List? cached = _animatedBytesCache[entity.id];
+    final Uint8List? cached = _animatedBytesCache.get(entity.id);
     if (cached != null) {
       return Future<Uint8List?>.value(cached);
     }
@@ -105,11 +120,14 @@ class SwipeHomeMediaCache {
     final Future<Uint8List?> future = () async {
       final Uint8List? bytes = await entity.originBytes;
       if (bytes != null) {
-        _animatedBytesCache[entity.id] = bytes;
+        _animatedBytesCache.set(entity.id, bytes);
       }
       return bytes;
     }();
     _animatedBytesFutures[entity.id] = future;
+    future.whenComplete(() {
+      _animatedBytesFutures.remove(entity.id);
+    });
     return future;
   }
 

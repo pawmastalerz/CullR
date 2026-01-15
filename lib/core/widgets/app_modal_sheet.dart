@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../styles/colors.dart';
 import '../../styles/spacing.dart';
+import 'close_circle_button.dart';
 
 class AppModalSheet extends StatelessWidget {
   const AppModalSheet({
@@ -32,29 +33,7 @@ class AppModalSheet extends StatelessWidget {
     final Widget closeButton = Positioned(
       top: 0,
       right: AppSpacing.modalCloseInset,
-      child: Container(
-        width: AppSpacing.modalCloseButton,
-        height: AppSpacing.modalCloseButton,
-        decoration: BoxDecoration(
-          color: AppColors.bgElevated,
-          shape: BoxShape.circle,
-          border: Border.all(color: AppColors.borderStrong),
-        ),
-        child: IconButton(
-          onPressed: () => Navigator.of(context).pop(),
-          icon: const Icon(
-            Icons.close,
-            color: AppColors.modalHandle,
-            size: AppSpacing.modalCloseIcon,
-          ),
-          splashRadius: AppSpacing.modalCloseButton / 2,
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints(
-            minWidth: AppSpacing.modalCloseButton,
-            minHeight: AppSpacing.modalCloseButton,
-          ),
-        ),
-      ),
+      child: CloseCircleButton(onPressed: () => Navigator.of(context).pop()),
     );
     final Widget header = SizedBox(
       width: double.infinity,

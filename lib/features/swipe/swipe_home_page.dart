@@ -109,8 +109,10 @@ class _SwipeHomePageState extends State<SwipeHomePage> {
   }
 
   Future<void> _preloadFullRes(int index) async {
-    final FullResLoadResult? result =
-        await _media.preloadFullRes(assets: _assets, index: index);
+    final FullResLoadResult? result = await _media.preloadFullRes(
+      assets: _assets,
+      index: index,
+    );
     if (result == null || result.isVideo || !mounted) {
       return;
     }

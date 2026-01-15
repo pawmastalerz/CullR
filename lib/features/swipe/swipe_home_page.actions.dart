@@ -5,6 +5,10 @@ class _SwipeHomeActions {
 
   final _SwipeHomePageState _state;
 
+  List<AssetEntity> _orderedCandidates(List<AssetEntity> items) {
+    return List<AssetEntity>.from(items).reversed.toList();
+  }
+
   bool handleSwipe(
     int previousIndex,
     int? currentIndex,
@@ -103,9 +107,7 @@ class _SwipeHomeActions {
     if (direction.isCloseTo(CardSwiperDirection.left) &&
         currentIndex >= 0 &&
         currentIndex < _state._assets.length) {
-      _state._decisionStore.unmarkDeleteById(
-        _state._assets[currentIndex].id,
-      );
+      _state._decisionStore.unmarkDeleteById(_state._assets[currentIndex].id);
     }
     if (direction.isCloseTo(CardSwiperDirection.right) &&
         currentIndex >= 0 &&
@@ -134,6 +136,12 @@ class _SwipeHomeActions {
       isScrollControlled: true,
       showDragHandle: false,
       builder: (context) {
+        final List<AssetEntity> deleteItems = _orderedCandidates(
+          _state._decisionStore.deleteCandidates,
+        );
+        final List<AssetEntity> keepItems = _orderedCandidates(
+          _state._decisionStore.keepCandidates,
+        );
         return AppModalSheet(
           heightFactor: 0.7,
           padding: AppSpacing.insetNone,
@@ -157,86 +165,37 @@ class _SwipeHomeActions {
                 Expanded(
                   child: TabBarView(
                     children: [
-                      _state._decisionStore.hasDeleteCandidates
-                          ? DeletePreviewSheet(
-                              key: const ValueKey('delete-sheet'),
-                              items: List<AssetEntity>.from(
-                                _state._decisionStore.deleteCandidates,
-                              ).reversed.toList(),
-                              cachedBytes: _state._media.thumbnailSnapshot(),
-                              thumbnailFutureFor:
-                                  _state._media.thumbnailFutureFor,
-                              sizeBytesFutureFor:
-                                  _state._media.fileSizeBytesFutureFor,
-                              onOpen: openFullScreen,
-                              onRemove: removeDeleteCandidate,
-                              onDeleteAll: confirmDeleteAll,
-                              showDeleteButton: true,
-                              emptyText: AppLocalizations.of(
-                                context,
-                              )!.noPhotosMarked,
-                            )
-                          : DeletePreviewSheet(
-                              key: const ValueKey('delete-sheet-empty'),
-                              items: const [],
-                              cachedBytes: const {},
-                              thumbnailFutureFor:
-                                  _state._media.thumbnailFutureFor,
-                              sizeBytesFutureFor:
-                                  _state._media.fileSizeBytesFutureFor,
-                              onOpen: openFullScreen,
-                              onRemove: (_) {},
-                              onDeleteAll: (_) async => false,
-                              showDeleteButton: true,
-                              emptyText: AppLocalizations.of(
-                                context,
-                              )!.noPhotosMarked,
-                            ),
-                      _state._decisionStore.hasKeepCandidates
-                          ? DeletePreviewSheet(
-                              key: const ValueKey('keep-sheet'),
-                              items: List<AssetEntity>.from(
-                                _state._decisionStore.keepCandidates,
-                              ).reversed.toList(),
-                              cachedBytes: _state._media.thumbnailSnapshot(),
-                              thumbnailFutureFor:
-                                  _state._media.thumbnailFutureFor,
-                              sizeBytesFutureFor:
-                                  _state._media.fileSizeBytesFutureFor,
-                              onOpen: openFullScreen,
-                              onRemove: removeKeepCandidate,
-                              onDeleteAll: confirmReevaluateKeeps,
-                              showDeleteButton: true,
-                              emptyText: AppLocalizations.of(
-                                context,
-                              )!.noPhotosKept,
-                              footerLabel: AppLocalizations.of(
-                                context,
-                              )!.reEvaluateKeepAction,
-                              footerColor: AppColors.accentBlue,
-                              footerOnColor: AppColors.accentBlueOn,
-                            )
-                          : DeletePreviewSheet(
-                              key: const ValueKey('keep-sheet-empty'),
-                              items: const [],
-                              cachedBytes: const {},
-                              thumbnailFutureFor:
-                                  _state._media.thumbnailFutureFor,
-                              sizeBytesFutureFor:
-                                  _state._media.fileSizeBytesFutureFor,
-                              onOpen: openFullScreen,
-                              onRemove: (_) {},
-                              onDeleteAll: confirmReevaluateKeeps,
-                              showDeleteButton: true,
-                              emptyText: AppLocalizations.of(
-                                context,
-                              )!.noPhotosKept,
-                              footerLabel: AppLocalizations.of(
-                                context,
-                              )!.reEvaluateKeepAction,
-                              footerColor: AppColors.accentBlue,
-                              footerOnColor: AppColors.accentBlueOn,
-                            ),
+                      DeletePreviewSheet(
+                        key: const ValueKey('delete-sheet'),
+                        items: deleteItems,
+                        cachedBytes: _state._media.thumbnailSnapshot(),
+                        thumbnailFutureFor: _state._media.thumbnailFutureFor,
+                        sizeBytesFutureFor:
+                            _state._media.fileSizeBytesFutureFor,
+                        onOpen: openFullScreen,
+                        onRemove: removeDeleteCandidate,
+                        onDeleteAll: confirmDeleteAll,
+                        showDeleteButton: true,
+                        emptyText: AppLocalizations.of(context)!.noPhotosMarked,
+                      ),
+                      DeletePreviewSheet(
+                        key: const ValueKey('keep-sheet'),
+                        items: keepItems,
+                        cachedBytes: _state._media.thumbnailSnapshot(),
+                        thumbnailFutureFor: _state._media.thumbnailFutureFor,
+                        sizeBytesFutureFor:
+                            _state._media.fileSizeBytesFutureFor,
+                        onOpen: openFullScreen,
+                        onRemove: removeKeepCandidate,
+                        onDeleteAll: confirmReevaluateKeeps,
+                        showDeleteButton: true,
+                        emptyText: AppLocalizations.of(context)!.noPhotosKept,
+                        footerLabel: AppLocalizations.of(
+                          context,
+                        )!.reEvaluateKeepAction,
+                        footerColor: AppColors.accentBlue,
+                        footerOnColor: AppColors.accentBlueOn,
+                      ),
                     ],
                   ),
                 ),
@@ -429,11 +388,7 @@ class _SwipeHomeActions {
 
   Future<void> deleteAssets(List<AssetEntity> items) async {
     final Set<String> ids = items.map((e) => e.id).toSet();
-    int deletedBytes = 0;
-    try {
-      deletedBytes = await totalBytesFor(items);
-      await PhotoManager.editor.deleteWithIds(ids.toList());
-    } catch (_) {}
+    final int deletedBytes = await _state._galleryService.deleteAssets(items);
     if (!_state.mounted) {
       return;
     }
@@ -447,20 +402,10 @@ class _SwipeHomeActions {
         unawaited(_state._decisionStore.removeKeepCandidate(entity));
       }
       if (_state._currentIndex >= _state._assets.length) {
-        _state._currentIndex =
-            _state._assets.isEmpty ? 0 : _state._assets.length - 1;
+        _state._currentIndex = _state._assets.isEmpty
+            ? 0
+            : _state._assets.length - 1;
       }
     });
-  }
-
-  Future<int> totalBytesFor(List<AssetEntity> items) async {
-    if (items.isEmpty) {
-      return 0;
-    }
-    final List<Future<int?>> futures = items
-        .map(_state._media.fileSizeBytesFutureFor)
-        .toList();
-    final List<int?> sizes = await Future.wait(futures);
-    return sizes.whereType<int>().fold<int>(0, (sum, v) => sum + v);
   }
 }

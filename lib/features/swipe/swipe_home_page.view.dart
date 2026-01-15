@@ -90,8 +90,7 @@ class _SwipeHomeView {
       );
     }
 
-    final bool noMoreBatches =
-        !_state._hasMoreVideos && !_state._hasMoreOthers;
+    final bool noMoreBatches = !_state._hasMoreVideos && !_state._hasMoreOthers;
     final bool allSwiped =
         _state._totalSwipeTarget > 0 &&
         _state._progressSwipeCount >= _state._totalSwipeTarget;
@@ -115,8 +114,9 @@ class _SwipeHomeView {
     }
 
     if (_state._currentIndex >= _state._assets.length) {
-      _state._currentIndex =
-          _state._assets.isEmpty ? 0 : _state._assets.length - 1;
+      _state._currentIndex = _state._assets.isEmpty
+          ? 0
+          : _state._assets.length - 1;
     }
     final AssetEntity currentAsset = _state._assets[_state._currentIndex];
     final double progressValue = _state._swipeProgressValue();
@@ -220,32 +220,29 @@ class _SwipeHomeView {
                             children: [
                               AssetCard(
                                 entity: asset,
-                                thumbnailFuture:
-                                    _state._media.thumbnailFutureFor(asset),
+                                thumbnailFuture: _state._media
+                                    .thumbnailFutureFor(asset),
                                 cachedBytes: _state._media.cachedThumbnailBytes(
                                   asset.id,
                                 ),
-                                showSizeBadge:
-                                    !_state._openedFullResIds.contains(
+                                showSizeBadge: !_state._openedFullResIds
+                                    .contains(asset.id),
+                                sizeText: _state._media.cachedFileSizeLabel(
                                   asset.id,
                                 ),
-                                sizeText:
-                                    _state._media.cachedFileSizeLabel(
-                                      asset.id,
-                                    ),
-                                sizeFuture:
-                                    _state._media.fileSizeFutureFor(asset),
+                                sizeFuture: _state._media.fileSizeFutureFor(
+                                  asset,
+                                ),
                                 isVideo: asset.type == AssetType.video,
-                                isAnimated: _state._media.isAnimatedAsset(
-                                      asset,
-                                    ) &&
+                                isAnimated:
+                                    _state._media.isAnimatedAsset(asset) &&
                                     index == _state._currentIndex,
                                 animatedBytesFuture:
                                     _state._media.isAnimatedAsset(asset) &&
-                                            index == _state._currentIndex
-                                        ? _state._media.animatedBytesFutureFor(
-                                            asset,
-                                          )
+                                        index == _state._currentIndex
+                                    ? _state._media.animatedBytesFutureFor(
+                                        asset,
+                                      )
                                     : null,
                                 keepGlowProgress: keepGlowProgress,
                                 deleteGlowProgress: deleteGlowProgress,
@@ -264,8 +261,7 @@ class _SwipeHomeView {
                           const int visibleCards = 3;
                           final bool animateBackCard =
                               _state._animateNextStackCard &&
-                              index ==
-                                  _state._currentIndex + visibleCards - 1;
+                              index == _state._currentIndex + visibleCards - 1;
                           final Widget animatedStack = animateBackCard
                               ? StackAppear(
                                   key: ValueKey(
@@ -290,7 +286,8 @@ class _SwipeHomeView {
                           }
                           if (index == _state._currentIndex) {
                             finalCard = GestureDetector(
-                              onTap: () => _state._actions.openFullScreen(asset),
+                              onTap: () =>
+                                  _state._actions.openFullScreen(asset),
                               child: finalCard,
                             );
                           }
@@ -306,8 +303,9 @@ class _SwipeHomeView {
                       child: AbsorbPointer(
                         child: SwipeHintOverlay(
                           entity: currentAsset,
-                          thumbnailFuture:
-                              _state._media.thumbnailFutureFor(currentAsset),
+                          thumbnailFuture: _state._media.thumbnailFutureFor(
+                            currentAsset,
+                          ),
                           cachedBytes: _state._media.cachedThumbnailBytes(
                             currentAsset.id,
                           ),

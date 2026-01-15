@@ -110,4 +110,27 @@ class PhotoManagerGalleryService implements GalleryService {
     await PhotoManager.openSetting();
     return false;
   }
+
+  @override
+  Future<int> deleteAssets(List<AssetEntity> assets) async {
+    if (assets.isEmpty) {
+      return 0;
+    }
+    int deletedBytes = 0;
+    try {
+      final List<Future<int?>> futures = assets.map(_fileSizeFor).toList();
+      final List<int?> sizes = await Future.wait(futures);
+      deletedBytes = sizes.whereType<int>().fold(0, (sum, v) => sum + v);
+      await PhotoManager.editor.deleteWithIds(assets.map((e) => e.id).toList());
+    } catch (_) {}
+    return deletedBytes;
+  }
+
+  Future<int?> _fileSizeFor(AssetEntity entity) async {
+    final File? file = await entity.originFile ?? await entity.file;
+    if (file == null) {
+      return null;
+    }
+    return file.length();
+  }
 }

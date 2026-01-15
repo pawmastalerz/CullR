@@ -10,7 +10,7 @@ import '../../../styles/spacing.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../core/models/asset_details.dart';
 import '../../../core/utils/asset_utils.dart';
-import 'fullscreen_controls.dart';
+import '../../../core/widgets/close_circle_button.dart';
 import 'high_res_viewer.dart';
 import 'metadata_view.dart';
 
@@ -99,7 +99,7 @@ class _FullscreenAssetViewState extends State<FullscreenAssetView> {
                       ),
                     ),
                     const SizedBox(width: AppSpacing.md),
-                    FullscreenCloseButton(
+                    CloseCircleButton(
                       onPressed: () => Navigator.of(context).pop(),
                     ),
                   ],
