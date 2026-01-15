@@ -203,11 +203,31 @@ class _AssetThumbnailState extends State<AssetThumbnail> {
         future: widget.animatedBytesFuture,
         builder: (context, snapshot) {
           final Uint8List? bytes = snapshot.data;
-          if (bytes == null) {
+          if (bytes != null) {
+            return Image.memory(
+              bytes,
+              fit: BoxFit.cover,
+              gaplessPlayback: true,
+            );
+          }
+          final Uint8List? fallback = widget.cachedBytes;
+          if (fallback == null) {
             return const SizedBox.expand();
           }
-          return Image.memory(bytes, fit: BoxFit.cover, gaplessPlayback: true);
+          return Image.memory(
+            fallback,
+            fit: BoxFit.cover,
+            gaplessPlayback: true,
+          );
         },
+      );
+    }
+    final Uint8List? immediateBytes = widget.cachedBytes;
+    if (immediateBytes != null) {
+      return Image.memory(
+        immediateBytes,
+        fit: BoxFit.cover,
+        gaplessPlayback: true,
       );
     }
     return FutureBuilder<Uint8List?>(

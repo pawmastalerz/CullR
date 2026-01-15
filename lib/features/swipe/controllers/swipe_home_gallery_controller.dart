@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:typed_data';
 
 import 'package:photo_manager/photo_manager.dart';
 
@@ -8,6 +9,7 @@ import '../../../core/services/gallery_service.dart';
 import '../../../core/services/logger_service.dart';
 import 'swipe_decision_store.dart';
 import 'swipe_media_cache.dart';
+import '../models/swipe_card.dart';
 
 class SwipeHomeGalleryController {
   SwipeHomeGalleryController({
@@ -22,7 +24,11 @@ class SwipeHomeGalleryController {
   final SwipeDecisionStore _decisionStore;
   final SwipeHomeMediaCache _media;
 
-  final List<AssetEntity> assets = [];
+  final List<SwipeCard> buffer = [];
+  final List<AssetEntity> _photoPool = [];
+  final List<AssetEntity> _videoPool = [];
+  final List<SwipeCard> _undoWindow = [];
+
   PermissionState? permissionState;
   bool initialLoadHadAssets = false;
   int videoPage = 0;
@@ -30,12 +36,15 @@ class SwipeHomeGalleryController {
   bool hasMoreVideos = true;
   bool hasMoreOthers = true;
   bool loadingMore = false;
-  int nonVideoInsertCounter = 0;
+  bool _filling = false;
   int totalSwipeTarget = 0;
 
   Future<GalleryLoadResult> loadGallery() async {
     initialLoadHadAssets = false;
-    assets.clear();
+    buffer.clear();
+    _photoPool.clear();
+    _videoPool.clear();
+    _undoWindow.clear();
     _decisionStore.reset();
     _media.reset();
     videoPage = 0;
@@ -43,41 +52,106 @@ class SwipeHomeGalleryController {
     hasMoreVideos = true;
     hasMoreOthers = true;
     loadingMore = false;
-    nonVideoInsertCounter = 0;
+    _filling = false;
     totalSwipeTarget = 0;
 
-    final GalleryLoadResult result = await _galleryService.loadGallery(
-      videoPage: videoPage,
-      otherPage: otherPage,
-      videoCount: AppConfig.galleryVideoBatchSize,
-      otherCount: AppConfig.galleryOtherBatchSize,
-    );
-    initialLoadHadAssets = result.assets.isNotEmpty;
-    await _decisionStore.loadKeeps();
+    final GalleryLoadResult result = await _loadNextPage();
     permissionState = result.permissionState;
-    _applyBatch(result, reset: true);
-    _decisionStore.syncKeeps(assets);
+    await _decisionStore.loadKeeps();
+    totalSwipeTarget = math.max(
+      0,
+      result.totalAssets - _decisionStore.keepCount,
+    );
+    _appendPools(result);
+    await fillBuffer();
+    initialLoadHadAssets = buffer.isNotEmpty;
+    _decisionStore.syncKeeps(buffer.map((card) => card.asset).toList());
     return result;
   }
 
-  Future<bool> maybeLoadMore({required int currentIndex}) async {
-    if (loadingMore || (!hasMoreVideos && !hasMoreOthers)) {
+  AssetEntity? currentAsset() => buffer.isNotEmpty ? buffer.first.asset : null;
+
+  Future<bool> ensureBuffer() async {
+    if (loadingMore || _filling) {
       return false;
     }
-    final RemainingCounts counts = remainingCounts(currentIndex);
-    if (counts.videos > AppConfig.videoRefillThreshold ||
-        counts.others > AppConfig.otherRefillThreshold) {
-      AppLogger.info(
-        'gallery.refill',
-        'remaining videos=${counts.videos} others=${counts.others}',
-      );
+    if (buffer.length >= AppConfig.swipeBufferSize) {
       return false;
     }
-    AppLogger.warn(
-      'gallery.refill',
-      'threshold hit videos=${counts.videos}/${AppConfig.videoRefillThreshold} '
-          'others=${counts.others}/${AppConfig.otherRefillThreshold}',
-    );
+    await fillBuffer();
+    return true;
+  }
+
+  Future<void> fillBuffer() async {
+    if (_filling) {
+      return;
+    }
+    _filling = true;
+    try {
+      while (buffer.length < AppConfig.swipeBufferSize) {
+        if (_photoPool.isEmpty && _videoPool.isEmpty) {
+          if (!hasMoreVideos && !hasMoreOthers) {
+            break;
+          }
+          final GalleryLoadResult result = await _loadNextPage();
+          _appendPools(result);
+        }
+        final AssetEntity? next = _nextFromPools();
+        if (next == null) {
+          break;
+        }
+        if (_decisionStore.isKept(next.id) ||
+            _decisionStore.isMarkedForDelete(next.id)) {
+          continue;
+        }
+        final Uint8List? bytes = await _media.loadThumbnailBytes(next);
+        if (bytes == null) {
+          continue;
+        }
+        buffer.add(SwipeCard(asset: next, thumbnailBytes: bytes));
+      }
+    } finally {
+      _filling = false;
+    }
+  }
+
+  SwipeCard? popForSwipe() {
+    if (buffer.isEmpty) {
+      return null;
+    }
+    final SwipeCard card = buffer.removeAt(0);
+    _undoWindow.add(card);
+    while (_undoWindow.length > AppConfig.swipeUndoLimit) {
+      final SwipeCard removed = _undoWindow.removeAt(0);
+      _media.evictThumbnail(removed.asset.id);
+    }
+    return card;
+  }
+
+  SwipeCard? undoSwipe() {
+    if (_undoWindow.isEmpty) {
+      return null;
+    }
+    final SwipeCard card = _undoWindow.removeLast();
+    buffer.insert(0, card);
+    while (buffer.length > AppConfig.swipeBufferSize) {
+      final SwipeCard removed = buffer.removeLast();
+      _media.evictThumbnail(removed.asset.id);
+    }
+    return card;
+  }
+
+  void removeAssetsById(Set<String> ids) {
+    buffer.removeWhere((card) => ids.contains(card.asset.id));
+    _photoPool.removeWhere((asset) => ids.contains(asset.id));
+    _videoPool.removeWhere((asset) => ids.contains(asset.id));
+    _undoWindow.removeWhere((card) => ids.contains(card.asset.id));
+    for (final String id in ids) {
+      _media.evictThumbnail(id);
+    }
+  }
+
+  Future<GalleryLoadResult> _loadNextPage() async {
     loadingMore = true;
     final GalleryLoadResult result = await _galleryService.loadGallery(
       videoPage: videoPage,
@@ -86,48 +160,6 @@ class SwipeHomeGalleryController {
       otherCount: AppConfig.galleryOtherBatchSize,
     );
     permissionState = result.permissionState;
-    _applyBatch(result, reset: false);
-    loadingMore = false;
-    return true;
-  }
-
-  RemainingCounts remainingCounts(int currentIndex) {
-    int videos = 0;
-    int others = 0;
-    final int safeIndex = math.max(0, currentIndex);
-    for (int i = safeIndex; i < assets.length; i++) {
-      if (assets[i].type == AssetType.video) {
-        videos++;
-      } else {
-        others++;
-      }
-    }
-    return RemainingCounts(videos: videos, others: others);
-  }
-
-  void _applyBatch(GalleryLoadResult result, {required bool reset}) {
-    final List<AssetEntity> ordered = _interleaveBatch(
-      result.others,
-      result.videos,
-    );
-    final List<AssetEntity> filtered = ordered
-        .where(
-          (asset) =>
-              !_decisionStore.isKept(asset.id) &&
-              !_decisionStore.isMarkedForDelete(asset.id),
-        )
-        .toList();
-    if (reset) {
-      assets
-        ..clear()
-        ..addAll(filtered);
-      totalSwipeTarget = math.max(
-        0,
-        result.totalAssets - _decisionStore.keepCount,
-      );
-    } else {
-      assets.addAll(filtered);
-    }
     if (result.videos.length < AppConfig.galleryVideoBatchSize) {
       hasMoreVideos = false;
     }
@@ -140,64 +172,55 @@ class SwipeHomeGalleryController {
     if (result.others.isNotEmpty) {
       otherPage += 1;
     }
-    _logBatch(result, reset);
+    _logBatch(result);
+    loadingMore = false;
+    return result;
   }
 
-  List<AssetEntity> _interleaveBatch(
-    List<AssetEntity> others,
-    List<AssetEntity> videos,
-  ) {
-    if (videos.isEmpty) {
-      nonVideoInsertCounter += others.length;
-      return List<AssetEntity>.from(others);
+  void _appendPools(GalleryLoadResult result) {
+    if (result.videos.isNotEmpty) {
+      _videoPool.addAll(result.videos);
     }
-    final List<AssetEntity> ordered = [];
-    int videoIndex = 0;
-    for (final AssetEntity asset in others) {
-      ordered.add(asset);
-      nonVideoInsertCounter++;
-      if (nonVideoInsertCounter % AppConfig.videoInsertInterval == 0 &&
-          videoIndex < videos.length) {
-        ordered.add(videos[videoIndex]);
-        videoIndex++;
-      }
+    if (result.others.isNotEmpty) {
+      _photoPool.addAll(result.others);
     }
-    while (videoIndex < videos.length) {
-      ordered.add(videos[videoIndex]);
-      videoIndex++;
-    }
-    return ordered;
   }
 
-  void _logBatch(GalleryLoadResult result, bool reset) {
+  AssetEntity? _nextFromPools() {
+    final int targetVideos = AppConfig.swipeBufferVideoTarget;
+    final int targetPhotos = AppConfig.swipeBufferPhotoTarget;
+    final int currentVideos = buffer
+        .where((card) => card.asset.type == AssetType.video)
+        .length;
+    final int currentPhotos = buffer.length - currentVideos;
+
+    final bool needVideo =
+        currentVideos < targetVideos && _videoPool.isNotEmpty;
+    final bool needPhoto =
+        currentPhotos < targetPhotos && _photoPool.isNotEmpty;
+
+    if (needVideo) {
+      return _videoPool.removeAt(0);
+    }
+    if (needPhoto) {
+      return _photoPool.removeAt(0);
+    }
+    if (_photoPool.isNotEmpty) {
+      return _photoPool.removeAt(0);
+    }
+    if (_videoPool.isNotEmpty) {
+      return _videoPool.removeAt(0);
+    }
+    return null;
+  }
+
+  void _logBatch(GalleryLoadResult result) {
     AppLogger.batch(
       'gallery',
-      '${reset ? 'initial' : 'append'} '
-          'videos=${result.videos.length} others=${result.others.length} '
+      'append videos=${result.videos.length} others=${result.others.length} '
           'videoPage=$videoPage otherPage=$otherPage '
           'hasMoreVideos=$hasMoreVideos '
           'hasMoreOthers=$hasMoreOthers',
     );
-    for (final AssetEntity asset in result.videos) {
-      AppLogger.debug(
-        'gallery.video',
-        'id=${asset.id} title=${asset.title ?? ''} '
-            'mime=${asset.mimeType ?? ''}',
-      );
-    }
-    for (final AssetEntity asset in result.others) {
-      AppLogger.debug(
-        'gallery.other',
-        'id=${asset.id} title=${asset.title ?? ''} '
-            'mime=${asset.mimeType ?? ''} type=${asset.type}',
-      );
-    }
   }
-}
-
-class RemainingCounts {
-  const RemainingCounts({required this.videos, required this.others});
-
-  final int videos;
-  final int others;
 }

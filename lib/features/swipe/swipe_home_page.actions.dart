@@ -9,64 +9,29 @@ class _SwipeHomeActions {
     return List<AssetEntity>.from(items).reversed.toList();
   }
 
-  bool handleSwipe(
-    int previousIndex,
-    int? currentIndex,
-    CardSwiperDirection direction,
-  ) {
-    _state._programmaticSwipe = false;
-    _state._animateNextStackCard = true;
-    bool shouldRebuild = false;
-
-    if (direction.isHorizontal &&
-        previousIndex >= 0 &&
-        previousIndex < _state._assets.length) {
-      _state._decisionStore.registerDecision(_state._assets[previousIndex]);
-      _state._media.cacheFullResFor(_state._assets, previousIndex);
-      dismissSwipeHint();
-      _state._swipeCount++;
-      _state._progressSwipeCount++;
-      _state._statusGlowTick++;
-      shouldRebuild = true;
+  bool handleSwipe(CardSwiperDirection direction) {
+    if (!direction.isHorizontal) {
+      return false;
     }
-
-    if (currentIndex != null) {
-      if (currentIndex != _state._currentIndex) {
-        _state._currentIndex = currentIndex;
-        _state._stackAnimationTick++;
-        shouldRebuild = true;
-      }
-      _state._media.prefetchThumbnails(
-        _state._assets,
-        _state._currentIndex,
-        AppConfig.thumbnailPrefetchCount,
-      );
-      _state._preloadFullRes(_state._currentIndex);
-      unawaited(_state._maybeLoadMore());
+    final SwipeCard? card = _state._galleryController.popForSwipe();
+    if (card == null) {
+      return false;
     }
-
-    if (direction.isCloseTo(CardSwiperDirection.left) &&
-        previousIndex >= 0 &&
-        previousIndex < _state._assets.length) {
-      unawaited(
-        _state._decisionStore.markForDelete(_state._assets[previousIndex]),
-      );
-      shouldRebuild = true;
+    final AssetEntity asset = card.asset;
+    _state._decisionStore.registerDecision(asset);
+    dismissSwipeHint();
+    _state._swipeCount++;
+    _state._progressSwipeCount++;
+    _state._statusGlowTick++;
+    _state._swipeHistory.add(direction);
+    if (direction.isCloseTo(CardSwiperDirection.left)) {
+      unawaited(_state._decisionStore.markForDelete(asset));
+    } else if (direction.isCloseTo(CardSwiperDirection.right)) {
+      unawaited(_state._decisionStore.markForKeep(asset));
     }
-    if (direction.isCloseTo(CardSwiperDirection.right) &&
-        previousIndex >= 0 &&
-        previousIndex < _state._assets.length) {
-      unawaited(
-        _state._decisionStore.markForKeep(_state._assets[previousIndex]),
-      );
-      shouldRebuild = true;
-    }
-
-    if (shouldRebuild) {
-      _state._markNeedsBuild();
-    }
-
-    return direction.isHorizontal;
+    unawaited(_state._maybeLoadMore());
+    _state._markNeedsBuild();
+    return true;
   }
 
   void dismissSwipeHint() {
@@ -79,53 +44,38 @@ class _SwipeHomeActions {
   }
 
   void triggerSwipe(CardSwiperDirection direction) {
-    _state._markNeedsBuild(() {
-      _state._programmaticSwipe = true;
-      _state._animateNextStackCard = false;
-    });
-    _state._swiperController.swipe(direction);
+    _state._deckKey.currentState?.swipe(direction);
   }
 
   void triggerUndo() {
     if (_state._decisionStore.undoCredits == 0) {
       return;
     }
-    _state._markNeedsBuild(() {
-      _state._programmaticSwipe = true;
-      _state._animateNextStackCard = false;
-    });
-    _state._swiperController.undo();
+    handleUndo();
   }
 
-  bool handleUndo(int? _, int currentIndex, CardSwiperDirection direction) {
+  bool handleUndo() {
     if (!_state._decisionStore.consumeUndo()) {
       return false;
     }
+    if (_state._swipeHistory.isEmpty) {
+      return false;
+    }
+    final SwipeCard? card = _state._galleryController.undoSwipe();
+    if (card == null) {
+      return false;
+    }
+    final AssetEntity asset = card.asset;
+    final CardSwiperDirection direction = _state._swipeHistory.removeLast();
     if (_state._progressSwipeCount > 0) {
       _state._progressSwipeCount -= 1;
     }
-    if (direction.isCloseTo(CardSwiperDirection.left) &&
-        currentIndex >= 0 &&
-        currentIndex < _state._assets.length) {
-      _state._decisionStore.unmarkDeleteById(_state._assets[currentIndex].id);
+    if (direction.isCloseTo(CardSwiperDirection.left)) {
+      _state._decisionStore.unmarkDeleteById(asset.id);
+    } else if (direction.isCloseTo(CardSwiperDirection.right)) {
+      unawaited(_state._decisionStore.unmarkKeepById(asset.id));
     }
-    if (direction.isCloseTo(CardSwiperDirection.right) &&
-        currentIndex >= 0 &&
-        currentIndex < _state._assets.length) {
-      unawaited(
-        _state._decisionStore.unmarkKeepById(_state._assets[currentIndex].id),
-      );
-    }
-    _state._markNeedsBuild(() {
-      _state._currentIndex = currentIndex;
-    });
-    _state._media.prefetchThumbnails(
-      _state._assets,
-      _state._currentIndex,
-      AppConfig.thumbnailPrefetchCount,
-    );
-    _state._preloadFullRes(_state._currentIndex);
-    unawaited(_state._maybeLoadMore());
+    _state._markNeedsBuild();
     return true;
   }
 
@@ -395,17 +345,13 @@ class _SwipeHomeActions {
     _state._markNeedsBuild(() {
       _state._deletedCount += items.length;
       _state._deletedBytes += deletedBytes;
-      _state._assets.removeWhere((asset) => ids.contains(asset.id));
+      _state._galleryController.removeAssetsById(ids);
       _state._decisionStore.clearUndo();
       for (final AssetEntity entity in items) {
         _state._decisionStore.removeCandidate(entity);
         unawaited(_state._decisionStore.removeKeepCandidate(entity));
       }
-      if (_state._currentIndex >= _state._assets.length) {
-        _state._currentIndex = _state._assets.isEmpty
-            ? 0
-            : _state._assets.length - 1;
-      }
     });
+    unawaited(_state._maybeLoadMore());
   }
 }

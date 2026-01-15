@@ -44,6 +44,10 @@ class SwipeHomeMediaCache {
     _fullResFile = null;
   }
 
+  Future<Uint8List?> loadThumbnailBytes(AssetEntity entity) {
+    return _thumbnailCache.load(entity);
+  }
+
   Future<Uint8List?> thumbnailFutureFor(AssetEntity entity) {
     return _thumbnailCache.load(entity);
   }
@@ -51,6 +55,10 @@ class SwipeHomeMediaCache {
   Uint8List? cachedThumbnailBytes(String id) => _thumbnailCache.bytesFor(id);
 
   Map<String, Uint8List> thumbnailSnapshot() => _thumbnailCache.snapshot();
+
+  void evictThumbnail(String id) {
+    _thumbnailCache.remove(id);
+  }
 
   String? cachedFileSizeLabel(String id) => _fileSizeCache.get(id);
 
@@ -105,10 +113,6 @@ class SwipeHomeMediaCache {
         return bytes;
       },
     );
-  }
-
-  void prefetchThumbnails(List<AssetEntity> assets, int startIndex, int count) {
-    _thumbnailCache.prefetch(assets, startIndex, count);
   }
 
   File? preloadedFileFor(AssetEntity entity) {

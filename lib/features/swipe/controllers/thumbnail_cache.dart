@@ -13,6 +13,10 @@ class ThumbnailCache {
   );
 
   Future<Uint8List?> load(AssetEntity entity) {
+    final Uint8List? cached = _bytesCache.get(entity.id);
+    if (cached != null) {
+      return Future<Uint8List?>.value(cached);
+    }
     return _futureCache.putIfAbsent(entity.id, () {
       final Future<Uint8List?> future = entity
           .thumbnailDataWithSize(const ThumbnailSize(1200, 1200))
@@ -32,17 +36,9 @@ class ThumbnailCache {
 
   Map<String, Uint8List> snapshot() => _bytesCache.snapshot();
 
-  void prefetch(List<AssetEntity> assets, int startIndex, int count) {
-    if (startIndex < 0) {
-      startIndex = 0;
-    }
-    int endIndex = startIndex + count;
-    if (endIndex > assets.length) {
-      endIndex = assets.length;
-    }
-    for (int i = startIndex; i < endIndex; i++) {
-      load(assets[i]);
-    }
+  void remove(String id) {
+    _bytesCache.remove(id);
+    _futureCache.remove(id);
   }
 
   void clear() {

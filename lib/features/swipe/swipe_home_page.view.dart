@@ -107,24 +107,26 @@ class _SwipeHomeView {
     }
 
     if (_state._assets.isEmpty) {
+      if (_state._loadingMore) {
+        return const Center(
+          child: CircularProgressIndicator(color: AppColors.accentBlue),
+        );
+      }
       return PermissionStateView(
         title: AppLocalizations.of(context)!.noPhotosFound,
         message: AppLocalizations.of(context)!.noPhotosMessage,
       );
     }
-
-    if (_state._currentIndex >= _state._assets.length) {
-      _state._currentIndex = _state._assets.isEmpty
-          ? 0
-          : _state._assets.length - 1;
-    }
-    final AssetEntity currentAsset = _state._assets[_state._currentIndex];
+    final SwipeCard currentCard = _state._assets.first;
+    final AssetEntity currentAsset = currentCard.asset;
     final double progressValue = _state._swipeProgressValue();
     final int percentValue = (progressValue * 100).round();
     final int remaining = _state._remainingToSwipe();
     final double maxCardWidth = _state._maxCardWidth(context);
-
-    final int visibleCards = math.min(3, _state._assets.length);
+    final int visibleCards = math.min(
+      AppConfig.swipeVisibleCards,
+      _state._assets.length,
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -180,135 +182,25 @@ class _SwipeHomeView {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  CardSwiper(
-                    controller: _state._swiperController,
-                    cardsCount: _state._assets.length,
-                    duration: const Duration(milliseconds: 200),
-                    numberOfCardsDisplayed: visibleCards,
-                    scale: 0.95,
-                    backCardOffset: const Offset(0, AppSpacing.stackCardOffset),
-                    padding: AppSpacing.insetNone,
-                    isLoop: false,
-                    allowedSwipeDirection:
-                        const AllowedSwipeDirection.symmetric(horizontal: true),
+                  SwipeDeck(
+                    key: _state._deckKey,
+                    assets: _state._assets,
+                    media: _state._media,
+                    openedFullResIds: _state._openedFullResIds,
+                    visibleCards: visibleCards,
+                    showSwipeHint: _state._showSwipeHint,
                     onSwipe: _state._actions.handleSwipe,
-                    onUndo: _state._actions.handleUndo,
-                    cardBuilder:
-                        (
-                          BuildContext context,
-                          int index,
-                          int horizontalThresholdPercentage,
-                          int verticalThresholdPercentage,
-                        ) {
-                          final AssetEntity asset = _state._assets[index];
-                          final double keepGlowProgress =
-                              index == _state._currentIndex &&
-                                  horizontalThresholdPercentage > 0
-                              ? (horizontalThresholdPercentage / 100)
-                                    .clamp(0.0, 1.0)
-                                    .toDouble()
-                              : 0.0;
-                          final double deleteGlowProgress =
-                              index == _state._currentIndex &&
-                                  horizontalThresholdPercentage < 0
-                              ? (-horizontalThresholdPercentage / 100)
-                                    .clamp(0.0, 1.0)
-                                    .toDouble()
-                              : 0.0;
-                          final Widget cardStack = Stack(
-                            fit: StackFit.expand,
-                            children: [
-                              AssetCard(
-                                entity: asset,
-                                thumbnailFuture: _state._media
-                                    .thumbnailFutureFor(asset),
-                                cachedBytes: _state._media.cachedThumbnailBytes(
-                                  asset.id,
-                                ),
-                                showSizeBadge: !_state._openedFullResIds
-                                    .contains(asset.id),
-                                sizeText: _state._media.cachedFileSizeLabel(
-                                  asset.id,
-                                ),
-                                sizeFuture: _state._media.fileSizeFutureFor(
-                                  asset,
-                                ),
-                                isVideo: asset.type == AssetType.video,
-                                isAnimated:
-                                    _state._media.isAnimatedAsset(asset) &&
-                                    index == _state._currentIndex,
-                                animatedBytesFuture:
-                                    _state._media.isAnimatedAsset(asset) &&
-                                        index == _state._currentIndex
-                                    ? _state._media.animatedBytesFutureFor(
-                                        asset,
-                                      )
-                                    : null,
-                                keepGlowProgress: keepGlowProgress,
-                                deleteGlowProgress: deleteGlowProgress,
-                              ),
-                              SwipeOverlay(
-                                horizontalOffsetPercent:
-                                    horizontalThresholdPercentage,
-                                cardIndex: index,
-                              ),
-                            ],
-                          );
-                          final Widget keyedStack = KeyedSubtree(
-                            key: ValueKey(_state._assets[index].id),
-                            child: cardStack,
-                          );
-                          const int visibleCards = 3;
-                          final bool animateBackCard =
-                              _state._animateNextStackCard &&
-                              index == _state._currentIndex + visibleCards - 1;
-                          final Widget animatedStack = animateBackCard
-                              ? StackAppear(
-                                  key: ValueKey(
-                                    'stack-$index-${_state._stackAnimationTick}',
-                                  ),
-                                  child: keyedStack,
-                                )
-                              : keyedStack;
-                          Widget finalCard = animatedStack;
-                          if (_state._programmaticSwipe) {
-                            final double angle =
-                                (horizontalThresholdPercentage.clamp(
-                                      -100,
-                                      100,
-                                    ) /
-                                    100) *
-                                (12 * math.pi / 180);
-                            finalCard = Transform.rotate(
-                              angle: angle,
-                              child: animatedStack,
-                            );
-                          }
-                          if (index == _state._currentIndex) {
-                            finalCard = GestureDetector(
-                              onTap: () =>
-                                  _state._actions.openFullScreen(asset),
-                              child: finalCard,
-                            );
-                          }
-                          if (_state._showSwipeHint &&
-                              index == _state._currentIndex) {
-                            finalCard = Opacity(opacity: 0, child: finalCard);
-                          }
-                          return finalCard;
-                        },
+                    onTap: _state._actions.openFullScreen,
                   ),
                   if (_state._showSwipeHint && _state._assets.isNotEmpty)
                     Positioned.fill(
                       child: AbsorbPointer(
                         child: SwipeHintOverlay(
                           entity: currentAsset,
-                          thumbnailFuture: _state._media.thumbnailFutureFor(
-                            currentAsset,
+                          thumbnailFuture: Future.value(
+                            currentCard.thumbnailBytes,
                           ),
-                          cachedBytes: _state._media.cachedThumbnailBytes(
-                            currentAsset.id,
-                          ),
+                          cachedBytes: currentCard.thumbnailBytes,
                           sizeText: _state._media.cachedFileSizeLabel(
                             currentAsset.id,
                           ),
