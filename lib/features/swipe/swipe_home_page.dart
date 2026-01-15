@@ -16,6 +16,7 @@ import '../../core/services/logger_service.dart';
 import '../../core/services/photo_manager_gallery_service.dart';
 import '../../core/widgets/app_modal_sheet.dart';
 import '../../core/config/app_config.dart';
+import '../../core/utils/formatters.dart';
 import '../../styles/colors.dart';
 import '../../styles/spacing.dart';
 import '../../styles/typography.dart';
@@ -24,7 +25,7 @@ import 'controllers/swipe_decision_store.dart';
 import 'controllers/thumbnail_cache.dart';
 import 'widgets/action_bar.dart';
 import 'widgets/asset_card.dart';
-import 'widgets/delete_preview_sheet.dart';
+import 'widgets/delete_preview/delete_preview_sheet.dart';
 import 'widgets/fullscreen_asset_view.dart';
 import 'widgets/language_picker.dart';
 import 'widgets/permission_state_view.dart';
@@ -451,28 +452,12 @@ class _SwipeHomePageState extends State<SwipeHomePage> {
       if (bytes == null) {
         return null;
       }
-      final String label = _formatFileSize(bytes);
+      final String label = formatFileSize(bytes);
       _fileSizeCache[entity.id] = label;
       return label;
     }();
     _fileSizeFutures[entity.id] = future;
     return future;
-  }
-
-  String _formatFileSize(int bytes) {
-    const int kB = 1024;
-    const int mB = kB * 1024;
-    const int gB = mB * 1024;
-    if (bytes >= gB) {
-      return '${(bytes / gB).toStringAsFixed(2)} GB';
-    }
-    if (bytes >= mB) {
-      return '${(bytes / mB).toStringAsFixed(2)} MB';
-    }
-    if (bytes >= kB) {
-      return '${(bytes / kB).toStringAsFixed(1)} KB';
-    }
-    return '$bytes B';
   }
 
   void _prefetchThumbnails(int startIndex) {
@@ -703,9 +688,7 @@ class _SwipeHomePageState extends State<SwipeHomePage> {
             padding: const EdgeInsets.only(bottom: AppSpacing.md),
             child: Center(
               child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxWidth: maxCardWidth,
-                ),
+                constraints: BoxConstraints(maxWidth: maxCardWidth),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -745,9 +728,9 @@ class _SwipeHomePageState extends State<SwipeHomePage> {
           ),
         Expanded(
           child: Center(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: maxCardWidth),
-                child: Stack(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: maxCardWidth),
+              child: Stack(
                 fit: StackFit.expand,
                 children: [
                   CardSwiper(
@@ -1056,7 +1039,7 @@ class _SwipeHomePageState extends State<SwipeHomePage> {
                 swipes: _swipeCount,
                 deleted: _deletedCount,
                 deleteBytes: _deletedBytes,
-                formatBytes: _formatFileSize,
+                formatBytes: formatFileSize,
               ),
               const SizedBox(height: AppSpacing.lg),
               const Divider(

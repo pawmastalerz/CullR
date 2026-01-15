@@ -1,0 +1,277 @@
+import 'dart:typed_data';
+
+import 'package:flutter/material.dart';
+import 'package:photo_manager/photo_manager.dart';
+
+import '../../../../core/utils/formatters.dart';
+import '../../../../styles/colors.dart';
+import '../../../../styles/spacing.dart';
+import '../../../../styles/typography.dart';
+import '../../../../l10n/app_localizations.dart';
+import 'delete_grid_positioned_tile.dart';
+import 'total_size_row.dart';
+
+class DeletePreviewSheet extends StatefulWidget {
+  const DeletePreviewSheet({
+    super.key,
+    required this.items,
+    required this.cachedBytes,
+    required this.thumbnailFutureFor,
+    required this.sizeBytesFutureFor,
+    required this.onOpen,
+    required this.onRemove,
+    required this.onDeleteAll,
+    required this.showDeleteButton,
+    required this.emptyText,
+    this.footerLabel,
+    this.footerColor,
+    this.footerOnColor,
+  });
+
+  final List<AssetEntity> items;
+  final Map<String, Uint8List> cachedBytes;
+  final Future<Uint8List?> Function(AssetEntity entity) thumbnailFutureFor;
+  final Future<int?> Function(AssetEntity entity) sizeBytesFutureFor;
+  final void Function(AssetEntity entity) onOpen;
+  final void Function(AssetEntity entity) onRemove;
+  final Future<bool> Function(List<AssetEntity> items) onDeleteAll;
+  final bool showDeleteButton;
+  final String emptyText;
+  final String? footerLabel;
+  final Color? footerColor;
+  final Color? footerOnColor;
+
+  @override
+  State<DeletePreviewSheet> createState() => _DeletePreviewSheetState();
+}
+
+class _DeletePreviewSheetState extends State<DeletePreviewSheet>
+    with AutomaticKeepAliveClientMixin {
+  late List<AssetEntity> _items;
+  final Set<String> _removingIds = {};
+  final Set<String> _selectedIds = {};
+  bool _multiSelect = false;
+  late Future<String?> _totalFuture;
+  final int _columns = 3;
+  final double _spacing = AppSpacing.sm;
+  final Duration _fadeDuration = const Duration(milliseconds: 360);
+  final Duration _reflowDuration = const Duration(milliseconds: 300);
+
+  @override
+  void initState() {
+    super.initState();
+    _items = List<AssetEntity>.from(widget.items);
+    _totalFuture = _buildTotalFuture();
+  }
+
+  void _removeAt(int index) {
+    if (index < 0 || index >= _items.length) {
+      return;
+    }
+    final AssetEntity entity = _items[index];
+    setState(() {
+      _removingIds.add(entity.id);
+      _selectedIds.remove(entity.id);
+    });
+    Future.delayed(_fadeDuration, () {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _items.removeAt(index);
+        _removingIds.remove(entity.id);
+      });
+      widget.onRemove(entity);
+      _totalFuture = _buildTotalFuture();
+    });
+  }
+
+  void _toggleSelected(String id) {
+    setState(() {
+      if (_selectedIds.contains(id)) {
+        _selectedIds.remove(id);
+        if (_selectedIds.isEmpty) {
+          _multiSelect = false;
+        }
+      } else {
+        _selectedIds.add(id);
+      }
+      _totalFuture = _buildTotalFuture();
+    });
+  }
+
+  void _enableMultiSelect(String id) {
+    setState(() {
+      _multiSelect = true;
+      _selectedIds.add(id);
+      _totalFuture = _buildTotalFuture();
+    });
+  }
+
+  Future<void> _handleFooterAction() async {
+    if (_items.isEmpty) {
+      return;
+    }
+    final List<AssetEntity> target = _selectedIds.isEmpty
+        ? List<AssetEntity>.from(_items)
+        : _items.where((item) => _selectedIds.contains(item.id)).toList();
+    if (target.isEmpty) {
+      return;
+    }
+    final bool deleted = await widget.onDeleteAll(target);
+    if (!deleted || !context.mounted) {
+      return;
+    }
+    setState(() {
+      if (_selectedIds.isEmpty) {
+        _items.clear();
+      } else {
+        final Set<String> removedIds = target.map((e) => e.id).toSet();
+        _items.removeWhere((item) => removedIds.contains(item.id));
+        _selectedIds.removeAll(removedIds);
+        if (_selectedIds.isEmpty) {
+          _multiSelect = false;
+        }
+      }
+      _removingIds.clear();
+      _totalFuture = _buildTotalFuture();
+    });
+  }
+
+  List<AssetEntity> _itemsForTotal() {
+    if (_selectedIds.isEmpty) {
+      return _items;
+    }
+    return _items.where((item) => _selectedIds.contains(item.id)).toList();
+  }
+
+  Future<String?> _buildTotalFuture() async {
+    final List<AssetEntity> items = _itemsForTotal();
+    if (items.isEmpty) {
+      return formatFileSize(0);
+    }
+    final List<Future<int?>> futures = items
+        .map(widget.sizeBytesFutureFor)
+        .toList();
+    final List<int?> sizes = await Future.wait(futures);
+    final int total = sizes.whereType<int>().fold(0, (sum, v) => sum + v);
+    return formatFileSize(total);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.lg,
+            0,
+            AppSpacing.lg,
+            AppSpacing.sm,
+          ),
+          child: TotalSizeRow(totalFuture: _totalFuture),
+        ),
+        Expanded(
+          child: _items.isEmpty
+              ? Center(
+                  child: Text(
+                    widget.emptyText,
+                    textAlign: TextAlign.center,
+                    style: AppTypography.textTheme.bodyLarge,
+                  ),
+                )
+              : Padding(
+                  padding: AppSpacing.insetSheet,
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final double tileSize =
+                          (constraints.maxWidth - (_spacing * (_columns - 1))) /
+                          _columns;
+                      final int rowCount =
+                          (_items.length + _columns - 1) ~/ _columns;
+                      final double gridHeight = rowCount == 0
+                          ? 0
+                          : (rowCount * tileSize) + ((rowCount - 1) * _spacing);
+                      return SingleChildScrollView(
+                        child: SizedBox(
+                          height: gridHeight,
+                          child: Stack(
+                            children: [
+                              for (
+                                int index = 0;
+                                index < _items.length;
+                                index++
+                              )
+                                DeleteGridPositionedTile(
+                                  key: ValueKey(_items[index].id),
+                                  entity: _items[index],
+                                  cachedBytes:
+                                      widget.cachedBytes[_items[index].id],
+                                  thumbnailFuture: widget.thumbnailFutureFor(
+                                    _items[index],
+                                  ),
+                                  onRemove: () => _removeAt(index),
+                                  onTap: _multiSelect
+                                      ? () => _toggleSelected(_items[index].id)
+                                      : () => widget.onOpen(_items[index]),
+                                  onLongPress: () =>
+                                      _enableMultiSelect(_items[index].id),
+                                  showCheckbox: _multiSelect,
+                                  selected: _selectedIds.contains(
+                                    _items[index].id,
+                                  ),
+                                  removing: _removingIds.contains(
+                                    _items[index].id,
+                                  ),
+                                  tileSize: tileSize,
+                                  spacing: _spacing,
+                                  columns: _columns,
+                                  index: index,
+                                  fadeDuration: _fadeDuration,
+                                  reflowDuration: _reflowDuration,
+                                ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+        ),
+        if (widget.showDeleteButton && _items.isNotEmpty)
+          Padding(
+            padding: AppSpacing.insetSheetFooter,
+            child: Center(
+              child: SizedBox(
+                width: AppSpacing.deleteButtonWidth,
+                child: ElevatedButton(
+                  onPressed: _handleFooterAction,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: widget.footerColor ?? AppColors.accentRed,
+                    foregroundColor:
+                        widget.footerOnColor ?? AppColors.accentRedOn,
+                    padding: const EdgeInsets.symmetric(
+                      vertical: AppSpacing.actionButtonPadding,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                        AppSpacing.radiusPill,
+                      ),
+                    ),
+                  ),
+                  child: Text(
+                    widget.footerLabel ??
+                        AppLocalizations.of(context)!.deletePermanently,
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  @override
+  bool get wantKeepAlive => true;
+}
