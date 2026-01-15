@@ -15,6 +15,7 @@ class SwipeDecisionStore {
   List<AssetEntity> get keepCandidates => List.unmodifiable(_keepCandidates);
 
   int get undoCredits => _recentDecisions.length;
+  int get keepCount => _keepIds.length;
 
   bool get hasDeleteCandidates => _deleteCandidates.isNotEmpty;
   bool get hasKeepCandidates => _keepCandidates.isNotEmpty;

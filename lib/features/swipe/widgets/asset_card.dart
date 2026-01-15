@@ -19,6 +19,8 @@ class AssetCard extends StatelessWidget {
     required this.isVideo,
     required this.isAnimated,
     this.animatedBytesFuture,
+    this.keepGlowProgress = 0,
+    this.deleteGlowProgress = 0,
   });
 
   final AssetEntity entity;
@@ -30,9 +32,13 @@ class AssetCard extends StatelessWidget {
   final bool isVideo;
   final bool isAnimated;
   final Future<Uint8List?>? animatedBytesFuture;
+  final double keepGlowProgress;
+  final double deleteGlowProgress;
 
   @override
   Widget build(BuildContext context) {
+    final double keepIntensity = keepGlowProgress.clamp(0.0, 1.0);
+    final double deleteIntensity = deleteGlowProgress.clamp(0.0, 1.0);
     final Widget sizeBadge = showSizeBadge
         ? _SizeBadge(sizeText: sizeText, sizeFuture: sizeFuture)
         : const SizedBox.shrink();
@@ -41,12 +47,30 @@ class AssetCard extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(AppSpacing.radiusXl),
-          boxShadow: const [
-            BoxShadow(
+          boxShadow: [
+            const BoxShadow(
               color: AppColors.shadowSoft,
               blurRadius: AppSpacing.cardShadowBlur,
               offset: Offset(0, AppSpacing.cardShadowYOffset),
             ),
+            if (keepIntensity > 0)
+              BoxShadow(
+                color: AppColors.accentGreen.withValues(
+                  alpha: 0.55 * keepIntensity,
+                ),
+                blurRadius:
+                    AppSpacing.cardShadowBlur + (36 * keepIntensity),
+                spreadRadius: 2.5 * keepIntensity,
+              ),
+            if (deleteIntensity > 0)
+              BoxShadow(
+                color: AppColors.accentRed.withValues(
+                  alpha: 0.55 * deleteIntensity,
+                ),
+                blurRadius:
+                    AppSpacing.cardShadowBlur + (36 * deleteIntensity),
+                spreadRadius: 2.5 * deleteIntensity,
+              ),
           ],
         ),
         child: ClipRRect(

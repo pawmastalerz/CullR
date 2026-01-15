@@ -78,12 +78,14 @@ class _SwipeHomePageState extends State<SwipeHomePage> {
   int _currentIndex = 0;
   int _stackAnimationTick = 0;
   int _swipeCount = 0;
+  int _progressSwipeCount = 0;
   int _deletedCount = 0;
   int _deletedBytes = 0;
   int _statusGlowTick = 0;
   bool _showSwipeHint = true;
   Future<void> _initialPreloadFuture = Future.value();
   bool _initialLoadHadAssets = false;
+  int _totalSwipeTarget = 0;
 
   @override
   void initState() {
@@ -120,6 +122,8 @@ class _SwipeHomePageState extends State<SwipeHomePage> {
     _hasMoreOthers = true;
     _loadingMore = false;
     _nonVideoInsertCounter = 0;
+    _totalSwipeTarget = 0;
+    _progressSwipeCount = 0;
 
     final GalleryLoadResult result = await _galleryService.loadGallery(
       videoPage: _videoPage,
@@ -169,6 +173,7 @@ class _SwipeHomePageState extends State<SwipeHomePage> {
       _cacheFullResFor(previousIndex);
       _dismissSwipeHint();
       _swipeCount++;
+      _progressSwipeCount++;
       _statusGlowTick++;
       shouldRebuild = true;
     }
@@ -255,6 +260,10 @@ class _SwipeHomePageState extends State<SwipeHomePage> {
       _assets
         ..clear()
         ..addAll(filtered);
+      _totalSwipeTarget = math.max(
+        0,
+        result.totalAssets - _decisionStore.keepCount,
+      );
     } else {
       _assets.addAll(filtered);
     }
@@ -310,6 +319,22 @@ class _SwipeHomePageState extends State<SwipeHomePage> {
       }
     }
     return _RemainingCounts(videos: videos, others: others);
+  }
+
+  int _remainingToSwipe() {
+    if (_totalSwipeTarget <= 0) {
+      return 0;
+    }
+    return math.max(0, _totalSwipeTarget - _progressSwipeCount);
+  }
+
+  double _swipeProgressValue() {
+    if (_totalSwipeTarget <= 0) {
+      return 0;
+    }
+    final int completed = math.min(_progressSwipeCount, _totalSwipeTarget);
+    final double value = completed / _totalSwipeTarget;
+    return value.clamp(0.0, 1.0);
   }
 
   Future<void> _maybeLoadMore() async {
@@ -524,6 +549,9 @@ class _SwipeHomePageState extends State<SwipeHomePage> {
     if (!_decisionStore.consumeUndo()) {
       return false;
     }
+    if (_progressSwipeCount > 0) {
+      _progressSwipeCount -= 1;
+    }
     if (direction.isCloseTo(CardSwiperDirection.left) &&
         currentIndex >= 0 &&
         currentIndex < _assets.length) {
@@ -647,11 +675,57 @@ class _SwipeHomePageState extends State<SwipeHomePage> {
     }
 
     final AssetEntity currentAsset = _assets[_currentIndex];
+    final double progressValue = _swipeProgressValue();
+    final int percentValue = (progressValue * 100).round();
+    final int remaining = _remainingToSwipe();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: AppSpacing.sm),
+        if (_totalSwipeTarget > 0)
+          Padding(
+            padding: const EdgeInsets.only(bottom: AppSpacing.md),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: AppSpacing.maxCardWidth,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '$percentValue%',
+                          style: AppTypography.textTheme.titleMedium,
+                        ),
+                        Text(
+                          '$remaining/$_totalSwipeTarget',
+                          style: AppTypography.textTheme.bodySmall?.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(AppSpacing.radiusPill),
+                      child: LinearProgressIndicator(
+                        value: progressValue,
+                        minHeight: 6,
+                        backgroundColor: AppColors.borderStrong,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          AppColors.accentBlue,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         Expanded(
           child: Center(
             child: ConstrainedBox(
@@ -682,6 +756,20 @@ class _SwipeHomePageState extends State<SwipeHomePage> {
                           int verticalThresholdPercentage,
                         ) {
                           final AssetEntity asset = _assets[index];
+                          final double keepGlowProgress =
+                              index == _currentIndex &&
+                                      horizontalThresholdPercentage > 0
+                                  ? (horizontalThresholdPercentage / 100)
+                                      .clamp(0.0, 1.0)
+                                      .toDouble()
+                                  : 0.0;
+                          final double deleteGlowProgress =
+                              index == _currentIndex &&
+                                      horizontalThresholdPercentage < 0
+                                  ? (-horizontalThresholdPercentage / 100)
+                                      .clamp(0.0, 1.0)
+                                      .toDouble()
+                                  : 0.0;
                           final Widget cardStack = Stack(
                             fit: StackFit.expand,
                             children: [
@@ -703,6 +791,8 @@ class _SwipeHomePageState extends State<SwipeHomePage> {
                                         index == _currentIndex
                                     ? _animatedBytesFutureFor(asset)
                                     : null,
+                                keepGlowProgress: keepGlowProgress,
+                                deleteGlowProgress: deleteGlowProgress,
                               ),
                               SwipeOverlay(
                                 horizontalOffsetPercent:

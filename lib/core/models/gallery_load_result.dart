@@ -6,10 +6,12 @@ class GalleryLoadResult {
     required this.assets,
     required this.videos,
     required this.others,
+    required this.totalAssets,
   });
 
   final PermissionState permissionState;
   final List<AssetEntity> assets;
   final List<AssetEntity> videos;
   final List<AssetEntity> others;
+  final int totalAssets;
 }

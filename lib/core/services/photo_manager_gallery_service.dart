@@ -24,6 +24,7 @@ class PhotoManagerGalleryService implements GalleryService {
         assets: const <AssetEntity>[],
         videos: const <AssetEntity>[],
         others: const <AssetEntity>[],
+        totalAssets: 0,
       );
     }
 
@@ -35,6 +36,8 @@ class PhotoManagerGalleryService implements GalleryService {
     final AssetPathEntity? imageAlbum = imagePaths.isNotEmpty
         ? imagePaths.first
         : null;
+    final int imageTotal =
+        imageAlbum == null ? 0 : await imageAlbum.assetCountAsync;
     final List<AssetEntity> others = imageAlbum == null
         ? []
         : await imageAlbum.getAssetListPaged(page: otherPage, size: otherCount);
@@ -44,9 +47,25 @@ class PhotoManagerGalleryService implements GalleryService {
       final PermissionStatus videoStatus = await Permission.videos.request();
       hasVideoPermission = videoStatus.isGranted;
     }
-    final List<AssetEntity> videos = hasVideoPermission
-        ? await _loadVideoPage(videoPage: videoPage, videoCount: videoCount)
-        : [];
+    int videoTotal = 0;
+    List<AssetEntity> videos = [];
+    if (hasVideoPermission) {
+      final List<AssetPathEntity> videoPaths =
+          await PhotoManager.getAssetPathList(
+            type: RequestType.video,
+            hasAll: true,
+          );
+      final AssetPathEntity? videoAlbum = videoPaths.isNotEmpty
+          ? videoPaths.first
+          : null;
+      if (videoAlbum != null) {
+        videoTotal = await videoAlbum.assetCountAsync;
+        videos = await videoAlbum.getAssetListPaged(
+          page: videoPage,
+          size: videoCount,
+        );
+      }
+    }
 
     others.shuffle();
     videos.shuffle();
@@ -57,25 +76,8 @@ class PhotoManagerGalleryService implements GalleryService {
       assets: assets,
       videos: videos,
       others: others,
+      totalAssets: imageTotal + videoTotal,
     );
-  }
-
-  Future<List<AssetEntity>> _loadVideoPage({
-    required int videoPage,
-    required int videoCount,
-  }) async {
-    final List<AssetPathEntity> videoPaths =
-        await PhotoManager.getAssetPathList(
-          type: RequestType.video,
-          hasAll: true,
-        );
-    final AssetPathEntity? videoAlbum = videoPaths.isNotEmpty
-        ? videoPaths.first
-        : null;
-    if (videoAlbum == null) {
-      return [];
-    }
-    return videoAlbum.getAssetListPaged(page: videoPage, size: videoCount);
   }
 
   @override
