@@ -192,6 +192,8 @@ class SwipeDeckState extends State<SwipeDeck>
       builder: (context, constraints) {
         _cardSize = Size(constraints.maxWidth, constraints.maxHeight);
         final List<Widget> stackCards = [];
+        final double stackLift =
+            (_dragPercent.abs() / 100).clamp(0.0, 1.0).toDouble();
         for (int i = visibleCards - 1; i >= 0; i--) {
           final SwipeCard card = widget.assets[i];
           final AssetEntity asset = card.asset;
@@ -249,8 +251,16 @@ class SwipeDeckState extends State<SwipeDeck>
               child: finalCard,
             );
           } else {
-            final double scale = 1 - (i * 0.05);
-            final Offset offset = Offset(0, AppSpacing.stackCardOffset * i);
+            final double baseScale = 1 - (i * 0.05);
+            final double targetScale = 1 - ((i - 1) * 0.05);
+            final double scale =
+                baseScale + ((targetScale - baseScale) * stackLift);
+            final double baseOffsetY = AppSpacing.stackCardOffset * i;
+            final double targetOffsetY =
+                AppSpacing.stackCardOffset * (i - 1);
+            final double offsetY =
+                baseOffsetY + ((targetOffsetY - baseOffsetY) * stackLift);
+            final Offset offset = Offset(0, offsetY);
             finalCard = Transform.translate(
               offset: offset,
               child: Transform.scale(scale: scale, child: finalCard),

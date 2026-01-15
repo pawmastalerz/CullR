@@ -57,18 +57,18 @@ class AssetCard extends StatelessWidget {
             if (keepIntensity > 0)
               BoxShadow(
                 color: AppColors.accentGreen.withValues(
-                  alpha: 0.55 * keepIntensity,
+                  alpha: 0.95 * keepIntensity,
                 ),
-                blurRadius: AppSpacing.cardShadowBlur + (36 * keepIntensity),
-                spreadRadius: 2.5 * keepIntensity,
+                blurRadius: AppSpacing.cardShadowBlur + (72 * keepIntensity),
+                spreadRadius: 7 * keepIntensity,
               ),
             if (deleteIntensity > 0)
               BoxShadow(
                 color: AppColors.accentRed.withValues(
-                  alpha: 0.55 * deleteIntensity,
+                  alpha: 0.95 * deleteIntensity,
                 ),
-                blurRadius: AppSpacing.cardShadowBlur + (36 * deleteIntensity),
-                spreadRadius: 2.5 * deleteIntensity,
+                blurRadius: AppSpacing.cardShadowBlur + (72 * deleteIntensity),
+                spreadRadius: 7 * deleteIntensity,
               ),
           ],
         ),
