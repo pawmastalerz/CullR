@@ -674,10 +674,15 @@ class _SwipeHomePageState extends State<SwipeHomePage> {
       );
     }
 
+    if (_currentIndex >= _assets.length) {
+      _currentIndex = _assets.isEmpty ? 0 : _assets.length - 1;
+    }
     final AssetEntity currentAsset = _assets[_currentIndex];
     final double progressValue = _swipeProgressValue();
     final int percentValue = (progressValue * 100).round();
     final int remaining = _remainingToSwipe();
+
+    final int visibleCards = math.min(3, _assets.length);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -741,7 +746,7 @@ class _SwipeHomePageState extends State<SwipeHomePage> {
                     controller: _swiperController,
                     cardsCount: _assets.length,
                     duration: const Duration(milliseconds: 200),
-                    numberOfCardsDisplayed: 3,
+                    numberOfCardsDisplayed: visibleCards,
                     scale: 0.95,
                     backCardOffset: const Offset(0, AppSpacing.stackCardOffset),
                     padding: AppSpacing.insetNone,
