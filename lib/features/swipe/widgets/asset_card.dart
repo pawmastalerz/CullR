@@ -58,8 +58,7 @@ class AssetCard extends StatelessWidget {
                 color: AppColors.accentGreen.withValues(
                   alpha: 0.55 * keepIntensity,
                 ),
-                blurRadius:
-                    AppSpacing.cardShadowBlur + (36 * keepIntensity),
+                blurRadius: AppSpacing.cardShadowBlur + (36 * keepIntensity),
                 spreadRadius: 2.5 * keepIntensity,
               ),
             if (deleteIntensity > 0)
@@ -67,8 +66,7 @@ class AssetCard extends StatelessWidget {
                 color: AppColors.accentRed.withValues(
                   alpha: 0.55 * deleteIntensity,
                 ),
-                blurRadius:
-                    AppSpacing.cardShadowBlur + (36 * deleteIntensity),
+                blurRadius: AppSpacing.cardShadowBlur + (36 * deleteIntensity),
                 spreadRadius: 2.5 * deleteIntensity,
               ),
           ],

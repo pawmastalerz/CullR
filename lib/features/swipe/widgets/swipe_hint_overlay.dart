@@ -116,14 +116,12 @@ class _SwipeHintOverlayState extends State<SwipeHintOverlay>
                 .round()
                 .clamp(-100, 100)
                 .toInt();
-            final double keepGlowProgress =
-                percent > 0
-                    ? (percent / 100).clamp(0.0, 1.0).toDouble()
-                    : 0.0;
-            final double deleteGlowProgress =
-                percent < 0
-                    ? (-percent / 100).clamp(0.0, 1.0).toDouble()
-                    : 0.0;
+            final double keepGlowProgress = percent > 0
+                ? (percent / 100).clamp(0.0, 1.0).toDouble()
+                : 0.0;
+            final double deleteGlowProgress = percent < 0
+                ? (-percent / 100).clamp(0.0, 1.0).toDouble()
+                : 0.0;
             return Opacity(
               opacity: 1.0,
               child: Transform.translate(

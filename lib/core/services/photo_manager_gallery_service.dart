@@ -36,8 +36,9 @@ class PhotoManagerGalleryService implements GalleryService {
     final AssetPathEntity? imageAlbum = imagePaths.isNotEmpty
         ? imagePaths.first
         : null;
-    final int imageTotal =
-        imageAlbum == null ? 0 : await imageAlbum.assetCountAsync;
+    final int imageTotal = imageAlbum == null
+        ? 0
+        : await imageAlbum.assetCountAsync;
     final List<AssetEntity> others = imageAlbum == null
         ? []
         : await imageAlbum.getAssetListPaged(page: otherPage, size: otherCount);

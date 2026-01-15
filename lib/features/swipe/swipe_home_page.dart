@@ -711,7 +711,9 @@ class _SwipeHomePageState extends State<SwipeHomePage> {
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     ClipRRect(
-                      borderRadius: BorderRadius.circular(AppSpacing.radiusPill),
+                      borderRadius: BorderRadius.circular(
+                        AppSpacing.radiusPill,
+                      ),
                       child: LinearProgressIndicator(
                         value: progressValue,
                         minHeight: 6,
@@ -758,18 +760,18 @@ class _SwipeHomePageState extends State<SwipeHomePage> {
                           final AssetEntity asset = _assets[index];
                           final double keepGlowProgress =
                               index == _currentIndex &&
-                                      horizontalThresholdPercentage > 0
-                                  ? (horizontalThresholdPercentage / 100)
-                                      .clamp(0.0, 1.0)
-                                      .toDouble()
-                                  : 0.0;
+                                  horizontalThresholdPercentage > 0
+                              ? (horizontalThresholdPercentage / 100)
+                                    .clamp(0.0, 1.0)
+                                    .toDouble()
+                              : 0.0;
                           final double deleteGlowProgress =
                               index == _currentIndex &&
-                                      horizontalThresholdPercentage < 0
-                                  ? (-horizontalThresholdPercentage / 100)
-                                      .clamp(0.0, 1.0)
-                                      .toDouble()
-                                  : 0.0;
+                                  horizontalThresholdPercentage < 0
+                              ? (-horizontalThresholdPercentage / 100)
+                                    .clamp(0.0, 1.0)
+                                    .toDouble()
+                              : 0.0;
                           final Widget cardStack = Stack(
                             fit: StackFit.expand,
                             children: [
