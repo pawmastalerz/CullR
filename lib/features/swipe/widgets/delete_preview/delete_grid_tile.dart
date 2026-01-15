@@ -5,6 +5,7 @@ import 'package:photo_manager/photo_manager.dart';
 
 import '../../../../styles/colors.dart';
 import '../../../../styles/spacing.dart';
+import '../play_badge.dart';
 
 class DeleteGridTile extends StatelessWidget {
   const DeleteGridTile({
@@ -62,23 +63,7 @@ class DeleteGridTile extends StatelessWidget {
             fit: StackFit.expand,
             children: [
               image,
-              if (isVideo)
-                Center(
-                  child: Container(
-                    width: AppSpacing.buttonSize,
-                    height: AppSpacing.buttonSize,
-                    decoration: BoxDecoration(
-                      color: AppColors.bgSurface.withValues(alpha: 0.7),
-                      shape: BoxShape.circle,
-                      border: Border.all(color: AppColors.borderStrong),
-                    ),
-                    child: const Icon(
-                      Icons.play_arrow_rounded,
-                      color: AppColors.textPrimary,
-                      size: AppSpacing.iconXl,
-                    ),
-                  ),
-                ),
+              if (isVideo) const Center(child: PlayBadge()),
               Positioned(
                 top: AppSpacing.xs,
                 right: AppSpacing.xs,

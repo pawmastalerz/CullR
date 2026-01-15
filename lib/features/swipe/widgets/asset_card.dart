@@ -6,6 +6,7 @@ import 'package:photo_manager/photo_manager.dart';
 import '../../../styles/colors.dart';
 import '../../../styles/spacing.dart';
 import '../../../styles/typography.dart';
+import 'play_badge.dart';
 
 class AssetCard extends StatelessWidget {
   const AssetCard({
@@ -116,7 +117,7 @@ class AssetCard extends StatelessWidget {
                 bottom: AppSpacing.lg,
                 child: sizeBadge,
               ),
-              if (isVideo) const Center(child: _PlayBadge()),
+              if (isVideo) const Center(child: PlayBadge(withShadow: true)),
             ],
           ),
         ),
@@ -155,35 +156,6 @@ class _SizeBadge extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-}
-
-class _PlayBadge extends StatelessWidget {
-  const _PlayBadge();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: AppSpacing.buttonSize,
-      height: AppSpacing.buttonSize,
-      decoration: BoxDecoration(
-        color: AppColors.bgSurface.withValues(alpha: 0.7),
-        shape: BoxShape.circle,
-        border: Border.all(color: AppColors.borderStrong),
-        boxShadow: const [
-          BoxShadow(
-            color: AppColors.shadowSoft,
-            blurRadius: AppSpacing.cardShadowBlur,
-            offset: Offset(0, AppSpacing.cardShadowYOffset),
-          ),
-        ],
-      ),
-      child: const Icon(
-        Icons.play_arrow_rounded,
-        color: AppColors.textPrimary,
-        size: AppSpacing.iconXl,
-      ),
     );
   }
 }

@@ -9,6 +9,7 @@ import '../../../styles/colors.dart';
 import '../../../styles/spacing.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../core/models/asset_details.dart';
+import '../../../core/utils/asset_utils.dart';
 import 'fullscreen_controls.dart';
 import 'high_res_viewer.dart';
 import 'metadata_view.dart';
@@ -39,18 +40,6 @@ class _FullscreenAssetViewState extends State<FullscreenAssetView> {
   Future<File?> _loadFile() async {
     final File? origin = await widget.entity.originFile;
     return origin ?? await widget.entity.file;
-  }
-
-  bool _isAnimatedAsset() {
-    final String? mime = widget.entity.mimeType?.toLowerCase();
-    if (mime != null && mime.contains('gif')) {
-      return true;
-    }
-    final String? name = widget.entity.title;
-    if (name == null) {
-      return false;
-    }
-    return name.toLowerCase().endsWith('.gif');
   }
 
   bool _isVideoAsset() {
@@ -128,7 +117,7 @@ class _FullscreenAssetViewState extends State<FullscreenAssetView> {
                         HighResViewer(
                           preloadedFile: widget.preloadedFile,
                           loadFile: _loadFile,
-                          isAnimated: _isAnimatedAsset(),
+                          isAnimated: isAnimatedAsset(widget.entity),
                           loadAnimatedBytes: _loadAnimatedBytes,
                           isVideo: _isVideoAsset(),
                           onInteraction: (isActive) {

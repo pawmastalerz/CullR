@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../../styles/colors.dart';
-import '../../../styles/spacing.dart';
+import 'play_badge.dart';
 
 class VideoViewer extends StatefulWidget {
   const VideoViewer({
@@ -88,20 +88,7 @@ class _VideoViewerState extends State<VideoViewer> {
               AnimatedOpacity(
                 opacity: controller.value.isPlaying ? 0.0 : 1.0,
                 duration: const Duration(milliseconds: 200),
-                child: Container(
-                  width: AppSpacing.buttonSize,
-                  height: AppSpacing.buttonSize,
-                  decoration: BoxDecoration(
-                    color: AppColors.bgSurface.withValues(alpha: 0.7),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.borderStrong),
-                  ),
-                  child: const Icon(
-                    Icons.play_arrow_rounded,
-                    color: AppColors.textPrimary,
-                    size: AppSpacing.iconXl,
-                  ),
-                ),
+                child: const PlayBadge(),
               ),
             ],
           ),
