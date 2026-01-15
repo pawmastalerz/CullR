@@ -653,24 +653,25 @@ class _SwipeHomePageState extends State<SwipeHomePage> {
       );
     }
 
+    final bool noMoreBatches = !_hasMoreVideos && !_hasMoreOthers;
+    final bool allSwiped =
+        _totalSwipeTarget > 0 && _progressSwipeCount >= _totalSwipeTarget;
+    final bool allCaughtUp =
+        _initialLoadHadAssets &&
+        noMoreBatches &&
+        (allSwiped || _totalSwipeTarget == 0);
+
+    if (allCaughtUp) {
+      return PermissionStateView(
+        title: AppLocalizations.of(context)!.allCaughtUpTitle,
+        message: AppLocalizations.of(context)!.allCaughtUpMessage,
+      );
+    }
+
     if (_assets.isEmpty) {
-      if (_initialLoadHadAssets && !_hasMoreVideos && !_hasMoreOthers) {
-        return PermissionStateView(
-          title: AppLocalizations.of(context)!.allCaughtUpTitle,
-          message: AppLocalizations.of(context)!.allCaughtUpMessage,
-          primaryAction: PermissionAction(
-            label: AppLocalizations.of(context)!.reloadAction,
-            onPressed: _loadGallery,
-          ),
-        );
-      }
       return PermissionStateView(
         title: AppLocalizations.of(context)!.noPhotosFound,
         message: AppLocalizations.of(context)!.noPhotosMessage,
-        primaryAction: PermissionAction(
-          label: AppLocalizations.of(context)!.reloadAction,
-          onPressed: _loadGallery,
-        ),
       );
     }
 

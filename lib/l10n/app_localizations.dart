@@ -188,12 +188,6 @@ abstract class AppLocalizations {
   /// **'Your gallery is empty. Add photos and come back to review them.'**
   String get noPhotosMessage;
 
-  /// No description provided for @reloadAction.
-  ///
-  /// In en, this message translates to:
-  /// **'Reload'**
-  String get reloadAction;
-
   /// No description provided for @tabDelete.
   ///
   /// In en, this message translates to:

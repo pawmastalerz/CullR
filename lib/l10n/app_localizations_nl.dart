@@ -41,9 +41,6 @@ class AppLocalizationsNl extends AppLocalizations {
       'Je galerij is leeg. Voeg foto’s toe en kom terug om ze te bekijken.';
 
   @override
-  String get reloadAction => 'Vernieuwen';
-
-  @override
   String get tabDelete => 'Verwijderen';
 
   @override

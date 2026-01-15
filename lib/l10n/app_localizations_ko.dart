@@ -40,9 +40,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get noPhotosMessage => '갤러리가 비어 있습니다. 사진을 추가한 후 다시 확인하세요.';
 
   @override
-  String get reloadAction => '새로 고침';
-
-  @override
   String get tabDelete => '삭제';
 
   @override

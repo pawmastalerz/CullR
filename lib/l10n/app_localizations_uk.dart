@@ -41,9 +41,6 @@ class AppLocalizationsUk extends AppLocalizations {
       'Ваша галерея порожня. Додайте фотографії та поверніться, щоб переглянути їх.';
 
   @override
-  String get reloadAction => 'Оновити';
-
-  @override
   String get tabDelete => 'Видалити';
 
   @override

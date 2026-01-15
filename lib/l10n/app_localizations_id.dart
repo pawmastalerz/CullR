@@ -41,9 +41,6 @@ class AppLocalizationsId extends AppLocalizations {
       'Galeri Anda kosong. Tambahkan foto lalu kembali untuk meninjau.';
 
   @override
-  String get reloadAction => 'Muat ulang';
-
-  @override
   String get tabDelete => 'Hapus';
 
   @override

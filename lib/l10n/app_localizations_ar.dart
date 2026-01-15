@@ -40,9 +40,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get noPhotosMessage => 'معرض الصور فارغ. أضف صورًا ثم عد لمراجعتها.';
 
   @override
-  String get reloadAction => 'تحديث';
-
-  @override
   String get tabDelete => 'حذف';
 
   @override

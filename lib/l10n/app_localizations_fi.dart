@@ -41,9 +41,6 @@ class AppLocalizationsFi extends AppLocalizations {
       'Galleriasi on tyhjä. Lisää kuvia ja palaa tarkastelemaan niitä.';
 
   @override
-  String get reloadAction => 'Päivitä';
-
-  @override
   String get tabDelete => 'Poista';
 
   @override

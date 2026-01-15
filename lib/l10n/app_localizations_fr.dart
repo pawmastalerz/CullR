@@ -41,9 +41,6 @@ class AppLocalizationsFr extends AppLocalizations {
       'Votre galerie est vide. Ajoutez des photos et revenez pour les examiner.';
 
   @override
-  String get reloadAction => 'Actualiser';
-
-  @override
   String get tabDelete => 'Supprimer';
 
   @override

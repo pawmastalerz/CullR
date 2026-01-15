@@ -41,9 +41,6 @@ class AppLocalizationsHi extends AppLocalizations {
       'आपकी गैलरी खाली है। फ़ोटो जोड़ें और फिर से देखने के लिए लौटें।';
 
   @override
-  String get reloadAction => 'रीफ़्रेश करें';
-
-  @override
   String get tabDelete => 'हटाएँ';
 
   @override

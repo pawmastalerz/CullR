@@ -41,9 +41,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Deine Galerie ist leer. Füge Fotos hinzu und kehre zurück, um sie zu überprüfen.';
 
   @override
-  String get reloadAction => 'Neu laden';
-
-  @override
   String get tabDelete => 'Löschen';
 
   @override

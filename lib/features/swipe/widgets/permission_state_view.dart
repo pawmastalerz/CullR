@@ -9,13 +9,13 @@ class PermissionStateView extends StatelessWidget {
     super.key,
     required this.title,
     required this.message,
-    required this.primaryAction,
+    this.primaryAction,
     this.secondaryAction,
   });
 
   final String title;
   final String message;
-  final PermissionAction primaryAction;
+  final PermissionAction? primaryAction;
   final PermissionAction? secondaryAction;
 
   @override
@@ -35,33 +35,36 @@ class PermissionStateView extends StatelessWidget {
                 const SizedBox(height: AppSpacing.md),
                 Text(message, style: AppTypography.textTheme.bodyMedium),
                 const SizedBox(height: AppSpacing.xxl),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: primaryAction.onPressed,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.accentBlue,
-                          foregroundColor: AppColors.accentBlueOn,
-                        ),
-                        child: Text(primaryAction.label),
-                      ),
-                    ),
-                    if (secondaryAction != null) ...[
-                      const SizedBox(width: AppSpacing.md),
+                if (primaryAction != null)
+                  Row(
+                    children: [
                       Expanded(
-                        child: OutlinedButton(
-                          onPressed: secondaryAction?.onPressed,
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: AppColors.accentBlue,
-                            side: const BorderSide(color: AppColors.accentBlue),
+                        child: ElevatedButton(
+                          onPressed: primaryAction?.onPressed,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.accentBlue,
+                            foregroundColor: AppColors.accentBlueOn,
                           ),
-                          child: Text(secondaryAction!.label),
+                          child: Text(primaryAction!.label),
                         ),
                       ),
+                      if (secondaryAction != null) ...[
+                        const SizedBox(width: AppSpacing.md),
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: secondaryAction?.onPressed,
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: AppColors.accentBlue,
+                              side: const BorderSide(
+                                color: AppColors.accentBlue,
+                              ),
+                            ),
+                            child: Text(secondaryAction!.label),
+                          ),
+                        ),
+                      ],
                     ],
-                  ],
-                ),
+                  ),
               ],
             ),
           ),

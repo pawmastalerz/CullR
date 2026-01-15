@@ -40,9 +40,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get noPhotosMessage => 'ギャラリーは空です。写真を追加してから戻って確認してください。';
 
   @override
-  String get reloadAction => '更新';
-
-  @override
   String get tabDelete => '削除';
 
   @override

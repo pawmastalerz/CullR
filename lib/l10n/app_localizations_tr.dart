@@ -41,9 +41,6 @@ class AppLocalizationsTr extends AppLocalizations {
       'Galeriniz boş. Fotoğraf ekleyin ve incelemek için geri dönün.';
 
   @override
-  String get reloadAction => 'Yenile';
-
-  @override
   String get tabDelete => 'Sil';
 
   @override

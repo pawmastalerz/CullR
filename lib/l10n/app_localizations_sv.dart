@@ -41,9 +41,6 @@ class AppLocalizationsSv extends AppLocalizations {
       'Ditt galleri är tomt. Lägg till foton och kom tillbaka för att granska dem.';
 
   @override
-  String get reloadAction => 'Uppdatera';
-
-  @override
   String get tabDelete => 'Ta bort';
 
   @override
