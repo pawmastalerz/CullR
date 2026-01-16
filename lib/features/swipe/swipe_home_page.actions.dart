@@ -30,6 +30,7 @@ class _SwipeHomeActions {
       unawaited(_state._decisionStore.markForKeep(asset));
     }
     unawaited(_state._maybeLoadMore());
+    unawaited(_state._preloadTopAsset());
     _state._markNeedsBuild();
     return true;
   }
@@ -55,14 +56,14 @@ class _SwipeHomeActions {
   }
 
   bool handleUndo() {
-    if (!_state._decisionStore.consumeUndo()) {
-      return false;
-    }
     if (_state._swipeHistory.isEmpty) {
       return false;
     }
     final SwipeCard? card = _state._galleryController.undoSwipe();
     if (card == null) {
+      return false;
+    }
+    if (!_state._decisionStore.consumeUndo()) {
       return false;
     }
     final AssetEntity asset = card.asset;
@@ -250,37 +251,14 @@ class _SwipeHomeActions {
       return false;
     }
     final AppLocalizations strings = AppLocalizations.of(_state.context)!;
-    final bool? confirmed = await showDialog<bool>(
-      context: _state.context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          backgroundColor: AppColors.bgSurface,
-          title: Text(
-            strings.confirmDeleteTitle,
-            style: AppTypography.textTheme.headlineMedium,
-          ),
-          content: Text(
-            strings.confirmDeleteMessage(items.length),
-            style: AppTypography.textTheme.bodyMedium,
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: Text(strings.cancelAction),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.of(dialogContext).pop(true),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.accentRed,
-                foregroundColor: AppColors.accentRedOn,
-              ),
-              child: Text(strings.deleteAction),
-            ),
-          ],
-        );
-      },
+    final bool confirmed = await _confirmDialog(
+      title: strings.confirmDeleteTitle,
+      message: strings.confirmDeleteMessage(items.length),
+      confirmLabel: strings.deleteAction,
+      confirmColor: AppColors.accentRed,
+      confirmOnColor: AppColors.accentRedOn,
     );
-    if (confirmed != true) {
+    if (!confirmed) {
       return false;
     }
 
@@ -293,37 +271,14 @@ class _SwipeHomeActions {
       return false;
     }
     final AppLocalizations strings = AppLocalizations.of(_state.context)!;
-    final bool? confirmed = await showDialog<bool>(
-      context: _state.context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          backgroundColor: AppColors.bgSurface,
-          title: Text(
-            strings.reEvaluateKeepTitle,
-            style: AppTypography.textTheme.headlineMedium,
-          ),
-          content: Text(
-            strings.reEvaluateKeepMessage(items.length),
-            style: AppTypography.textTheme.bodyMedium,
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: Text(strings.cancelAction),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.of(dialogContext).pop(true),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.accentBlue,
-                foregroundColor: AppColors.accentBlueOn,
-              ),
-              child: Text(strings.reEvaluateKeepAction),
-            ),
-          ],
-        );
-      },
+    final bool confirmed = await _confirmDialog(
+      title: strings.reEvaluateKeepTitle,
+      message: strings.reEvaluateKeepMessage(items.length),
+      confirmLabel: strings.reEvaluateKeepAction,
+      confirmColor: AppColors.accentBlue,
+      confirmOnColor: AppColors.accentBlueOn,
     );
-    if (confirmed != true) {
+    if (!confirmed) {
       return false;
     }
     if (!_state.mounted) {
@@ -353,5 +308,40 @@ class _SwipeHomeActions {
       }
     });
     unawaited(_state._maybeLoadMore());
+  }
+
+  Future<bool> _confirmDialog({
+    required String title,
+    required String message,
+    required String confirmLabel,
+    required Color confirmColor,
+    required Color confirmOnColor,
+  }) async {
+    final AppLocalizations strings = AppLocalizations.of(_state.context)!;
+    final bool? confirmed = await showDialog<bool>(
+      context: _state.context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: AppColors.bgSurface,
+          title: Text(title, style: AppTypography.textTheme.headlineMedium),
+          content: Text(message, style: AppTypography.textTheme.bodyMedium),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text(strings.cancelAction),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: confirmColor,
+                foregroundColor: confirmOnColor,
+              ),
+              child: Text(confirmLabel),
+            ),
+          ],
+        );
+      },
+    );
+    return confirmed == true;
   }
 }

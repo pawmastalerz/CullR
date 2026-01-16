@@ -44,15 +44,9 @@ class SwipeHomeMediaCache {
     _fullResFile = null;
   }
 
-  Future<Uint8List?> loadThumbnailBytes(AssetEntity entity) {
-    return _thumbnailCache.load(entity);
-  }
-
   Future<Uint8List?> thumbnailFutureFor(AssetEntity entity) {
     return _thumbnailCache.load(entity);
   }
-
-  Uint8List? cachedThumbnailBytes(String id) => _thumbnailCache.bytesFor(id);
 
   Map<String, Uint8List> thumbnailSnapshot() => _thumbnailCache.snapshot();
 
@@ -138,14 +132,14 @@ class SwipeHomeMediaCache {
     return file;
   }
 
-  Future<FullResLoadResult?> preloadFullRes({
+  Future<void> preloadFullRes({
     required List<AssetEntity> assets,
     required int index,
   }) async {
     if (index < 0 || index >= assets.length) {
       _fullResId = null;
       _fullResFile = null;
-      return null;
+      return;
     }
     final AssetEntity entity = assets[index];
     _fullResId = entity.id;
@@ -153,13 +147,7 @@ class SwipeHomeMediaCache {
     final File? file = await cacheFullResFor(assets, index);
     if (_fullResId == entity.id && file != null) {
       _fullResFile = file;
-      return FullResLoadResult(
-        id: entity.id,
-        file: file,
-        isVideo: entity.type == AssetType.video,
-      );
     }
-    return null;
   }
 
   void _rememberFullRes(String id, File file) {
@@ -193,16 +181,4 @@ class SwipeHomeMediaCache {
     });
     return future;
   }
-}
-
-class FullResLoadResult {
-  const FullResLoadResult({
-    required this.id,
-    required this.file,
-    required this.isVideo,
-  });
-
-  final String id;
-  final File file;
-  final bool isVideo;
 }

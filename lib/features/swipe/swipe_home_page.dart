@@ -88,6 +88,7 @@ class _SwipeHomePageState extends State<SwipeHomePage> {
 
   @override
   void dispose() {
+    _media.reset();
     super.dispose();
   }
 
@@ -102,8 +103,8 @@ class _SwipeHomePageState extends State<SwipeHomePage> {
     if (!mounted) {
       return;
     }
-    _initialPreloadFuture = Future.value();
     await _maybeLoadMore();
+    _initialPreloadFuture = _preloadTopAsset();
     _markNeedsBuild(() {
       _loading = false;
     });
@@ -152,7 +153,16 @@ class _SwipeHomePageState extends State<SwipeHomePage> {
   Future<void> _maybeLoadMore() async {
     final bool didLoad = await _galleryController.ensureBuffer();
     if (didLoad) {
+      _initialPreloadFuture = _preloadTopAsset();
       _markNeedsBuild();
     }
+  }
+
+  Future<void> _preloadTopAsset() {
+    final List<AssetEntity> assets = _assets.map((card) => card.asset).toList();
+    if (assets.isEmpty) {
+      return Future<void>.value();
+    }
+    return _media.preloadFullRes(assets: assets, index: 0);
   }
 }

@@ -120,13 +120,7 @@ class PhotoManagerGalleryService implements GalleryService {
       canLoadPhotos = photosStatus.isGranted;
       canLoadVideos = videosStatus.isGranted;
       if (!canLoadPhotos && !canLoadVideos) {
-        return GalleryLoadResult(
-          permissionState: permissionState,
-          assets: const <AssetEntity>[],
-          videos: const <AssetEntity>[],
-          others: const <AssetEntity>[],
-          totalAssets: 0,
-        );
+        return _emptyResult(permissionState);
       }
       if (permissionState != PermissionState.authorized &&
           permissionState != PermissionState.limited) {
@@ -134,59 +128,32 @@ class PhotoManagerGalleryService implements GalleryService {
       }
     } else if (permissionState != PermissionState.authorized &&
         permissionState != PermissionState.limited) {
-      return GalleryLoadResult(
-        permissionState: permissionState,
-        assets: const <AssetEntity>[],
-        videos: const <AssetEntity>[],
-        others: const <AssetEntity>[],
-        totalAssets: 0,
-      );
+      return _emptyResult(permissionState);
     }
 
-    int imageTotal = 0;
-    List<AssetEntity> others = [];
-    if (canLoadPhotos) {
-      final List<AssetPathEntity> imagePaths = await _photoManager
-          .getAssetPathList(type: RequestType.image, hasAll: true);
-      final AssetPathEntity? imageAlbum = imagePaths.isNotEmpty
-          ? imagePaths.first
-          : null;
-      imageTotal = imageAlbum == null ? 0 : await imageAlbum.assetCountAsync;
-      others = imageAlbum == null
-          ? []
-          : await imageAlbum.getAssetListPaged(
-              page: otherPage,
-              size: otherCount,
-            );
-    }
+    final _AlbumLoadResult images = await _loadAlbum(
+      type: RequestType.image,
+      page: otherPage,
+      size: otherCount,
+      canLoad: canLoadPhotos,
+    );
+    final _AlbumLoadResult videos = await _loadAlbum(
+      type: RequestType.video,
+      page: videoPage,
+      size: videoCount,
+      canLoad: canLoadVideos,
+    );
 
-    int videoTotal = 0;
-    List<AssetEntity> videos = [];
-    if (canLoadVideos) {
-      final List<AssetPathEntity> videoPaths = await _photoManager
-          .getAssetPathList(type: RequestType.video, hasAll: true);
-      final AssetPathEntity? videoAlbum = videoPaths.isNotEmpty
-          ? videoPaths.first
-          : null;
-      if (videoAlbum != null) {
-        videoTotal = await videoAlbum.assetCountAsync;
-        videos = await videoAlbum.getAssetListPaged(
-          page: videoPage,
-          size: videoCount,
-        );
-      }
-    }
-
-    others.shuffle();
-    videos.shuffle();
-    final List<AssetEntity> assets = [...others, ...videos];
+    final List<AssetEntity> shuffledImages = List.of(images.assets)..shuffle();
+    final List<AssetEntity> shuffledVideos = List.of(videos.assets)..shuffle();
+    final List<AssetEntity> assets = [...shuffledImages, ...shuffledVideos];
 
     return GalleryLoadResult(
       permissionState: effectivePermissionState,
       assets: assets,
-      videos: videos,
-      others: others,
-      totalAssets: imageTotal + videoTotal,
+      videos: shuffledVideos,
+      others: shuffledImages,
+      totalAssets: images.total + videos.total,
     );
   }
 
@@ -236,4 +203,48 @@ class PhotoManagerGalleryService implements GalleryService {
     }
     return file.length();
   }
+
+  GalleryLoadResult _emptyResult(PermissionState permissionState) {
+    return GalleryLoadResult(
+      permissionState: permissionState,
+      assets: const <AssetEntity>[],
+      videos: const <AssetEntity>[],
+      others: const <AssetEntity>[],
+      totalAssets: 0,
+    );
+  }
+
+  Future<_AlbumLoadResult> _loadAlbum({
+    required RequestType type,
+    required int page,
+    required int size,
+    required bool canLoad,
+  }) async {
+    if (!canLoad) {
+      return const _AlbumLoadResult.empty();
+    }
+    final List<AssetPathEntity> paths = await _photoManager.getAssetPathList(
+      type: type,
+      hasAll: true,
+    );
+    final AssetPathEntity? album = paths.isNotEmpty ? paths.first : null;
+    if (album == null) {
+      return const _AlbumLoadResult.empty();
+    }
+    final int total = await album.assetCountAsync;
+    final List<AssetEntity> assets = await album.getAssetListPaged(
+      page: page,
+      size: size,
+    );
+    return _AlbumLoadResult(total: total, assets: assets);
+  }
+}
+
+class _AlbumLoadResult {
+  const _AlbumLoadResult({required this.total, required this.assets});
+
+  const _AlbumLoadResult.empty() : total = 0, assets = const <AssetEntity>[];
+
+  final int total;
+  final List<AssetEntity> assets;
 }

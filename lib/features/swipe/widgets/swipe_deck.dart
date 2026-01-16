@@ -192,8 +192,9 @@ class SwipeDeckState extends State<SwipeDeck>
       builder: (context, constraints) {
         _cardSize = Size(constraints.maxWidth, constraints.maxHeight);
         final List<Widget> stackCards = [];
-        final double stackLift =
-            (_dragPercent.abs() / 100).clamp(0.0, 1.0).toDouble();
+        final double stackLift = (_dragPercent.abs() / 100)
+            .clamp(0.0, 1.0)
+            .toDouble();
         for (int i = visibleCards - 1; i >= 0; i--) {
           final SwipeCard card = widget.assets[i];
           final AssetEntity asset = card.asset;
@@ -205,6 +206,7 @@ class SwipeDeckState extends State<SwipeDeck>
           final double deleteGlowProgress = isTop && horizontalPercent < 0
               ? (-horizontalPercent / 100).clamp(0.0, 1.0).toDouble()
               : 0.0;
+          final bool isAnimated = isTop && widget.media.isAnimatedAsset(asset);
           final Widget cardStack = Stack(
             fit: StackFit.expand,
             children: [
@@ -216,9 +218,8 @@ class SwipeDeckState extends State<SwipeDeck>
                 sizeText: widget.media.cachedFileSizeLabel(asset.id),
                 sizeFuture: widget.media.fileSizeFutureFor(asset),
                 isVideo: asset.type == AssetType.video,
-                isAnimated: widget.media.isAnimatedAsset(asset) && isTop,
-                animatedBytesFuture:
-                    widget.media.isAnimatedAsset(asset) && isTop
+                isAnimated: isAnimated,
+                animatedBytesFuture: isAnimated
                     ? widget.media.animatedBytesFutureFor(asset)
                     : null,
                 keepGlowProgress: keepGlowProgress,
@@ -256,8 +257,7 @@ class SwipeDeckState extends State<SwipeDeck>
             final double scale =
                 baseScale + ((targetScale - baseScale) * stackLift);
             final double baseOffsetY = AppSpacing.stackCardOffset * i;
-            final double targetOffsetY =
-                AppSpacing.stackCardOffset * (i - 1);
+            final double targetOffsetY = AppSpacing.stackCardOffset * (i - 1);
             final double offsetY =
                 baseOffsetY + ((targetOffsetY - baseOffsetY) * stackLift);
             final Offset offset = Offset(0, offsetY);

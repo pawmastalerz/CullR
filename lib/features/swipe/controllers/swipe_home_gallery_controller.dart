@@ -69,8 +69,6 @@ class SwipeHomeGalleryController {
     return result;
   }
 
-  AssetEntity? currentAsset() => buffer.isNotEmpty ? buffer.first.asset : null;
-
   Future<bool> ensureBuffer() async {
     if (loadingMore || _filling) {
       return false;
@@ -104,7 +102,7 @@ class SwipeHomeGalleryController {
             _decisionStore.isMarkedForDelete(next.id)) {
           continue;
         }
-        final Uint8List? bytes = await _media.loadThumbnailBytes(next);
+        final Uint8List? bytes = await _media.thumbnailFutureFor(next);
         if (bytes == null) {
           continue;
         }

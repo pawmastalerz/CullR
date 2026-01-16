@@ -1,6 +1,8 @@
 import 'package:photo_manager/photo_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../core/config/app_config.dart';
+
 class SwipeDecisionStore {
   final List<AssetEntity> _deleteCandidates = [];
   final Set<String> _deleteIds = {};
@@ -51,7 +53,7 @@ class SwipeDecisionStore {
 
   void registerDecision(AssetEntity entity) {
     _recentDecisions.add(entity);
-    if (_recentDecisions.length > 3) {
+    if (_recentDecisions.length > AppConfig.swipeUndoLimit) {
       _recentDecisions.removeAt(0);
     }
   }
@@ -65,8 +67,7 @@ class SwipeDecisionStore {
   }
 
   Future<void> markForDelete(AssetEntity entity) {
-    _keepIds.remove(entity.id);
-    _keepCandidates.removeWhere((item) => item.id == entity.id);
+    _removeFromKeeps(entity.id);
     final Future<void> persist = _persistKeeps();
     if (_deleteIds.add(entity.id)) {
       _deleteCandidates.add(entity);
@@ -75,18 +76,15 @@ class SwipeDecisionStore {
   }
 
   void unmarkDeleteById(String id) {
-    _deleteIds.remove(id);
-    _deleteCandidates.removeWhere((entity) => entity.id == id);
+    _removeFromDeletes(id);
   }
 
   void removeCandidate(AssetEntity entity) {
-    _deleteCandidates.removeWhere((item) => item.id == entity.id);
-    _deleteIds.remove(entity.id);
+    _removeFromDeletes(entity.id);
   }
 
   Future<void> markForKeep(AssetEntity entity) {
-    _deleteIds.remove(entity.id);
-    _deleteCandidates.removeWhere((item) => item.id == entity.id);
+    _removeFromDeletes(entity.id);
     if (_keepIds.add(entity.id)) {
       _keepCandidates.add(entity);
     }
@@ -94,15 +92,12 @@ class SwipeDecisionStore {
   }
 
   Future<void> unmarkKeepById(String id) {
-    _keepIds.remove(id);
-    _keepCandidates.removeWhere((entity) => entity.id == id);
+    _removeFromKeeps(id);
     return _persistKeeps();
   }
 
   Future<void> removeKeepCandidate(AssetEntity entity) {
-    _keepCandidates.removeWhere((item) => item.id == entity.id);
-    _keepIds.remove(entity.id);
-    return _persistKeeps();
+    return unmarkKeepById(entity.id);
   }
 
   Future<void> clearKeeps() {
@@ -117,5 +112,15 @@ class SwipeDecisionStore {
       await prefs.setStringList(_keepStorageKey, _keepIds.toList());
     });
     return _persistQueue;
+  }
+
+  void _removeFromKeeps(String id) {
+    _keepIds.remove(id);
+    _keepCandidates.removeWhere((entity) => entity.id == id);
+  }
+
+  void _removeFromDeletes(String id) {
+    _deleteIds.remove(id);
+    _deleteCandidates.removeWhere((entity) => entity.id == id);
   }
 }

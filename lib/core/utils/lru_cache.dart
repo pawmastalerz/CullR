@@ -1,18 +1,19 @@
+import 'dart:collection';
+
 class LruCache<K, V> {
   LruCache(this.capacity, {this.onEvict})
     : assert(capacity >= 0, 'capacity must be >= 0');
 
   final int capacity;
   final void Function(K key, V value)? onEvict;
-  final Map<K, V> _values = <K, V>{};
-  final List<K> _order = <K>[];
+  final LinkedHashMap<K, V> _cache = LinkedHashMap<K, V>();
 
   V? get(K key) {
-    final V? value = _values[key];
+    final V? value = _cache.remove(key);
     if (value == null) {
       return null;
     }
-    _touch(key);
+    _cache[key] = value;
     return value;
   }
 
@@ -20,41 +21,31 @@ class LruCache<K, V> {
     if (capacity == 0) {
       return;
     }
-    if (_values.containsKey(key)) {
-      _values[key] = value;
-      _touch(key);
+    if (_cache.containsKey(key)) {
+      _cache.remove(key);
+      _cache[key] = value;
       return;
     }
-    _values[key] = value;
-    _order.add(key);
+    _cache[key] = value;
     _evictIfNeeded();
   }
 
-  bool containsKey(K key) => _values.containsKey(key);
+  bool containsKey(K key) => _cache.containsKey(key);
 
   void remove(K key) {
-    final V? value = _values.remove(key);
-    if (value != null) {
-      _order.remove(key);
-    }
+    _cache.remove(key);
   }
 
   void clear() {
-    _values.clear();
-    _order.clear();
+    _cache.clear();
   }
 
-  Map<K, V> snapshot() => Map<K, V>.unmodifiable(_values);
-
-  void _touch(K key) {
-    _order.remove(key);
-    _order.add(key);
-  }
+  Map<K, V> snapshot() => Map<K, V>.unmodifiable(_cache);
 
   void _evictIfNeeded() {
-    while (_order.length > capacity) {
-      final K removedKey = _order.removeAt(0);
-      final V? removedValue = _values.remove(removedKey);
+    while (_cache.length > capacity) {
+      final K removedKey = _cache.keys.first;
+      final V? removedValue = _cache.remove(removedKey);
       if (removedValue != null) {
         onEvict?.call(removedKey, removedValue);
       }

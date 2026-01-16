@@ -13,10 +13,3 @@ String formatFileSize(int bytes) {
   }
   return '$bytes B';
 }
-
-String? formatFileSizeNullable(int? bytes) {
-  if (bytes == null) {
-    return null;
-  }
-  return formatFileSize(bytes);
-}
