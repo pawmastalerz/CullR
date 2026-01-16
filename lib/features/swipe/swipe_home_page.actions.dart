@@ -76,6 +76,7 @@ class _SwipeHomeActions {
     } else if (direction.isCloseTo(CardSwiperDirection.right)) {
       unawaited(_state._decisionStore.unmarkKeepById(asset.id));
     }
+    _state._deckKey.currentState?.undo(direction, asset.id);
     _state._markNeedsBuild();
     return true;
   }

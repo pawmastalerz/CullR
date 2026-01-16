@@ -56,6 +56,9 @@ class SwipeDeckState extends State<SwipeDeck>
   CardSwiperDirection _pendingDirection = CardSwiperDirection.none;
   Size _cardSize = Size.zero;
   String? _lastTopId;
+  bool _pendingUndoAnimation = false;
+  CardSwiperDirection _pendingUndoDirection = CardSwiperDirection.none;
+  String? _pendingUndoId;
 
   @override
   void didUpdateWidget(covariant SwipeDeck oldWidget) {
@@ -63,6 +66,7 @@ class SwipeDeckState extends State<SwipeDeck>
     if (_topId() != _lastTopId && !_isAnimating) {
       _resetDrag();
     }
+    _maybeStartUndoAnimation();
   }
 
   @override
@@ -76,6 +80,18 @@ class SwipeDeckState extends State<SwipeDeck>
       return;
     }
     _startSwipe(direction);
+  }
+
+  void undo(CardSwiperDirection direction, String assetId) {
+    if (_isAnimating) {
+      return;
+    }
+    _pendingUndoAnimation = true;
+    _pendingUndoDirection = direction;
+    _pendingUndoId = assetId;
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   void _handleTick() {
@@ -106,6 +122,13 @@ class SwipeDeckState extends State<SwipeDeck>
     final double sign = direction == CardSwiperDirection.left ? -1 : 1;
     final Offset target = Offset(sign * _cardSize.width * 1.2, 0);
     _runAnimation(target, isSwipe: true, direction: direction);
+  }
+
+  void _startUndoAnimation(CardSwiperDirection direction) {
+    final double sign = direction == CardSwiperDirection.left ? -1 : 1;
+    _dragOffset = Offset(sign * _cardSize.width * 1.2, 0);
+    _updateDragPercent();
+    _runAnimation(Offset.zero, isSwipe: false);
   }
 
   void _runAnimation(
@@ -179,6 +202,20 @@ class SwipeDeckState extends State<SwipeDeck>
   String? _topId() =>
       widget.assets.isEmpty ? null : widget.assets.first.asset.id;
 
+  void _maybeStartUndoAnimation() {
+    if (!_pendingUndoAnimation ||
+        _cardSize.width == 0 ||
+        _topId() != _pendingUndoId ||
+        _isAnimating) {
+      return;
+    }
+    _pendingUndoAnimation = false;
+    final CardSwiperDirection direction = _pendingUndoDirection;
+    _pendingUndoDirection = CardSwiperDirection.none;
+    _pendingUndoId = null;
+    _startUndoAnimation(direction);
+  }
+
   @override
   Widget build(BuildContext context) {
     if (widget.assets.isEmpty) {
@@ -191,6 +228,13 @@ class SwipeDeckState extends State<SwipeDeck>
     return LayoutBuilder(
       builder: (context, constraints) {
         _cardSize = Size(constraints.maxWidth, constraints.maxHeight);
+        if (_pendingUndoAnimation) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              _maybeStartUndoAnimation();
+            }
+          });
+        }
         final List<Widget> stackCards = [];
         final double stackLift = (_dragPercent.abs() / 100)
             .clamp(0.0, 1.0)
