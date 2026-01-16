@@ -1,73 +1,43 @@
 # CullR
 
-CullR is a Flutter app for cleaning up your photo library fast. You swipe
-through items, review what you chose, and only then commit deletions.
-The app is fully open source and does not collect any data.
+CullR helps you clean up your photo library quickly. You swipe through your
+photos and videos, choose what to keep or delete, and only confirm deletions
+at the end.
 
 ## What it does
 
+- Review photos and videos one by one
 - Swipe right to keep, left to delete
 - Undo recent swipes
-- Review "Keep" and "Delete" queues before taking action
-- Preview photos, GIFs, and videos in fullscreen
-- Fast loading via batching + caching
-- Multilingual UI
+- Preview items in full screen
+- Review your Keep and Delete lists before taking action
+- Works in multiple languages
 
-## How the flow works
+## How it handles your photos
 
-1. The app loads batches of photos and videos from the device gallery.
-2. You swipe cards to classify items as keep or delete.
-3. The status button opens a preview sheet with two tabs: Delete and Keep.
-4. You can remove items from either list or confirm a bulk delete/review.
-5. Deletions are only committed after a confirmation dialog.
+CullR reads your photos and videos only to show them to you. Everything happens
+on your device. Your media never leaves your phone.
 
-## Project layout (at a glance)
+If you decide to delete items, the app will ask for confirmation first.
 
-- `lib/main.dart`: app entry point and theme
-- `lib/core/config/app_config.dart`: tuning knobs for batching, buffer sizes, and cache limits
-- `lib/core`: shared services, models, utilities, widgets
-- `lib/features/swipe`: swipe flow controllers, models, and UI
-- `lib/styles`: color, spacing, typography tokens
-- `lib/l10n`: ARB translations + generated localizations
-- `test`: unit and widget tests
+## Privacy policy
 
-## Requirements
-
-- Flutter SDK 3.10+
-- iOS or Android device/emulator with gallery access
-
-## Run locally
-
-```bash
-flutter pub get
-flutter run
-```
-
-## Tests
-
-```bash
-flutter test
-```
-
-## Scripts (Windows)
-
-Batch helpers live in `scripts/`:
-
-- `scripts/start_dev.bat`: starts the app on a connected Android device
-- `scripts/install_prod.bat`: builds a release APK and installs to Android
-- `scripts/check.bat`: formatting, l10n generation, analysis, tests
+- CullR does not collect, store, or transmit personal data.
+- There is no account system and no analytics or advertising.
+- All photo and video access stays on-device.
+- No media is uploaded or shared.
 
 ## Permissions
 
-CullR uses `photo_manager` to access your device gallery. On first launch the
-app requests permission. If access is denied or limited, the settings menu
-provides a shortcut to open system permissions.
+CullR asks for access to your photo library so it can show you your photos and
+videos. If you deny access, the app will show you how to open system settings
+and grant it later.
 
-## Localization
+## External links
 
-Strings live in `lib/l10n/*.arb` and are generated via `flutter gen-l10n`.
-Add a new locale by creating a new `.arb` file and re-running the generator.
+The app includes a link to Buy Me a Coffee. If you open it, your browser may
+share data with that site under their privacy policy.
 
-## Support
+## Contact
 
-The app includes a Buy Me a Coffee link in the top app bar.
+Questions or feedback? Please open an issue in the project repository.
