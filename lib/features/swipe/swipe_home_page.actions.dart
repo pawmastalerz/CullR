@@ -72,7 +72,7 @@ class _SwipeHomeActions {
       _state._progressSwipeCount -= 1;
     }
     if (direction.isCloseTo(CardSwiperDirection.left)) {
-      _state._decisionStore.unmarkDeleteById(asset.id);
+      unawaited(_state._decisionStore.unmarkDeleteById(asset.id));
     } else if (direction.isCloseTo(CardSwiperDirection.right)) {
       unawaited(_state._decisionStore.unmarkKeepById(asset.id));
     }
@@ -251,7 +251,7 @@ class _SwipeHomeActions {
 
   void removeDeleteCandidate(AssetEntity entity) {
     _state._markNeedsBuild(() {
-      _state._decisionStore.removeCandidate(entity);
+      unawaited(_state._decisionStore.removeCandidate(entity));
     });
   }
 
@@ -319,7 +319,7 @@ class _SwipeHomeActions {
       _state._openedFullResIds.removeAll(ids);
       _state._decisionStore.clearUndo();
       for (final AssetEntity entity in items) {
-        _state._decisionStore.removeCandidate(entity);
+        unawaited(_state._decisionStore.removeCandidate(entity));
         unawaited(_state._decisionStore.removeKeepCandidate(entity));
       }
     });

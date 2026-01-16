@@ -14,6 +14,10 @@ AssetEntity _assetWithId(String id) {
   return asset;
 }
 
+AssetEntityLoader _loaderFrom(Map<String, AssetEntity> assets) {
+  return (String id) async => assets[id];
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -49,7 +53,7 @@ void main() {
     final AssetEntity asset = _assetWithId('a');
 
     await store.markForDelete(asset);
-    store.removeCandidate(asset);
+    await store.removeCandidate(asset);
 
     expect(store.deleteCandidates, isEmpty);
     expect(store.isMarkedForDelete('a'), isFalse);
@@ -87,17 +91,22 @@ void main() {
     expect(store.consumeUndo(), isFalse);
   });
 
-  test('loadKeeps and syncKeeps use stored ids', () async {
+  test('loadDecisions restores keep ids', () async {
     SharedPreferences.setMockInitialValues({
       'keep_ids': ['a', 'c'],
     });
-    final SwipeDecisionStore store = SwipeDecisionStore();
     final AssetEntity assetA = _assetWithId('a');
     final AssetEntity assetB = _assetWithId('b');
     final AssetEntity assetC = _assetWithId('c');
+    final SwipeDecisionStore store = SwipeDecisionStore(
+      entityLoader: _loaderFrom({
+        'a': assetA,
+        'b': assetB,
+        'c': assetC,
+      }),
+    );
 
-    await store.loadKeeps();
-    store.syncKeeps([assetA, assetB, assetC]);
+    await store.loadDecisions();
 
     expect(store.keepCandidates, containsAll([assetA, assetC]));
     expect(store.keepCandidates, isNot(contains(assetB)));
@@ -144,13 +153,25 @@ void main() {
     SharedPreferences.setMockInitialValues({
       'keep_ids': ['a', 'b'],
     });
-    final SwipeDecisionStore store = SwipeDecisionStore();
+    final AssetEntity assetA = _assetWithId('a');
+    final AssetEntity assetB = _assetWithId('b');
+    final SwipeDecisionStore store = SwipeDecisionStore(
+      entityLoader: _loaderFrom({
+        'a': assetA,
+        'b': assetB,
+      }),
+    );
 
-    await store.loadKeeps();
+    await store.loadDecisions();
     await store.clearKeeps();
 
-    final SwipeDecisionStore freshStore = SwipeDecisionStore();
-    await freshStore.loadKeeps();
+    final SwipeDecisionStore freshStore = SwipeDecisionStore(
+      entityLoader: _loaderFrom({
+        'a': assetA,
+        'b': assetB,
+      }),
+    );
+    await freshStore.loadDecisions();
 
     expect(freshStore.isKept('a'), isFalse);
     expect(freshStore.isKept('b'), isFalse);
@@ -160,18 +181,48 @@ void main() {
     SharedPreferences.setMockInitialValues({
       'keep_ids': ['a', 'b'],
     });
-    final SwipeDecisionStore store = SwipeDecisionStore();
     final AssetEntity assetA = _assetWithId('a');
     final AssetEntity assetB = _assetWithId('b');
+    final SwipeDecisionStore store = SwipeDecisionStore(
+      entityLoader: _loaderFrom({
+        'a': assetA,
+        'b': assetB,
+      }),
+    );
 
-    await store.loadKeeps();
-    store.syncKeeps([assetA, assetB]);
+    await store.loadDecisions();
     await store.unmarkKeepById('a');
 
-    final SwipeDecisionStore freshStore = SwipeDecisionStore();
-    await freshStore.loadKeeps();
+    final SwipeDecisionStore freshStore = SwipeDecisionStore(
+      entityLoader: _loaderFrom({
+        'a': assetA,
+        'b': assetB,
+      }),
+    );
+    await freshStore.loadDecisions();
 
     expect(freshStore.isKept('a'), isFalse);
     expect(freshStore.isKept('b'), isTrue);
+  });
+
+  test('loadDecisions restores delete ids', () async {
+    SharedPreferences.setMockInitialValues({
+      'delete_ids': ['a', 'c'],
+    });
+    final AssetEntity assetA = _assetWithId('a');
+    final AssetEntity assetB = _assetWithId('b');
+    final AssetEntity assetC = _assetWithId('c');
+    final SwipeDecisionStore store = SwipeDecisionStore(
+      entityLoader: _loaderFrom({
+        'a': assetA,
+        'b': assetB,
+        'c': assetC,
+      }),
+    );
+
+    await store.loadDecisions();
+
+    expect(store.deleteCandidates, containsAll([assetA, assetC]));
+    expect(store.deleteCandidates, isNot(contains(assetB)));
   });
 }

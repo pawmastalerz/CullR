@@ -101,6 +101,8 @@ class _SwipeHomePageState extends State<SwipeHomePage> {
     });
     _openedFullResIds.clear();
     await _galleryController.loadGallery();
+    _progressSwipeCount = _decisionStore.totalDecisionCount;
+    _swipeCount = _decisionStore.totalDecisionCount;
     if (!mounted) {
       return;
     }

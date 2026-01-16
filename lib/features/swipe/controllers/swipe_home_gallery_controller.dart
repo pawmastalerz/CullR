@@ -57,15 +57,11 @@ class SwipeHomeGalleryController {
 
     final GalleryLoadResult result = await _loadNextPage();
     permissionState = result.permissionState;
-    await _decisionStore.loadKeeps();
-    totalSwipeTarget = math.max(
-      0,
-      result.totalAssets - _decisionStore.keepCount,
-    );
+    await _decisionStore.loadDecisions();
+    totalSwipeTarget = math.max(0, result.totalAssets);
     _appendPools(result);
     await fillBuffer();
     initialLoadHadAssets = buffer.isNotEmpty;
-    _decisionStore.syncKeeps(buffer.map((card) => card.asset).toList());
     return result;
   }
 
