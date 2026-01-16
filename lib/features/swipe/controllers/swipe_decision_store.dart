@@ -47,16 +47,18 @@ class SwipeDecisionStore {
     final List<String> deleteIds = prefs.getStringList(_deleteStorageKey) ?? [];
     final List<AssetEntity> keepItems = await _loadEntitiesForIds(keepIds);
     final Set<String> keepItemIds = keepItems.map((item) => item.id).toSet();
-    final List<AssetEntity> deleteItems = (await _loadEntitiesForIds(deleteIds))
-        .where((item) => !keepItemIds.contains(item.id))
-        .toList();
+    final List<AssetEntity> deleteItems = (await _loadEntitiesForIds(
+      deleteIds,
+    )).where((item) => !keepItemIds.contains(item.id)).toList();
 
     _keepBucket.replaceItems(keepItems);
     _deleteBucket.replaceItems(deleteItems);
 
     final bool keepChanged = !_idsMatch(keepItemIds, keepIds);
-    final bool deleteChanged =
-        !_idsMatch(deleteItems.map((item) => item.id).toSet(), deleteIds);
+    final bool deleteChanged = !_idsMatch(
+      deleteItems.map((item) => item.id).toSet(),
+      deleteIds,
+    );
     if (keepChanged) {
       await _persistKeeps();
     }
@@ -160,9 +162,7 @@ class SwipeDecisionStore {
   }
 
   Future<List<AssetEntity>> _loadEntitiesForIds(Iterable<String> ids) async {
-    final List<Future<AssetEntity?>> futures = ids
-        .map(_entityLoader)
-        .toList();
+    final List<Future<AssetEntity?>> futures = ids.map(_entityLoader).toList();
     final List<AssetEntity?> results = await Future.wait(futures);
     return results.whereType<AssetEntity>().toList();
   }

@@ -199,9 +199,9 @@ class PhotoManagerGalleryService implements GalleryService {
       }
       final PermissionState effectiveState =
           permissionState == PermissionState.authorized ||
-                  permissionState == PermissionState.limited
-              ? permissionState
-              : PermissionState.authorized;
+              permissionState == PermissionState.limited
+          ? permissionState
+          : PermissionState.authorized;
       return _PermissionContext.allowed(
         permissionState: effectiveState,
         canLoadPhotos: canLoadPhotos,
@@ -277,19 +277,19 @@ class _PermissionContext {
     required bool canLoadPhotos,
     required bool canLoadVideos,
   }) : this(
-          permissionState: permissionState,
-          canLoadPhotos: canLoadPhotos,
-          canLoadVideos: canLoadVideos,
-          canLoad: canLoadPhotos || canLoadVideos,
-        );
+         permissionState: permissionState,
+         canLoadPhotos: canLoadPhotos,
+         canLoadVideos: canLoadVideos,
+         canLoad: canLoadPhotos || canLoadVideos,
+       );
 
   const _PermissionContext.denied(PermissionState permissionState)
-      : this(
-          permissionState: permissionState,
-          canLoadPhotos: false,
-          canLoadVideos: false,
-          canLoad: false,
-        );
+    : this(
+        permissionState: permissionState,
+        canLoadPhotos: false,
+        canLoadVideos: false,
+        canLoad: false,
+      );
 
   final PermissionState permissionState;
   final bool canLoadPhotos;

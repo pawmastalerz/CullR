@@ -99,11 +99,7 @@ void main() {
     final AssetEntity assetB = _assetWithId('b');
     final AssetEntity assetC = _assetWithId('c');
     final SwipeDecisionStore store = SwipeDecisionStore(
-      entityLoader: _loaderFrom({
-        'a': assetA,
-        'b': assetB,
-        'c': assetC,
-      }),
+      entityLoader: _loaderFrom({'a': assetA, 'b': assetB, 'c': assetC}),
     );
 
     await store.loadDecisions();
@@ -156,20 +152,14 @@ void main() {
     final AssetEntity assetA = _assetWithId('a');
     final AssetEntity assetB = _assetWithId('b');
     final SwipeDecisionStore store = SwipeDecisionStore(
-      entityLoader: _loaderFrom({
-        'a': assetA,
-        'b': assetB,
-      }),
+      entityLoader: _loaderFrom({'a': assetA, 'b': assetB}),
     );
 
     await store.loadDecisions();
     await store.clearKeeps();
 
     final SwipeDecisionStore freshStore = SwipeDecisionStore(
-      entityLoader: _loaderFrom({
-        'a': assetA,
-        'b': assetB,
-      }),
+      entityLoader: _loaderFrom({'a': assetA, 'b': assetB}),
     );
     await freshStore.loadDecisions();
 
@@ -184,20 +174,14 @@ void main() {
     final AssetEntity assetA = _assetWithId('a');
     final AssetEntity assetB = _assetWithId('b');
     final SwipeDecisionStore store = SwipeDecisionStore(
-      entityLoader: _loaderFrom({
-        'a': assetA,
-        'b': assetB,
-      }),
+      entityLoader: _loaderFrom({'a': assetA, 'b': assetB}),
     );
 
     await store.loadDecisions();
     await store.unmarkKeepById('a');
 
     final SwipeDecisionStore freshStore = SwipeDecisionStore(
-      entityLoader: _loaderFrom({
-        'a': assetA,
-        'b': assetB,
-      }),
+      entityLoader: _loaderFrom({'a': assetA, 'b': assetB}),
     );
     await freshStore.loadDecisions();
 
@@ -213,11 +197,7 @@ void main() {
     final AssetEntity assetB = _assetWithId('b');
     final AssetEntity assetC = _assetWithId('c');
     final SwipeDecisionStore store = SwipeDecisionStore(
-      entityLoader: _loaderFrom({
-        'a': assetA,
-        'b': assetB,
-        'c': assetC,
-      }),
+      entityLoader: _loaderFrom({'a': assetA, 'b': assetB, 'c': assetC}),
     );
 
     await store.loadDecisions();
