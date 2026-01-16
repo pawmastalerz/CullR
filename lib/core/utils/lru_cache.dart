@@ -30,8 +30,6 @@ class LruCache<K, V> {
     _evictIfNeeded();
   }
 
-  bool containsKey(K key) => _cache.containsKey(key);
-
   void remove(K key) {
     _cache.remove(key);
   }

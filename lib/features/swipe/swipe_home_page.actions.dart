@@ -116,31 +116,19 @@ class _SwipeHomeActions {
                 Expanded(
                   child: TabBarView(
                     children: [
-                      DeletePreviewSheet(
+                      _buildDeletePreviewSheet(
                         key: const ValueKey('delete-sheet'),
                         items: deleteItems,
-                        cachedBytes: _state._media.thumbnailSnapshot(),
-                        thumbnailFutureFor: _state._media.thumbnailFutureFor,
-                        sizeBytesFutureFor:
-                            _state._media.fileSizeBytesFutureFor,
-                        onOpen: openFullScreen,
+                        emptyText: AppLocalizations.of(context)!.noPhotosMarked,
                         onRemove: removeDeleteCandidate,
                         onDeleteAll: confirmDeleteAll,
-                        showDeleteButton: true,
-                        emptyText: AppLocalizations.of(context)!.noPhotosMarked,
                       ),
-                      DeletePreviewSheet(
+                      _buildDeletePreviewSheet(
                         key: const ValueKey('keep-sheet'),
                         items: keepItems,
-                        cachedBytes: _state._media.thumbnailSnapshot(),
-                        thumbnailFutureFor: _state._media.thumbnailFutureFor,
-                        sizeBytesFutureFor:
-                            _state._media.fileSizeBytesFutureFor,
-                        onOpen: openFullScreen,
+                        emptyText: AppLocalizations.of(context)!.noPhotosKept,
                         onRemove: removeKeepCandidate,
                         onDeleteAll: confirmReevaluateKeeps,
-                        showDeleteButton: true,
-                        emptyText: AppLocalizations.of(context)!.noPhotosKept,
                         footerLabel: AppLocalizations.of(
                           context,
                         )!.reEvaluateKeepAction,
@@ -155,6 +143,33 @@ class _SwipeHomeActions {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildDeletePreviewSheet({
+    required Key key,
+    required List<AssetEntity> items,
+    required String emptyText,
+    required void Function(AssetEntity entity) onRemove,
+    required Future<bool> Function(List<AssetEntity> items) onDeleteAll,
+    String? footerLabel,
+    Color? footerColor,
+    Color? footerOnColor,
+  }) {
+    return DeletePreviewSheet(
+      key: key,
+      items: items,
+      cachedBytes: _state._media.thumbnailSnapshot(),
+      thumbnailFutureFor: _state._media.thumbnailFutureFor,
+      sizeBytesFutureFor: _state._media.fileSizeBytesFutureFor,
+      onOpen: openFullScreen,
+      onRemove: onRemove,
+      onDeleteAll: onDeleteAll,
+      showDeleteButton: true,
+      emptyText: emptyText,
+      footerLabel: footerLabel,
+      footerColor: footerColor,
+      footerOnColor: footerOnColor,
     );
   }
 
@@ -301,6 +316,7 @@ class _SwipeHomeActions {
       _state._deletedCount += items.length;
       _state._deletedBytes += deletedBytes;
       _state._galleryController.removeAssetsById(ids);
+      _state._openedFullResIds.removeAll(ids);
       _state._decisionStore.clearUndo();
       for (final AssetEntity entity in items) {
         _state._decisionStore.removeCandidate(entity);

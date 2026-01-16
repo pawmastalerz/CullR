@@ -4,32 +4,27 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/config/app_config.dart';
 
 class SwipeDecisionStore {
-  final List<AssetEntity> _deleteCandidates = [];
-  final Set<String> _deleteIds = {};
-  final List<AssetEntity> _keepCandidates = [];
-  final Set<String> _keepIds = {};
+  final _DecisionBucket _deleteBucket = _DecisionBucket();
+  final _DecisionBucket _keepBucket = _DecisionBucket();
   final List<AssetEntity> _recentDecisions = [];
   Future<void> _persistQueue = Future<void>.value();
   static const String _keepStorageKey = 'keep_ids';
 
-  List<AssetEntity> get deleteCandidates =>
-      List.unmodifiable(_deleteCandidates);
-  List<AssetEntity> get keepCandidates => List.unmodifiable(_keepCandidates);
+  List<AssetEntity> get deleteCandidates => _deleteBucket.items;
+  List<AssetEntity> get keepCandidates => _keepBucket.items;
 
   int get undoCredits => _recentDecisions.length;
-  int get keepCount => _keepIds.length;
+  int get keepCount => _keepBucket.count;
 
-  bool get hasDeleteCandidates => _deleteCandidates.isNotEmpty;
-  bool get hasKeepCandidates => _keepCandidates.isNotEmpty;
+  bool get hasDeleteCandidates => _deleteBucket.hasItems;
+  bool get hasKeepCandidates => _keepBucket.hasItems;
   bool get hasAnyCandidates => hasDeleteCandidates || hasKeepCandidates;
-  bool isKept(String id) => _keepIds.contains(id);
-  bool isMarkedForDelete(String id) => _deleteIds.contains(id);
+  bool isKept(String id) => _keepBucket.containsId(id);
+  bool isMarkedForDelete(String id) => _deleteBucket.containsId(id);
 
   void reset() {
-    _deleteCandidates.clear();
-    _deleteIds.clear();
-    _keepCandidates.clear();
-    _keepIds.clear();
+    _deleteBucket.clear();
+    _keepBucket.clear();
     _recentDecisions.clear();
   }
 
@@ -40,15 +35,11 @@ class SwipeDecisionStore {
   Future<void> loadKeeps() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final List<String> ids = prefs.getStringList(_keepStorageKey) ?? [];
-    _keepIds
-      ..clear()
-      ..addAll(ids);
+    _keepBucket.replaceIds(ids);
   }
 
   void syncKeeps(List<AssetEntity> assets) {
-    _keepCandidates
-      ..clear()
-      ..addAll(assets.where((entity) => _keepIds.contains(entity.id)));
+    _keepBucket.syncItems(assets);
   }
 
   void registerDecision(AssetEntity entity) {
@@ -67,33 +58,28 @@ class SwipeDecisionStore {
   }
 
   Future<void> markForDelete(AssetEntity entity) {
-    _removeFromKeeps(entity.id);
-    final Future<void> persist = _persistKeeps();
-    if (_deleteIds.add(entity.id)) {
-      _deleteCandidates.add(entity);
-    }
-    return persist;
+    final bool removedKeep = _keepBucket.removeById(entity.id);
+    _deleteBucket.add(entity);
+    return removedKeep ? _persistKeeps() : Future<void>.value();
   }
 
   void unmarkDeleteById(String id) {
-    _removeFromDeletes(id);
+    _deleteBucket.removeById(id);
   }
 
   void removeCandidate(AssetEntity entity) {
-    _removeFromDeletes(entity.id);
+    _deleteBucket.removeById(entity.id);
   }
 
   Future<void> markForKeep(AssetEntity entity) {
-    _removeFromDeletes(entity.id);
-    if (_keepIds.add(entity.id)) {
-      _keepCandidates.add(entity);
-    }
-    return _persistKeeps();
+    _deleteBucket.removeById(entity.id);
+    final bool added = _keepBucket.add(entity);
+    return added ? _persistKeeps() : Future<void>.value();
   }
 
   Future<void> unmarkKeepById(String id) {
-    _removeFromKeeps(id);
-    return _persistKeeps();
+    final bool removed = _keepBucket.removeById(id);
+    return removed ? _persistKeeps() : Future<void>.value();
   }
 
   Future<void> removeKeepCandidate(AssetEntity entity) {
@@ -101,26 +87,60 @@ class SwipeDecisionStore {
   }
 
   Future<void> clearKeeps() {
-    _keepCandidates.clear();
-    _keepIds.clear();
+    _keepBucket.clear();
     return _persistKeeps();
   }
 
   Future<void> _persistKeeps() {
     _persistQueue = _persistQueue.then((_) async {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setStringList(_keepStorageKey, _keepIds.toList());
+      await prefs.setStringList(_keepStorageKey, _keepBucket.ids.toList());
     });
     return _persistQueue;
   }
+}
 
-  void _removeFromKeeps(String id) {
-    _keepIds.remove(id);
-    _keepCandidates.removeWhere((entity) => entity.id == id);
+class _DecisionBucket {
+  final List<AssetEntity> _items = [];
+  final Set<String> _ids = {};
+
+  List<AssetEntity> get items => List.unmodifiable(_items);
+  Iterable<String> get ids => _ids;
+  int get count => _ids.length;
+  bool get hasItems => _items.isNotEmpty;
+  bool containsId(String id) => _ids.contains(id);
+
+  bool add(AssetEntity entity) {
+    if (!_ids.add(entity.id)) {
+      return false;
+    }
+    _items.add(entity);
+    return true;
   }
 
-  void _removeFromDeletes(String id) {
-    _deleteIds.remove(id);
-    _deleteCandidates.removeWhere((entity) => entity.id == id);
+  bool removeById(String id) {
+    if (!_ids.remove(id)) {
+      return false;
+    }
+    _items.removeWhere((entity) => entity.id == id);
+    return true;
+  }
+
+  void replaceIds(Iterable<String> ids) {
+    _ids
+      ..clear()
+      ..addAll(ids);
+    _items.removeWhere((entity) => !_ids.contains(entity.id));
+  }
+
+  void syncItems(Iterable<AssetEntity> assets) {
+    _items
+      ..clear()
+      ..addAll(assets.where((entity) => _ids.contains(entity.id)));
+  }
+
+  void clear() {
+    _items.clear();
+    _ids.clear();
   }
 }

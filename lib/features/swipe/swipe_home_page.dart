@@ -99,6 +99,7 @@ class _SwipeHomePageState extends State<SwipeHomePage> {
     _markNeedsBuild(() {
       _loading = true;
     });
+    _openedFullResIds.clear();
     await _galleryController.loadGallery();
     if (!mounted) {
       return;
