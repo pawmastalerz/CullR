@@ -115,13 +115,13 @@ class _SelectionCheckbox extends StatelessWidget {
       width: AppSpacing.closeButtonSize,
       height: AppSpacing.closeButtonSize,
       decoration: BoxDecoration(
-        color: selected ? AppColors.accentBlue : AppColors.bgSurface,
+        color: selected ? AppColors.selectionBlue : AppColors.bgSurface,
         shape: BoxShape.circle,
         border: Border.all(color: AppColors.borderStrong),
       ),
       child: Icon(
         selected ? Icons.check : Icons.circle_outlined,
-        color: selected ? AppColors.accentBlueOn : AppColors.textSecondary,
+        color: selected ? AppColors.selectionBlueOn : AppColors.textSecondary,
         size: AppSpacing.iconSm,
       ),
     );

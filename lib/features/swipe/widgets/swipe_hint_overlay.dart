@@ -146,7 +146,7 @@ class _SwipeHintOverlayState extends State<SwipeHintOverlay>
                       ),
                       SwipeOverlay(
                         horizontalOffsetPercent: percent,
-                        cardIndex: 0,
+                        labelSeed: widget.entity.id,
                       ),
                     ],
                   ),

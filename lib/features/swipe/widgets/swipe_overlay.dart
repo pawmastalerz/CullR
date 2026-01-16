@@ -1,63 +1,22 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import '../../../styles/colors.dart';
 import '../../../styles/spacing.dart';
 import '../../../styles/typography.dart';
+import 'delete_labels.dart';
+import 'keep_labels.dart';
 
 class SwipeOverlay extends StatelessWidget {
   const SwipeOverlay({
     super.key,
     required this.horizontalOffsetPercent,
-    required this.cardIndex,
+    required this.labelSeed,
   });
 
   final int horizontalOffsetPercent;
-  final int cardIndex;
-
-  static const List<String> _nopeLabels = [
-    'DELETE',
-    'NAH',
-    'NO WAY',
-    'TRASH',
-    'PASS',
-    'BYE',
-    'NOPE AF',
-    'WHY',
-    'YIKES',
-    'MEH',
-    'GONE',
-    'BIN',
-    'HARD NO',
-    'NUKE',
-    'MISS',
-    'EWW',
-    'NOT TODAY',
-    'YEET',
-    'BANISH',
-    'NO SIR',
-  ];
-  static const List<String> _keepLabels = [
-    'KEEP',
-    'SAVE',
-    'YES',
-    'NICE',
-    'GOOD',
-    'OKAY',
-    'YEP',
-    'FAV',
-    'WIN',
-    'GOLD',
-    'HOLD',
-    'THIS',
-    'CLEAN',
-    'SAFE',
-    'LOCK',
-    'MINE',
-    'LEGIT',
-    'STAY',
-    'COOL',
-    'BASED',
-  ];
+  final String labelSeed;
 
   @override
   Widget build(BuildContext context) {
@@ -67,10 +26,10 @@ class SwipeOverlay extends StatelessWidget {
     }
 
     final bool isRight = horizontalOffsetPercent > 0;
-    final int safeIndex = cardIndex.abs();
-    final String label = isRight
-        ? _keepLabels[safeIndex % _keepLabels.length]
-        : _nopeLabels[safeIndex % _nopeLabels.length];
+    final List<String> labels = isRight ? keepLabels : deleteLabels;
+    final int seed = labelSeed.hashCode ^ (isRight ? 0x9E3779B9 : 0x7F4A7C15);
+    final Random rng = Random(seed);
+    final String label = labels[rng.nextInt(labels.length)];
     final Color color = isRight ? AppColors.accentGreen : AppColors.accentRed;
     final double scale = 0.8 + (0.4 * progress);
     final double rotation = (isRight ? -0.12 : 0.12) * progress;

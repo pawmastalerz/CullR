@@ -294,7 +294,7 @@ class SwipeDeckState extends State<SwipeDeck>
                     ),
                     SwipeOverlay(
                       horizontalOffsetPercent: horizontalPercent,
-                      cardIndex: i,
+                      labelSeed: asset.id,
                     ),
                   ],
                 );

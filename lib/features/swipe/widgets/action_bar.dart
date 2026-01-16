@@ -165,20 +165,20 @@ class _StatusButtonState extends State<StatusButton>
         final double opacity = ((1 - t) * intensity).clamp(0.0, 1.0);
         return Container(
           decoration: BoxDecoration(
-            color: AppColors.accentBlue,
+            color: AppColors.selectionBlue,
             shape: BoxShape.circle,
             boxShadow: opacity == 0
                 ? const []
                 : [
                     BoxShadow(
-                      color: AppColors.accentBlue.withValues(
+                      color: AppColors.selectionBlue.withValues(
                         alpha: 0.9 * opacity,
                       ),
                       blurRadius: blur,
                       spreadRadius: spread,
                     ),
                     BoxShadow(
-                      color: AppColors.accentBlue.withValues(
+                      color: AppColors.selectionBlue.withValues(
                         alpha: 0.45 * opacity,
                       ),
                       blurRadius: blur * 1.6,

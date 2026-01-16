@@ -113,8 +113,8 @@ class AssetCard extends StatelessWidget {
                 child: SizedBox.shrink(),
               ),
               Positioned(
-                right: AppSpacing.lg,
-                bottom: AppSpacing.lg,
+                right: AppSpacing.xl,
+                bottom: AppSpacing.xl,
                 child: sizeBadge,
               ),
               if (isVideo) const Center(child: PlayBadge(withShadow: true)),
