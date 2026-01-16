@@ -65,10 +65,6 @@ class SwipeDecisionStore {
     }
   }
 
-  void syncKeeps(List<AssetEntity> assets) {
-    _keepBucket.syncItems(assets);
-  }
-
   void registerDecision(AssetEntity entity) {
     _recentDecisions.add(entity);
     if (_recentDecisions.length > AppConfig.swipeUndoLimit) {
@@ -210,13 +206,6 @@ class _DecisionBucket {
     return true;
   }
 
-  void replaceIds(Iterable<String> ids) {
-    _ids
-      ..clear()
-      ..addAll(ids);
-    _items.removeWhere((entity) => !_ids.contains(entity.id));
-  }
-
   void replaceItems(Iterable<AssetEntity> items) {
     _items
       ..clear()
@@ -224,12 +213,6 @@ class _DecisionBucket {
     _ids
       ..clear()
       ..addAll(items.map((entity) => entity.id));
-  }
-
-  void syncItems(Iterable<AssetEntity> assets) {
-    _items
-      ..clear()
-      ..addAll(assets.where((entity) => _ids.contains(entity.id)));
   }
 
   void clear() {

@@ -106,42 +106,22 @@ class PhotoManagerGalleryService implements GalleryService {
     required int videoCount,
     required int otherCount,
   }) async {
-    final PermissionState permissionState = await _photoManager
-        .requestPermissionExtend();
-
-    bool canLoadPhotos = true;
-    bool canLoadVideos = true;
-    PermissionState effectivePermissionState = permissionState;
-    if (_isAndroid) {
-      final permission_handler.PermissionStatus photosStatus =
-          await _permissionClient.photosStatus();
-      final permission_handler.PermissionStatus videosStatus =
-          await _permissionClient.videosStatus();
-      canLoadPhotos = photosStatus.isGranted;
-      canLoadVideos = videosStatus.isGranted;
-      if (!canLoadPhotos && !canLoadVideos) {
-        return _emptyResult(permissionState);
-      }
-      if (permissionState != PermissionState.authorized &&
-          permissionState != PermissionState.limited) {
-        effectivePermissionState = PermissionState.authorized;
-      }
-    } else if (permissionState != PermissionState.authorized &&
-        permissionState != PermissionState.limited) {
-      return _emptyResult(permissionState);
+    final _PermissionContext permission = await _resolvePermissions();
+    if (!permission.canLoad) {
+      return _emptyResult(permission.permissionState);
     }
 
     final _AlbumLoadResult images = await _loadAlbum(
       type: RequestType.image,
       page: otherPage,
       size: otherCount,
-      canLoad: canLoadPhotos,
+      canLoad: permission.canLoadPhotos,
     );
     final _AlbumLoadResult videos = await _loadAlbum(
       type: RequestType.video,
       page: videoPage,
       size: videoCount,
-      canLoad: canLoadVideos,
+      canLoad: permission.canLoadVideos,
     );
 
     final List<AssetEntity> shuffledImages = List.of(images.assets)..shuffle();
@@ -149,7 +129,7 @@ class PhotoManagerGalleryService implements GalleryService {
     final List<AssetEntity> assets = [...shuffledImages, ...shuffledVideos];
 
     return GalleryLoadResult(
-      permissionState: effectivePermissionState,
+      permissionState: permission.permissionState,
       assets: assets,
       videos: shuffledVideos,
       others: shuffledImages,
@@ -204,6 +184,41 @@ class PhotoManagerGalleryService implements GalleryService {
     return file.length();
   }
 
+  Future<_PermissionContext> _resolvePermissions() async {
+    final PermissionState permissionState = await _photoManager
+        .requestPermissionExtend();
+    if (_isAndroid) {
+      final permission_handler.PermissionStatus photosStatus =
+          await _permissionClient.photosStatus();
+      final permission_handler.PermissionStatus videosStatus =
+          await _permissionClient.videosStatus();
+      final bool canLoadPhotos = photosStatus.isGranted;
+      final bool canLoadVideos = videosStatus.isGranted;
+      if (!canLoadPhotos && !canLoadVideos) {
+        return _PermissionContext.denied(permissionState);
+      }
+      final PermissionState effectiveState =
+          permissionState == PermissionState.authorized ||
+                  permissionState == PermissionState.limited
+              ? permissionState
+              : PermissionState.authorized;
+      return _PermissionContext.allowed(
+        permissionState: effectiveState,
+        canLoadPhotos: canLoadPhotos,
+        canLoadVideos: canLoadVideos,
+      );
+    }
+    if (permissionState != PermissionState.authorized &&
+        permissionState != PermissionState.limited) {
+      return _PermissionContext.denied(permissionState);
+    }
+    return _PermissionContext.allowed(
+      permissionState: permissionState,
+      canLoadPhotos: true,
+      canLoadVideos: true,
+    );
+  }
+
   GalleryLoadResult _emptyResult(PermissionState permissionState) {
     return GalleryLoadResult(
       permissionState: permissionState,
@@ -247,4 +262,37 @@ class _AlbumLoadResult {
 
   final int total;
   final List<AssetEntity> assets;
+}
+
+class _PermissionContext {
+  const _PermissionContext({
+    required this.permissionState,
+    required this.canLoadPhotos,
+    required this.canLoadVideos,
+    required this.canLoad,
+  });
+
+  const _PermissionContext.allowed({
+    required PermissionState permissionState,
+    required bool canLoadPhotos,
+    required bool canLoadVideos,
+  }) : this(
+          permissionState: permissionState,
+          canLoadPhotos: canLoadPhotos,
+          canLoadVideos: canLoadVideos,
+          canLoad: canLoadPhotos || canLoadVideos,
+        );
+
+  const _PermissionContext.denied(PermissionState permissionState)
+      : this(
+          permissionState: permissionState,
+          canLoadPhotos: false,
+          canLoadVideos: false,
+          canLoad: false,
+        );
+
+  final PermissionState permissionState;
+  final bool canLoadPhotos;
+  final bool canLoadVideos;
+  final bool canLoad;
 }

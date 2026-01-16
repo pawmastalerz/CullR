@@ -129,6 +129,25 @@ class _SwipeHomePageState extends State<SwipeHomePage> {
     setState(update ?? () {});
   }
 
+  void _incrementSwipeProgress() {
+    _swipeCount += 1;
+    _progressSwipeCount += 1;
+    _statusGlowTick += 1;
+  }
+
+  void _decrementSwipeProgress() {
+    if (_progressSwipeCount > 0) {
+      _progressSwipeCount -= 1;
+    }
+  }
+
+  void _decrementSwipeProgressBy(int count) {
+    if (count <= 0) {
+      return;
+    }
+    _progressSwipeCount = math.max(0, _progressSwipeCount - count);
+  }
+
   int _remainingToSwipe() {
     if (_totalSwipeTarget <= 0) {
       return 0;

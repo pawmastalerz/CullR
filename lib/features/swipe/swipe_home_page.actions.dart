@@ -20,9 +20,7 @@ class _SwipeHomeActions {
     final AssetEntity asset = card.asset;
     _state._decisionStore.registerDecision(asset);
     dismissSwipeHint();
-    _state._swipeCount++;
-    _state._progressSwipeCount++;
-    _state._statusGlowTick++;
+    _state._incrementSwipeProgress();
     _state._swipeHistory.add(direction);
     if (direction.isCloseTo(CardSwiperDirection.left)) {
       unawaited(_state._decisionStore.markForDelete(asset));
@@ -56,6 +54,9 @@ class _SwipeHomeActions {
   }
 
   bool handleUndo() {
+    if (_state._decisionStore.undoCredits == 0) {
+      return false;
+    }
     if (_state._swipeHistory.isEmpty) {
       return false;
     }
@@ -68,9 +69,7 @@ class _SwipeHomeActions {
     }
     final AssetEntity asset = card.asset;
     final CardSwiperDirection direction = _state._swipeHistory.removeLast();
-    if (_state._progressSwipeCount > 0) {
-      _state._progressSwipeCount -= 1;
-    }
+    _state._decrementSwipeProgress();
     if (direction.isCloseTo(CardSwiperDirection.left)) {
       unawaited(_state._decisionStore.unmarkDeleteById(asset.id));
     } else if (direction.isCloseTo(CardSwiperDirection.right)) {
@@ -251,20 +250,20 @@ class _SwipeHomeActions {
   }
 
   void removeDeleteCandidate(AssetEntity entity) {
-    _state._markNeedsBuild(() {
-      unawaited(_state._decisionStore.removeCandidate(entity));
-      if (_state._progressSwipeCount > 0) {
-        _state._progressSwipeCount -= 1;
-      }
-    });
+    _removeCandidate(entity, _state._decisionStore.removeCandidate);
   }
 
   void removeKeepCandidate(AssetEntity entity) {
+    _removeCandidate(entity, _state._decisionStore.removeKeepCandidate);
+  }
+
+  void _removeCandidate(
+    AssetEntity entity,
+    Future<void> Function(AssetEntity) remover,
+  ) {
     _state._markNeedsBuild(() {
-      unawaited(_state._decisionStore.removeKeepCandidate(entity));
-      if (_state._progressSwipeCount > 0) {
-        _state._progressSwipeCount -= 1;
-      }
+      unawaited(remover(entity));
+      _state._decrementSwipeProgress();
     });
   }
 
@@ -310,10 +309,7 @@ class _SwipeHomeActions {
     await _state._decisionStore.clearKeeps();
     _state._markNeedsBuild(() {
       _state._decisionStore.clearUndo();
-      _state._progressSwipeCount = math.max(
-        0,
-        _state._progressSwipeCount - clearedCount,
-      );
+      _state._decrementSwipeProgressBy(clearedCount);
     });
     return true;
   }
@@ -327,15 +323,11 @@ class _SwipeHomeActions {
     _state._markNeedsBuild(() {
       _state._deletedCount += items.length;
       _state._deletedBytes += deletedBytes;
-      _state._galleryController.totalSwipeTarget = math.max(
-        0,
-        _state._galleryController.totalSwipeTarget - items.length,
-      );
+      _state._galleryController.applyDeletion(ids);
       _state._progressSwipeCount = math.min(
         _state._progressSwipeCount,
         _state._galleryController.totalSwipeTarget,
       );
-      _state._galleryController.removeAssetsById(ids);
       _state._openedFullResIds.removeAll(ids);
       _state._decisionStore.clearUndo();
       for (final AssetEntity entity in items) {

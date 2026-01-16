@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:math' as math;
 import 'dart:typed_data';
 
@@ -24,52 +25,60 @@ class SwipeHomeGalleryController {
   final SwipeDecisionStore _decisionStore;
   final SwipeHomeMediaCache _media;
 
-  final List<SwipeCard> buffer = [];
+  final List<SwipeCard> _buffer = [];
   final List<AssetEntity> _photoPool = [];
   final List<AssetEntity> _videoPool = [];
   final List<SwipeCard> _undoWindow = [];
 
-  PermissionState? permissionState;
-  bool initialLoadHadAssets = false;
-  int videoPage = 0;
-  int otherPage = 0;
-  bool hasMoreVideos = true;
-  bool hasMoreOthers = true;
-  bool loadingMore = false;
+  PermissionState? _permissionState;
+  bool _initialLoadHadAssets = false;
+  int _videoPage = 0;
+  int _otherPage = 0;
+  bool _hasMoreVideos = true;
+  bool _hasMoreOthers = true;
+  bool _loadingMore = false;
   bool _filling = false;
-  int totalSwipeTarget = 0;
+  int _totalSwipeTarget = 0;
+
+  List<SwipeCard> get buffer => UnmodifiableListView(_buffer);
+  PermissionState? get permissionState => _permissionState;
+  bool get initialLoadHadAssets => _initialLoadHadAssets;
+  bool get hasMoreVideos => _hasMoreVideos;
+  bool get hasMoreOthers => _hasMoreOthers;
+  bool get loadingMore => _loadingMore;
+  int get totalSwipeTarget => _totalSwipeTarget;
 
   Future<GalleryLoadResult> loadGallery() async {
-    initialLoadHadAssets = false;
-    buffer.clear();
+    _initialLoadHadAssets = false;
+    _buffer.clear();
     _photoPool.clear();
     _videoPool.clear();
     _undoWindow.clear();
     _decisionStore.reset();
     _media.reset();
-    videoPage = 0;
-    otherPage = 0;
-    hasMoreVideos = true;
-    hasMoreOthers = true;
-    loadingMore = false;
+    _videoPage = 0;
+    _otherPage = 0;
+    _hasMoreVideos = true;
+    _hasMoreOthers = true;
+    _loadingMore = false;
     _filling = false;
-    totalSwipeTarget = 0;
+    _totalSwipeTarget = 0;
 
     final GalleryLoadResult result = await _loadNextPage();
-    permissionState = result.permissionState;
+    _permissionState = result.permissionState;
     await _decisionStore.loadDecisions();
-    totalSwipeTarget = math.max(0, result.totalAssets);
+    _totalSwipeTarget = math.max(0, result.totalAssets);
     _appendPools(result);
     await fillBuffer();
-    initialLoadHadAssets = buffer.isNotEmpty;
+    _initialLoadHadAssets = _buffer.isNotEmpty;
     return result;
   }
 
   Future<bool> ensureBuffer() async {
-    if (loadingMore || _filling) {
+    if (_loadingMore || _filling) {
       return false;
     }
-    if (buffer.length >= AppConfig.swipeBufferSize) {
+    if (_buffer.length >= AppConfig.swipeBufferSize) {
       return false;
     }
     await fillBuffer();
@@ -82,9 +91,9 @@ class SwipeHomeGalleryController {
     }
     _filling = true;
     try {
-      while (buffer.length < AppConfig.swipeBufferSize) {
+      while (_buffer.length < AppConfig.swipeBufferSize) {
         if (_photoPool.isEmpty && _videoPool.isEmpty) {
-          if (!hasMoreVideos && !hasMoreOthers) {
+          if (!_hasMoreVideos && !_hasMoreOthers) {
             break;
           }
           final GalleryLoadResult result = await _loadNextPage();
@@ -102,7 +111,7 @@ class SwipeHomeGalleryController {
         if (bytes == null) {
           continue;
         }
-        buffer.add(SwipeCard(asset: next, thumbnailBytes: bytes));
+        _buffer.add(SwipeCard(asset: next, thumbnailBytes: bytes));
       }
     } finally {
       _filling = false;
@@ -110,10 +119,10 @@ class SwipeHomeGalleryController {
   }
 
   SwipeCard? popForSwipe() {
-    if (buffer.isEmpty) {
+    if (_buffer.isEmpty) {
       return null;
     }
-    final SwipeCard card = buffer.removeAt(0);
+    final SwipeCard card = _buffer.removeAt(0);
     _undoWindow.add(card);
     while (_undoWindow.length > AppConfig.swipeUndoLimit) {
       final SwipeCard removed = _undoWindow.removeAt(0);
@@ -127,16 +136,21 @@ class SwipeHomeGalleryController {
       return null;
     }
     final SwipeCard card = _undoWindow.removeLast();
-    buffer.insert(0, card);
-    while (buffer.length > AppConfig.swipeBufferSize) {
-      final SwipeCard removed = buffer.removeLast();
+    _buffer.insert(0, card);
+    while (_buffer.length > AppConfig.swipeBufferSize) {
+      final SwipeCard removed = _buffer.removeLast();
       _media.evictThumbnail(removed.asset.id);
     }
     return card;
   }
 
-  void removeAssetsById(Set<String> ids) {
-    buffer.removeWhere((card) => ids.contains(card.asset.id));
+  void applyDeletion(Set<String> ids) {
+    _totalSwipeTarget = math.max(0, _totalSwipeTarget - ids.length);
+    _removeAssetsById(ids);
+  }
+
+  void _removeAssetsById(Set<String> ids) {
+    _buffer.removeWhere((card) => ids.contains(card.asset.id));
     _photoPool.removeWhere((asset) => ids.contains(asset.id));
     _videoPool.removeWhere((asset) => ids.contains(asset.id));
     _undoWindow.removeWhere((card) => ids.contains(card.asset.id));
@@ -146,28 +160,28 @@ class SwipeHomeGalleryController {
   }
 
   Future<GalleryLoadResult> _loadNextPage() async {
-    loadingMore = true;
+    _loadingMore = true;
     final GalleryLoadResult result = await _galleryService.loadGallery(
-      videoPage: videoPage,
-      otherPage: otherPage,
+      videoPage: _videoPage,
+      otherPage: _otherPage,
       videoCount: AppConfig.galleryVideoBatchSize,
       otherCount: AppConfig.galleryOtherBatchSize,
     );
-    permissionState = result.permissionState;
+    _permissionState = result.permissionState;
     if (result.videos.length < AppConfig.galleryVideoBatchSize) {
-      hasMoreVideos = false;
+      _hasMoreVideos = false;
     }
     if (result.others.length < AppConfig.galleryOtherBatchSize) {
-      hasMoreOthers = false;
+      _hasMoreOthers = false;
     }
     if (result.videos.isNotEmpty) {
-      videoPage += 1;
+      _videoPage += 1;
     }
     if (result.others.isNotEmpty) {
-      otherPage += 1;
+      _otherPage += 1;
     }
     _logBatch(result);
-    loadingMore = false;
+    _loadingMore = false;
     return result;
   }
 
@@ -183,10 +197,10 @@ class SwipeHomeGalleryController {
   AssetEntity? _nextFromPools() {
     final int targetVideos = AppConfig.swipeBufferVideoTarget;
     final int targetPhotos = AppConfig.swipeBufferPhotoTarget;
-    final int currentVideos = buffer
+    final int currentVideos = _buffer
         .where((card) => card.asset.type == AssetType.video)
         .length;
-    final int currentPhotos = buffer.length - currentVideos;
+    final int currentPhotos = _buffer.length - currentVideos;
 
     final bool needVideo =
         currentVideos < targetVideos && _videoPool.isNotEmpty;
@@ -212,9 +226,9 @@ class SwipeHomeGalleryController {
     AppLogger.batch(
       'gallery',
       'append videos=${result.videos.length} others=${result.others.length} '
-          'videoPage=$videoPage otherPage=$otherPage '
-          'hasMoreVideos=$hasMoreVideos '
-          'hasMoreOthers=$hasMoreOthers',
+          'videoPage=$_videoPage otherPage=$_otherPage '
+          'hasMoreVideos=$_hasMoreVideos '
+          'hasMoreOthers=$_hasMoreOthers',
     );
   }
 }
