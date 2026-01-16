@@ -253,12 +253,18 @@ class _SwipeHomeActions {
   void removeDeleteCandidate(AssetEntity entity) {
     _state._markNeedsBuild(() {
       unawaited(_state._decisionStore.removeCandidate(entity));
+      if (_state._progressSwipeCount > 0) {
+        _state._progressSwipeCount -= 1;
+      }
     });
   }
 
   void removeKeepCandidate(AssetEntity entity) {
     _state._markNeedsBuild(() {
       unawaited(_state._decisionStore.removeKeepCandidate(entity));
+      if (_state._progressSwipeCount > 0) {
+        _state._progressSwipeCount -= 1;
+      }
     });
   }
 
@@ -300,9 +306,14 @@ class _SwipeHomeActions {
     if (!_state.mounted) {
       return false;
     }
+    final int clearedCount = _state._decisionStore.keepCount;
     await _state._decisionStore.clearKeeps();
     _state._markNeedsBuild(() {
       _state._decisionStore.clearUndo();
+      _state._progressSwipeCount = math.max(
+        0,
+        _state._progressSwipeCount - clearedCount,
+      );
     });
     return true;
   }
@@ -316,6 +327,14 @@ class _SwipeHomeActions {
     _state._markNeedsBuild(() {
       _state._deletedCount += items.length;
       _state._deletedBytes += deletedBytes;
+      _state._galleryController.totalSwipeTarget = math.max(
+        0,
+        _state._galleryController.totalSwipeTarget - items.length,
+      );
+      _state._progressSwipeCount = math.min(
+        _state._progressSwipeCount,
+        _state._galleryController.totalSwipeTarget,
+      );
       _state._galleryController.removeAssetsById(ids);
       _state._openedFullResIds.removeAll(ids);
       _state._decisionStore.clearUndo();
