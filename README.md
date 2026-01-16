@@ -1,19 +1,39 @@
 # CullR
 
-CullR is a focused Flutter app for speed-sorting your photo library. Swipe
-right to keep, left to delete, and review what you marked before committing.
+CullR is a Flutter app for cleaning up your photo library fast. You swipe
+through items, review what you chose, and only then commit deletions.
+The app is fully open source and does not collect any data.
 
-## Features
+## What it does
 
-- Swipe-first review flow with undo
-- Review "Keep" and "Delete" queues before action
-- Fullscreen preview for photos, GIFs, and videos
-- Batched loading with thumbnail caching for smoother browsing
-- Multilingual UI (via Flutter localization)
+- Swipe right to keep, left to delete
+- Undo recent swipes
+- Review "Keep" and "Delete" queues before taking action
+- Preview photos, GIFs, and videos in fullscreen
+- Fast loading via batching + caching
+- Multilingual UI
+
+## How the flow works
+
+1. The app loads batches of photos and videos from the device gallery.
+2. You swipe cards to classify items as keep or delete.
+3. The status button opens a preview sheet with two tabs: Delete and Keep.
+4. You can remove items from either list or confirm a bulk delete/review.
+5. Deletions are only committed after a confirmation dialog.
+
+## Project layout (at a glance)
+
+- `lib/main.dart`: app entry point and theme
+- `lib/core/config/app_config.dart`: tuning knobs for batching, buffer sizes, and cache limits
+- `lib/core`: shared services, models, utilities, widgets
+- `lib/features/swipe`: swipe flow controllers, models, and UI
+- `lib/styles`: color, spacing, typography tokens
+- `lib/l10n`: ARB translations + generated localizations
+- `test`: unit and widget tests
 
 ## Requirements
 
-- Flutter SDK (3.10+)
+- Flutter SDK 3.10+
 - iOS or Android device/emulator with gallery access
 
 ## Run locally
@@ -23,35 +43,31 @@ flutter pub get
 flutter run
 ```
 
-## Scripts
+## Tests
 
-Windows batch helpers live in `scripts/`:
+```bash
+flutter test
+```
 
-- `scripts/start_dev.bat` starts the app on a connected Android device (clears
-  app data first).
-- `scripts/install_prod.bat` builds a release APK and installs it on a connected
-  Android device.
-- `scripts/check.bat` runs formatting, localization generation, diagnostics,
-  analysis, and tests.
+## Scripts (Windows)
+
+Batch helpers live in `scripts/`:
+
+- `scripts/start_dev.bat`: starts the app on a connected Android device
+- `scripts/install_prod.bat`: builds a release APK and installs to Android
+- `scripts/check.bat`: formatting, l10n generation, analysis, tests
 
 ## Permissions
 
-CullR uses `photo_manager` to access the device gallery. On first launch, the
-app will request permission. If access is denied or limited, the settings menu
-offers a shortcut to re-open the system permissions screen.
+CullR uses `photo_manager` to access your device gallery. On first launch the
+app requests permission. If access is denied or limited, the settings menu
+provides a shortcut to open system permissions.
 
 ## Localization
 
-Strings live in `lib/l10n/*.arb` and are generated via `flutter gen-l10n`. Add
-translations by creating a new `.arb` file and rerun the generator.
-
-## Contributing
-
-- Keep UI changes consistent with the existing dark theme styles in
-  `lib/styles`.
-- Prefer small, testable changes and update localization strings when adding UI.
+Strings live in `lib/l10n/*.arb` and are generated via `flutter gen-l10n`.
+Add a new locale by creating a new `.arb` file and re-running the generator.
 
 ## Support
 
-If you want to support the project, the app links to a Buy Me a Coffee page from
-the top app bar.
+The app includes a Buy Me a Coffee link in the top app bar.
