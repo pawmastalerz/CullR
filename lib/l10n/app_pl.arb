@@ -58,5 +58,14 @@
   "settingsSummaryDeleted": "Usunięte",
   "settingsSummaryDeleteSize": "Odzyskane miejsce",
   "allCaughtUpTitle": "Wszystko nadrobione",
-  "allCaughtUpMessage": "Na razie nie ma więcej zdjęć do przejrzenia."
+  "allCaughtUpMessage": "Na razie nie ma więcej zdjęć do przejrzenia.",
+  "milestoneTitle": "Gratulacje!",
+  "milestoneClearedMessage": "Udało Ci się zwolnić {mb} MB.",
+  "@milestoneClearedMessage": {
+    "placeholders": {
+      "mb": {
+        "type": "int"
+      }
+    }
+  }
 }

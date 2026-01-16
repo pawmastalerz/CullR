@@ -58,5 +58,14 @@
   "settingsSummaryDeleted": "Eliminati",
   "settingsSummaryDeleteSize": "Spazio recuperato",
   "allCaughtUpTitle": "Sei al passo",
-  "allCaughtUpMessage": "Al momento non ci sono altre foto da rivedere."
+  "allCaughtUpMessage": "Al momento non ci sono altre foto da rivedere.",
+  "milestoneTitle": "Complimenti!",
+  "milestoneClearedMessage": "Hai liberato {mb} MB.",
+  "@milestoneClearedMessage": {
+    "placeholders": {
+      "mb": {
+        "type": "int"
+      }
+    }
+  }
 }

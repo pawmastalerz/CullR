@@ -397,6 +397,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No more photos to review right now.'**
   String get allCaughtUpMessage;
+
+  /// No description provided for @milestoneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Congrats!'**
+  String get milestoneTitle;
+
+  /// No description provided for @milestoneClearedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You managed to clear {mb} MB.'**
+  String milestoneClearedMessage(int mb);
 }
 
 class _AppLocalizationsDelegate

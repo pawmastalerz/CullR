@@ -58,5 +58,14 @@
   "settingsSummaryDeleted": "हटाए गए",
   "settingsSummaryDeleteSize": "पुनः प्राप्त स्थान",
   "allCaughtUpTitle": "सब देख लिया",
-  "allCaughtUpMessage": "अभी समीक्षा करने के लिए और फोटो नहीं हैं।"
+  "allCaughtUpMessage": "अभी समीक्षा करने के लिए और फोटो नहीं हैं।",
+  "milestoneTitle": "बधाई!",
+  "milestoneClearedMessage": "आपने {mb} MB साफ कर दिए।",
+  "@milestoneClearedMessage": {
+    "placeholders": {
+      "mb": {
+        "type": "int"
+      }
+    }
+  }
 }

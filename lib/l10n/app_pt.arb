@@ -58,5 +58,14 @@
   "settingsSummaryDeleted": "Eliminados",
   "settingsSummaryDeleteSize": "Espaço recuperado",
   "allCaughtUpTitle": "Você está em dia",
-  "allCaughtUpMessage": "Não há mais fotos para revisar agora."
+  "allCaughtUpMessage": "Não há mais fotos para revisar agora.",
+  "milestoneTitle": "Parabéns!",
+  "milestoneClearedMessage": "Você liberou {mb} MB.",
+  "@milestoneClearedMessage": {
+    "placeholders": {
+      "mb": {
+        "type": "int"
+      }
+    }
+  }
 }

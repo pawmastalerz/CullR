@@ -58,5 +58,14 @@
   "settingsSummaryDeleted": "Verwijderd",
   "settingsSummaryDeleteSize": "Vrijgemaakte ruimte",
   "allCaughtUpTitle": "Je bent helemaal bij",
-  "allCaughtUpMessage": "Er zijn nu geen foto's meer om te bekijken."
+  "allCaughtUpMessage": "Er zijn nu geen foto's meer om te bekijken.",
+  "milestoneTitle": "Gefeliciteerd!",
+  "milestoneClearedMessage": "Je hebt {mb} MB vrijgemaakt.",
+  "@milestoneClearedMessage": {
+    "placeholders": {
+      "mb": {
+        "type": "int"
+      }
+    }
+  }
 }

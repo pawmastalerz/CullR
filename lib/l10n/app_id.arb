@@ -58,5 +58,14 @@
   "settingsSummaryDeleted": "Dihapus",
   "settingsSummaryDeleteSize": "Ruang yang dipulihkan",
   "allCaughtUpTitle": "Semua sudah ditinjau",
-  "allCaughtUpMessage": "Saat ini tidak ada foto lagi untuk ditinjau."
+  "allCaughtUpMessage": "Saat ini tidak ada foto lagi untuk ditinjau.",
+  "milestoneTitle": "Selamat!",
+  "milestoneClearedMessage": "Kamu berhasil mengosongkan {mb} MB.",
+  "@milestoneClearedMessage": {
+    "placeholders": {
+      "mb": {
+        "type": "int"
+      }
+    }
+  }
 }

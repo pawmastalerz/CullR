@@ -58,5 +58,14 @@
   "settingsSummaryDeleted": "Borttagna",
   "settingsSummaryDeleteSize": "Frigjort utrymme",
   "allCaughtUpTitle": "Du är ikapp",
-  "allCaughtUpMessage": "Inga fler foton att granska just nu."
+  "allCaughtUpMessage": "Inga fler foton att granska just nu.",
+  "milestoneTitle": "Grattis!",
+  "milestoneClearedMessage": "Du frigjorde {mb} MB.",
+  "@milestoneClearedMessage": {
+    "placeholders": {
+      "mb": {
+        "type": "int"
+      }
+    }
+  }
 }

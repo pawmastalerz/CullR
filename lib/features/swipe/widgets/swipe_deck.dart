@@ -7,6 +7,7 @@ import 'package:photo_manager/photo_manager.dart';
 
 import '../../../styles/spacing.dart';
 import 'asset_card.dart';
+import 'milestone_card.dart';
 import 'swipe_overlay.dart';
 import '../controllers/swipe_media_cache.dart';
 import '../models/swipe_card.dart';
@@ -21,6 +22,7 @@ class SwipeDeck extends StatefulWidget {
     required this.showSwipeHint,
     required this.onSwipe,
     required this.onTap,
+    required this.onMilestoneTap,
   });
 
   final List<SwipeCard> assets;
@@ -30,6 +32,7 @@ class SwipeDeck extends StatefulWidget {
   final bool showSwipeHint;
   final ValueChanged<CardSwiperDirection> onSwipe;
   final ValueChanged<AssetEntity> onTap;
+  final VoidCallback onMilestoneTap;
 
   @override
   State<SwipeDeck> createState() => SwipeDeckState();
@@ -199,8 +202,19 @@ class SwipeDeckState extends State<SwipeDeck>
     _lastTopId = _topId();
   }
 
-  String? _topId() =>
-      widget.assets.isEmpty ? null : widget.assets.first.asset.id;
+  String? _topId() {
+    if (widget.assets.isEmpty) {
+      return null;
+    }
+    return _cardKey(widget.assets.first);
+  }
+
+  String _cardKey(SwipeCard card) {
+    if (card.isMilestone) {
+      return 'milestone-${card.clearedBytes}';
+    }
+    return card.asset!.id;
+  }
 
   void _maybeStartUndoAnimation() {
     if (!_pendingUndoAnimation ||
@@ -241,7 +255,7 @@ class SwipeDeckState extends State<SwipeDeck>
             .toDouble();
         for (int i = visibleCards - 1; i >= 0; i--) {
           final SwipeCard card = widget.assets[i];
-          final AssetEntity asset = card.asset;
+          final AssetEntity? asset = card.asset;
           final bool isTop = i == 0;
           final int horizontalPercent = isTop ? _dragPercent.round() : 0;
           final double keepGlowProgress = isTop && horizontalPercent > 0
@@ -250,33 +264,44 @@ class SwipeDeckState extends State<SwipeDeck>
           final double deleteGlowProgress = isTop && horizontalPercent < 0
               ? (-horizontalPercent / 100).clamp(0.0, 1.0).toDouble()
               : 0.0;
-          final bool isAnimated = isTop && widget.media.isAnimatedAsset(asset);
-          final Widget cardStack = Stack(
-            fit: StackFit.expand,
-            children: [
-              AssetCard(
-                entity: asset,
-                thumbnailFuture: Future<Uint8List?>.value(card.thumbnailBytes),
-                cachedBytes: card.thumbnailBytes,
-                showSizeBadge: !widget.openedFullResIds.contains(asset.id),
-                sizeText: widget.media.cachedFileSizeLabel(asset.id),
-                sizeFuture: widget.media.fileSizeFutureFor(asset),
-                isVideo: asset.type == AssetType.video,
-                isAnimated: isAnimated,
-                animatedBytesFuture: isAnimated
-                    ? widget.media.animatedBytesFutureFor(asset)
-                    : null,
-                keepGlowProgress: keepGlowProgress,
-                deleteGlowProgress: deleteGlowProgress,
-              ),
-              SwipeOverlay(
-                horizontalOffsetPercent: horizontalPercent,
-                cardIndex: i,
-              ),
-            ],
-          );
+          final Widget cardStack = card.isMilestone
+              ? MilestoneCard(
+                  clearedBytes: card.clearedBytes ?? 0,
+                  onPressed: widget.onMilestoneTap,
+                )
+              : Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    AssetCard(
+                      entity: asset!,
+                      thumbnailFuture: Future<Uint8List?>.value(
+                        card.thumbnailBytes,
+                      ),
+                      cachedBytes: card.thumbnailBytes,
+                      showSizeBadge: !widget.openedFullResIds.contains(
+                        asset.id,
+                      ),
+                      sizeText: widget.media.cachedFileSizeLabel(asset.id),
+                      sizeFuture: widget.media.fileSizeFutureFor(asset),
+                      isVideo: asset.type == AssetType.video,
+                      isAnimated: isTop && widget.media.isAnimatedAsset(asset),
+                      animatedBytesFuture:
+                          isTop && widget.media.isAnimatedAsset(asset)
+                          ? widget.media.animatedBytesFutureFor(asset)
+                          : null,
+                      keepGlowProgress: keepGlowProgress,
+                      deleteGlowProgress: deleteGlowProgress,
+                    ),
+                    SwipeOverlay(
+                      horizontalOffsetPercent: horizontalPercent,
+                      cardIndex: i,
+                    ),
+                  ],
+                );
           Widget finalCard = KeyedSubtree(
-            key: ValueKey(asset.id),
+            key: ValueKey(
+              card.isMilestone ? 'milestone-${card.clearedBytes}' : asset!.id,
+            ),
             child: cardStack,
           );
           if (isTop) {
@@ -286,11 +311,13 @@ class SwipeDeckState extends State<SwipeDeck>
               offset: _dragOffset,
               child: Transform.rotate(angle: angle, child: finalCard),
             );
-            if (widget.showSwipeHint) {
+            if (widget.showSwipeHint && !card.isMilestone) {
               finalCard = Opacity(opacity: 0, child: finalCard);
             }
             finalCard = GestureDetector(
-              onTap: () => widget.onTap(asset),
+              onTap: () => card.isMilestone
+                  ? widget.onMilestoneTap()
+                  : widget.onTap(asset!),
               onPanUpdate: _handlePanUpdate,
               onPanEnd: _handlePanEnd,
               child: finalCard,

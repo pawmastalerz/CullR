@@ -58,5 +58,14 @@
   "settingsSummaryDeleted": "Gelöscht",
   "settingsSummaryDeleteSize": "Freigegebener Speicherplatz",
   "allCaughtUpTitle": "Du bist auf dem neuesten Stand",
-  "allCaughtUpMessage": "Keine weiteren Fotos zum Durchsehen im Moment."
+  "allCaughtUpMessage": "Keine weiteren Fotos zum Durchsehen im Moment.",
+  "milestoneTitle": "Glückwunsch!",
+  "milestoneClearedMessage": "Du hast {mb} MB gelöscht.",
+  "@milestoneClearedMessage": {
+    "placeholders": {
+      "mb": {
+        "type": "int"
+      }
+    }
+  }
 }

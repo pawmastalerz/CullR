@@ -165,4 +165,12 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get allCaughtUpMessage =>
       'Na razie nie ma więcej zdjęć do przejrzenia.';
+
+  @override
+  String get milestoneTitle => 'Gratulacje!';
+
+  @override
+  String milestoneClearedMessage(int mb) {
+    return 'Udało Ci się zwolnić $mb MB.';
+  }
 }

@@ -118,7 +118,9 @@ class _SwipeHomeView {
       );
     }
     final SwipeCard currentCard = _state._assets.first;
-    final AssetEntity currentAsset = currentCard.asset;
+    final AssetEntity? currentAsset = currentCard.isAsset
+        ? currentCard.asset
+        : null;
     final double progressValue = _state._swipeProgressValue();
     final int percentValue = (progressValue * 100).round();
     final int remaining = _state._remainingToSwipe();
@@ -191,8 +193,11 @@ class _SwipeHomeView {
                     showSwipeHint: _state._showSwipeHint,
                     onSwipe: _state._actions.handleSwipe,
                     onTap: _state._actions.openFullScreen,
+                    onMilestoneTap: _state._actions.openCoffeeLink,
                   ),
-                  if (_state._showSwipeHint && _state._assets.isNotEmpty)
+                  if (_state._showSwipeHint &&
+                      _state._assets.isNotEmpty &&
+                      currentAsset != null)
                     Positioned.fill(
                       child: AbsorbPointer(
                         child: SwipeHintOverlay(

@@ -58,5 +58,14 @@
   "settingsSummaryDeleted": "المحذوفة",
   "settingsSummaryDeleteSize": "المساحة المستردة",
   "allCaughtUpTitle": "أنت على اطلاع كامل",
-  "allCaughtUpMessage": "لا توجد صور أخرى للمراجعة الآن."
+  "allCaughtUpMessage": "لا توجد صور أخرى للمراجعة الآن.",
+  "milestoneTitle": "تهانينا!",
+  "milestoneClearedMessage": "لقد حررت {mb} ميغابايت.",
+  "@milestoneClearedMessage": {
+    "placeholders": {
+      "mb": {
+        "type": "int"
+      }
+    }
+  }
 }

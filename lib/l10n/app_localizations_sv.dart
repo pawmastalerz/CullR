@@ -160,4 +160,12 @@ class AppLocalizationsSv extends AppLocalizations {
 
   @override
   String get allCaughtUpMessage => 'Inga fler foton att granska just nu.';
+
+  @override
+  String get milestoneTitle => 'Grattis!';
+
+  @override
+  String milestoneClearedMessage(int mb) {
+    return 'Du frigjorde $mb MB.';
+  }
 }

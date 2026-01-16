@@ -162,4 +162,12 @@ class AppLocalizationsFi extends AppLocalizations {
   @override
   String get allCaughtUpMessage =>
       'Ei enempää kuvia tarkistettavaksi juuri nyt.';
+
+  @override
+  String get milestoneTitle => 'Onneksi olkoon!';
+
+  @override
+  String milestoneClearedMessage(int mb) {
+    return 'Sait vapautettua $mb Mt.';
+  }
 }

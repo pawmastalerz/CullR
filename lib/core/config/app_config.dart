@@ -23,4 +23,8 @@ class AppConfig {
   static const int fileSizeBytesCacheLimit = 400;
   // Maximum number of animated (GIF) byte entries cached.
   static const int animatedBytesCacheLimit = 30;
+  // Threshold for showing the delete milestone card (in bytes).
+  static const int deleteMilestoneBytes = 100 * 1024 * 1024;
+  // Minimum time between milestone cards in the same session.
+  static const Duration deleteMilestoneMinInterval = Duration(minutes: 10);
 }

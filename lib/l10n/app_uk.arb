@@ -58,5 +58,14 @@
   "settingsSummaryDeleted": "Видалені",
   "settingsSummaryDeleteSize": "Звільнене місце",
   "allCaughtUpTitle": "Ви все переглянули",
-  "allCaughtUpMessage": "Наразі більше немає фото для перегляду."
+  "allCaughtUpMessage": "Наразі більше немає фото для перегляду.",
+  "milestoneTitle": "Вітаємо!",
+  "milestoneClearedMessage": "Вам вдалося звільнити {mb} МБ.",
+  "@milestoneClearedMessage": {
+    "placeholders": {
+      "mb": {
+        "type": "int"
+      }
+    }
+  }
 }

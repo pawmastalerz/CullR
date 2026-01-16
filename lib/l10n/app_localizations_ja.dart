@@ -159,4 +159,12 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get allCaughtUpMessage => '今のところ確認する写真はありません。';
+
+  @override
+  String get milestoneTitle => 'おめでとう！';
+
+  @override
+  String milestoneClearedMessage(int mb) {
+    return '${mb}MB を削除できました。';
+  }
 }

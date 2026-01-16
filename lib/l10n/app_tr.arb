@@ -58,5 +58,14 @@
   "settingsSummaryDeleted": "Silinenler",
   "settingsSummaryDeleteSize": "Kazanılan alan",
   "allCaughtUpTitle": "Her şeyi gördün",
-  "allCaughtUpMessage": "Şu anda incelenecek başka fotoğraf yok."
+  "allCaughtUpMessage": "Şu anda incelenecek başka fotoğraf yok.",
+  "milestoneTitle": "Tebrikler!",
+  "milestoneClearedMessage": "{mb} MB temizledin.",
+  "@milestoneClearedMessage": {
+    "placeholders": {
+      "mb": {
+        "type": "int"
+      }
+    }
+  }
 }

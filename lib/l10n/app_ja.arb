@@ -58,5 +58,14 @@
   "settingsSummaryDeleted": "削除済み",
   "settingsSummaryDeleteSize": "回復した容量",
   "allCaughtUpTitle": "すべて確認済みです",
-  "allCaughtUpMessage": "今のところ確認する写真はありません。"
+  "allCaughtUpMessage": "今のところ確認する写真はありません。",
+  "milestoneTitle": "おめでとう！",
+  "milestoneClearedMessage": "{mb}MB を削除できました。",
+  "@milestoneClearedMessage": {
+    "placeholders": {
+      "mb": {
+        "type": "int"
+      }
+    }
+  }
 }

@@ -161,4 +161,12 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get allCaughtUpMessage => 'Şu anda incelenecek başka fotoğraf yok.';
+
+  @override
+  String get milestoneTitle => 'Tebrikler!';
+
+  @override
+  String milestoneClearedMessage(int mb) {
+    return '$mb MB temizledin.';
+  }
 }

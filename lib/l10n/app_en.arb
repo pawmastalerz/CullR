@@ -58,5 +58,14 @@
   "settingsSummaryDeleted": "Deleted",
   "settingsSummaryDeleteSize": "Recovered space",
   "allCaughtUpTitle": "You are all caught up",
-  "allCaughtUpMessage": "No more photos to review right now."
+  "allCaughtUpMessage": "No more photos to review right now.",
+  "milestoneTitle": "Congrats!",
+  "milestoneClearedMessage": "You managed to clear {mb} MB.",
+  "@milestoneClearedMessage": {
+    "placeholders": {
+      "mb": {
+        "type": "int"
+      }
+    }
+  }
 }

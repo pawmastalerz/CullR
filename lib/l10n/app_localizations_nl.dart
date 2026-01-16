@@ -161,4 +161,12 @@ class AppLocalizationsNl extends AppLocalizations {
   @override
   String get allCaughtUpMessage =>
       'Er zijn nu geen foto\'s meer om te bekijken.';
+
+  @override
+  String get milestoneTitle => 'Gefeliciteerd!';
+
+  @override
+  String milestoneClearedMessage(int mb) {
+    return 'Je hebt $mb MB vrijgemaakt.';
+  }
 }

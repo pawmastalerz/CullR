@@ -159,4 +159,12 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get allCaughtUpMessage => '지금은 검토할 사진이 없습니다.';
+
+  @override
+  String get milestoneTitle => '축하해요!';
+
+  @override
+  String milestoneClearedMessage(int mb) {
+    return '${mb}MB를 정리했어요.';
+  }
 }

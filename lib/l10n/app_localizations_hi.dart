@@ -160,4 +160,12 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get allCaughtUpMessage => 'अभी समीक्षा करने के लिए और फोटो नहीं हैं।';
+
+  @override
+  String get milestoneTitle => 'बधाई!';
+
+  @override
+  String milestoneClearedMessage(int mb) {
+    return 'आपने $mb MB साफ कर दिए।';
+  }
 }

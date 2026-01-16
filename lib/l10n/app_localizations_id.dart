@@ -161,4 +161,12 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get allCaughtUpMessage =>
       'Saat ini tidak ada foto lagi untuk ditinjau.';
+
+  @override
+  String get milestoneTitle => 'Selamat!';
+
+  @override
+  String milestoneClearedMessage(int mb) {
+    return 'Kamu berhasil mengosongkan $mb MB.';
+  }
 }

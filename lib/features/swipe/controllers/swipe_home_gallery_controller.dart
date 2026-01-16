@@ -47,6 +47,7 @@ class SwipeHomeGalleryController {
   bool get hasMoreOthers => _hasMoreOthers;
   bool get loadingMore => _loadingMore;
   int get totalSwipeTarget => _totalSwipeTarget;
+  bool get hasMilestoneCard => _buffer.any((card) => card.isMilestone);
 
   Future<GalleryLoadResult> loadGallery() async {
     _initialLoadHadAssets = false;
@@ -78,7 +79,7 @@ class SwipeHomeGalleryController {
     if (_loadingMore || _filling) {
       return false;
     }
-    if (_buffer.length >= AppConfig.swipeBufferSize) {
+    if (_assetBufferCount() >= AppConfig.swipeBufferSize) {
       return false;
     }
     await fillBuffer();
@@ -91,7 +92,7 @@ class SwipeHomeGalleryController {
     }
     _filling = true;
     try {
-      while (_buffer.length < AppConfig.swipeBufferSize) {
+      while (_assetBufferCount() < AppConfig.swipeBufferSize) {
         if (_photoPool.isEmpty && _videoPool.isEmpty) {
           if (!_hasMoreVideos && !_hasMoreOthers) {
             break;
@@ -111,22 +112,27 @@ class SwipeHomeGalleryController {
         if (bytes == null) {
           continue;
         }
-        _buffer.add(SwipeCard(asset: next, thumbnailBytes: bytes));
+        _buffer.add(SwipeCard.asset(asset: next, thumbnailBytes: bytes));
       }
     } finally {
       _filling = false;
     }
   }
 
+  int _assetBufferCount() => _buffer.where((card) => card.isAsset).length;
+
   SwipeCard? popForSwipe() {
     if (_buffer.isEmpty) {
       return null;
     }
     final SwipeCard card = _buffer.removeAt(0);
+    if (card.isMilestone) {
+      return card;
+    }
     _undoWindow.add(card);
     while (_undoWindow.length > AppConfig.swipeUndoLimit) {
       final SwipeCard removed = _undoWindow.removeAt(0);
-      _media.evictThumbnail(removed.asset.id);
+      _media.evictThumbnail(removed.asset!.id);
     }
     return card;
   }
@@ -139,7 +145,7 @@ class SwipeHomeGalleryController {
     _buffer.insert(0, card);
     while (_buffer.length > AppConfig.swipeBufferSize) {
       final SwipeCard removed = _buffer.removeLast();
-      _media.evictThumbnail(removed.asset.id);
+      _media.evictThumbnail(removed.asset!.id);
     }
     return card;
   }
@@ -149,11 +155,20 @@ class SwipeHomeGalleryController {
     _removeAssetsById(ids);
   }
 
+  void insertMilestoneCard({required int clearedBytes}) {
+    if (_buffer.any((card) => card.isMilestone)) {
+      return;
+    }
+    _buffer.insert(0, SwipeCard.milestone(clearedBytes: clearedBytes));
+  }
+
   void _removeAssetsById(Set<String> ids) {
-    _buffer.removeWhere((card) => ids.contains(card.asset.id));
+    _buffer.removeWhere((card) => card.isAsset && ids.contains(card.asset!.id));
     _photoPool.removeWhere((asset) => ids.contains(asset.id));
     _videoPool.removeWhere((asset) => ids.contains(asset.id));
-    _undoWindow.removeWhere((card) => ids.contains(card.asset.id));
+    _undoWindow.removeWhere(
+      (card) => card.isAsset && ids.contains(card.asset!.id),
+    );
     for (final String id in ids) {
       _media.evictThumbnail(id);
     }
@@ -198,9 +213,9 @@ class SwipeHomeGalleryController {
     final int targetVideos = AppConfig.swipeBufferVideoTarget;
     final int targetPhotos = AppConfig.swipeBufferPhotoTarget;
     final int currentVideos = _buffer
-        .where((card) => card.asset.type == AssetType.video)
+        .where((card) => card.isAsset && card.asset!.type == AssetType.video)
         .length;
-    final int currentPhotos = _buffer.length - currentVideos;
+    final int currentPhotos = _assetBufferCount() - currentVideos;
 
     final bool needVideo =
         currentVideos < targetVideos && _videoPool.isNotEmpty;

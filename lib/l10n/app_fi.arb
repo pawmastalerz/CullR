@@ -58,5 +58,14 @@
   "settingsSummaryDeleted": "Poistettu",
   "settingsSummaryDeleteSize": "Vapautettu tila",
   "allCaughtUpTitle": "Olet ajan tasalla",
-  "allCaughtUpMessage": "Ei enempää kuvia tarkistettavaksi juuri nyt."
+  "allCaughtUpMessage": "Ei enempää kuvia tarkistettavaksi juuri nyt.",
+  "milestoneTitle": "Onneksi olkoon!",
+  "milestoneClearedMessage": "Sait vapautettua {mb} Mt.",
+  "@milestoneClearedMessage": {
+    "placeholders": {
+      "mb": {
+        "type": "int"
+      }
+    }
+  }
 }

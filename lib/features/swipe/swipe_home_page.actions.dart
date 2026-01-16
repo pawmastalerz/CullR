@@ -17,7 +17,18 @@ class _SwipeHomeActions {
     if (card == null) {
       return false;
     }
-    final AssetEntity asset = card.asset;
+    if (card.isMilestone) {
+      dismissSwipeHint();
+      if (direction.isCloseTo(CardSwiperDirection.right)) {
+        unawaited(openCoffeeLink());
+      }
+      _state._handleMilestoneSwipe();
+      unawaited(_state._maybeLoadMore());
+      unawaited(_state._preloadTopAsset());
+      _state._markNeedsBuild();
+      return true;
+    }
+    final AssetEntity asset = card.asset!;
     _state._decisionStore.registerDecision(asset);
     dismissSwipeHint();
     _state._incrementSwipeProgress();
@@ -67,7 +78,7 @@ class _SwipeHomeActions {
     if (!_state._decisionStore.consumeUndo()) {
       return false;
     }
-    final AssetEntity asset = card.asset;
+    final AssetEntity asset = card.asset!;
     final CardSwiperDirection direction = _state._swipeHistory.removeLast();
     _state._decrementSwipeProgress();
     if (direction.isCloseTo(CardSwiperDirection.left)) {
@@ -324,6 +335,8 @@ class _SwipeHomeActions {
       _state._deletedCount += items.length;
       _state._deletedBytes += deletedBytes;
       _state._galleryController.applyDeletion(ids);
+      _state._updateMilestoneAfterDelete();
+      unawaited(_state._milestones.persistTotal(_state._deletedBytes));
       _state._progressSwipeCount = math.min(
         _state._progressSwipeCount,
         _state._galleryController.totalSwipeTarget,

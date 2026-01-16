@@ -161,4 +161,12 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get allCaughtUpMessage =>
       'Keine weiteren Fotos zum Durchsehen im Moment.';
+
+  @override
+  String get milestoneTitle => 'Glückwunsch!';
+
+  @override
+  String milestoneClearedMessage(int mb) {
+    return 'Du hast $mb MB gelöscht.';
+  }
 }

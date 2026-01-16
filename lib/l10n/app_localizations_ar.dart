@@ -159,4 +159,12 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get allCaughtUpMessage => 'لا توجد صور أخرى للمراجعة الآن.';
+
+  @override
+  String get milestoneTitle => 'تهانينا!';
+
+  @override
+  String milestoneClearedMessage(int mb) {
+    return 'لقد حررت $mb ميغابايت.';
+  }
 }

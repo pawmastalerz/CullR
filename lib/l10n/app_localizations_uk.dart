@@ -165,4 +165,12 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String get allCaughtUpMessage => 'Наразі більше немає фото для перегляду.';
+
+  @override
+  String get milestoneTitle => 'Вітаємо!';
+
+  @override
+  String milestoneClearedMessage(int mb) {
+    return 'Вам вдалося звільнити $mb МБ.';
+  }
 }
