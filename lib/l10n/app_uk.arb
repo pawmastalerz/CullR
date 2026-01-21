@@ -13,15 +13,6 @@
   "tabDelete": "Видалити",
   "tabKeep": "Зберегти",
   "noPhotosKept": "Немає фотографій для збереження.",
-  "confirmDeleteTitle": "Видалити фотографії?",
-  "confirmDeleteMessage": "{count, plural, one{Ви впевнені, що хочете видалити {count} фотографію?} few{Ви впевнені, що хочете видалити {count} фотографії?} many{Ви впевнені, що хочете видалити {count} фотографій?} other{Ви впевнені, що хочете видалити {count} фотографій?}}",
-  "@confirmDeleteMessage": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "cancelAction": "Скасувати",
   "deleteAction": "Видалити",
   "highResOriginalTab": "Оригінал",

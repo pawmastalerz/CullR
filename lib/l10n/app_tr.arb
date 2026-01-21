@@ -13,15 +13,6 @@
   "tabDelete": "Sil",
   "tabKeep": "Sakla",
   "noPhotosKept": "Saklanacak fotoğraf yok.",
-  "confirmDeleteTitle": "Fotoğraflar silinsin mi?",
-  "confirmDeleteMessage": "{count, plural, one{{count} fotoğrafı silmek istediğinizden emin misiniz?} other{{count} fotoğrafı silmek istediğinizden emin misiniz?}}",
-  "@confirmDeleteMessage": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "cancelAction": "İptal",
   "deleteAction": "Sil",
   "highResOriginalTab": "Orijinal",

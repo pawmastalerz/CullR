@@ -13,15 +13,6 @@
   "tabDelete": "削除",
   "tabKeep": "保持",
   "noPhotosKept": "保持する写真はありません。",
-  "confirmDeleteTitle": "写真を削除しますか？",
-  "confirmDeleteMessage": "{count, plural, one{{count}枚の写真を削除しますか？} other{{count}枚の写真を削除しますか？}}",
-  "@confirmDeleteMessage": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "cancelAction": "キャンセル",
   "deleteAction": "削除",
   "highResOriginalTab": "オリジナル",

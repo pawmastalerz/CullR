@@ -38,8 +38,9 @@ class _FakePhotoManagerClient implements PhotoManagerClient {
   }
 
   @override
-  Future<void> deleteWithIds(List<String> ids) async {
+  Future<List<String>> deleteWithIds(List<String> ids) async {
     deletedIds = List<String>.from(ids);
+    return deletedIds;
   }
 }
 

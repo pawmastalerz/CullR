@@ -49,20 +49,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get noPhotosKept => '보관할 사진이 없습니다.';
 
   @override
-  String get confirmDeleteTitle => '사진을 삭제할까요?';
-
-  @override
-  String confirmDeleteMessage(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count장의 사진을 삭제하시겠습니까?',
-      one: '$count장의 사진을 삭제하시겠습니까?',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get cancelAction => '취소';
 
   @override

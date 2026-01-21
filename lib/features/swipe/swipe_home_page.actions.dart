@@ -286,20 +286,8 @@ class _SwipeHomeActions {
     if (items.isEmpty) {
       return false;
     }
-    final AppLocalizations strings = AppLocalizations.of(_state.context)!;
-    final bool confirmed = await _confirmDialog(
-      title: strings.confirmDeleteTitle,
-      message: strings.confirmDeleteMessage(items.length),
-      confirmLabel: strings.deleteAction,
-      confirmColor: AppColors.accentRed,
-      confirmOnColor: AppColors.accentRedOn,
-    );
-    if (!confirmed) {
-      return false;
-    }
-
-    await deleteAssets(items);
-    return true;
+    final bool deleted = await deleteAssets(items);
+    return deleted;
   }
 
   Future<bool> confirmReevaluateKeeps(List<AssetEntity> items) async {
@@ -329,14 +317,19 @@ class _SwipeHomeActions {
     return true;
   }
 
-  Future<void> deleteAssets(List<AssetEntity> items) async {
-    final Set<String> ids = items.map((e) => e.id).toSet();
-    final int deletedBytes = await _state._galleryService.deleteAssets(items);
+  Future<bool> deleteAssets(List<AssetEntity> items) async {
+    final DeleteAssetsResult result =
+        await _state._galleryService.deleteAssets(items);
+    if (!result.hasDeletions || !_state.mounted) {
+      return false;
+    }
+    final Set<String> ids = result.deletedIds;
+    final int deletedBytes = result.deletedBytes;
     if (!_state.mounted) {
-      return;
+      return false;
     }
     _state._markNeedsBuild(() {
-      _state._deletedCount += items.length;
+      _state._deletedCount += ids.length;
       _state._deletedBytes += deletedBytes;
       _state._galleryController.applyDeletion(ids);
       _state._updateMilestoneAfterDelete();
@@ -348,11 +341,15 @@ class _SwipeHomeActions {
       _state._openedFullResIds.removeAll(ids);
       _state._decisionStore.clearUndo();
       for (final AssetEntity entity in items) {
+        if (!ids.contains(entity.id)) {
+          continue;
+        }
         unawaited(_state._decisionStore.removeCandidate(entity));
         unawaited(_state._decisionStore.removeKeepCandidate(entity));
       }
     });
     unawaited(_state._maybeLoadMore());
+    return true;
   }
 
   Future<bool> _confirmDialog({

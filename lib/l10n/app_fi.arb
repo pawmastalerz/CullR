@@ -13,15 +13,6 @@
   "tabDelete": "Poista",
   "tabKeep": "Säilytä",
   "noPhotosKept": "Ei säilytettäviä kuvia.",
-  "confirmDeleteTitle": "Poistetaanko kuvat?",
-  "confirmDeleteMessage": "{count, plural, one{Haluatko varmasti poistaa {count} kuvan?} other{Haluatko varmasti poistaa {count} kuvaa?}}",
-  "@confirmDeleteMessage": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "cancelAction": "Peruuta",
   "deleteAction": "Poista",
   "highResOriginalTab": "Alkuperäinen",

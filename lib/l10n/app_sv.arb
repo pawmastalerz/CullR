@@ -13,15 +13,6 @@
   "tabDelete": "Ta bort",
   "tabKeep": "Behåll",
   "noPhotosKept": "Inga foton att behålla.",
-  "confirmDeleteTitle": "Ta bort foton?",
-  "confirmDeleteMessage": "{count, plural, one{Är du säker på att du vill ta bort {count} foto?} other{Är du säker på att du vill ta bort {count} foton?}}",
-  "@confirmDeleteMessage": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "cancelAction": "Avbryt",
   "deleteAction": "Ta bort",
   "highResOriginalTab": "Original",

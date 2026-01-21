@@ -1,5 +1,6 @@
 import 'package:photo_manager/photo_manager.dart';
 
+import '../models/delete_assets_result.dart';
 import '../models/gallery_load_result.dart';
 
 abstract class GalleryService {
@@ -12,5 +13,5 @@ abstract class GalleryService {
 
   Future<bool> openGallerySettings(PermissionState? currentState);
 
-  Future<int> deleteAssets(List<AssetEntity> assets);
+  Future<DeleteAssetsResult> deleteAssets(List<AssetEntity> assets);
 }

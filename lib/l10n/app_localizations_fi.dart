@@ -50,20 +50,6 @@ class AppLocalizationsFi extends AppLocalizations {
   String get noPhotosKept => 'Ei säilytettäviä kuvia.';
 
   @override
-  String get confirmDeleteTitle => 'Poistetaanko kuvat?';
-
-  @override
-  String confirmDeleteMessage(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: 'Haluatko varmasti poistaa $count kuvaa?',
-      one: 'Haluatko varmasti poistaa $count kuvan?',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get cancelAction => 'Peruuta';
 
   @override

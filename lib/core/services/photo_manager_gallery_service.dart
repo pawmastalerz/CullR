@@ -4,6 +4,7 @@ import 'package:permission_handler/permission_handler.dart'
     as permission_handler;
 import 'package:photo_manager/photo_manager.dart';
 
+import '../models/delete_assets_result.dart';
 import '../models/gallery_load_result.dart';
 import 'gallery_service.dart';
 
@@ -15,7 +16,7 @@ abstract class PhotoManagerClient {
   });
   Future<void> presentLimited({required RequestType type});
   Future<void> openSetting();
-  Future<void> deleteWithIds(List<String> ids);
+  Future<List<String>> deleteWithIds(List<String> ids);
 }
 
 class DefaultPhotoManagerClient implements PhotoManagerClient {
@@ -43,7 +44,7 @@ class DefaultPhotoManagerClient implements PhotoManagerClient {
   }
 
   @override
-  Future<void> deleteWithIds(List<String> ids) {
+  Future<List<String>> deleteWithIds(List<String> ids) {
     return PhotoManager.editor.deleteWithIds(ids);
   }
 }
@@ -162,18 +163,34 @@ class PhotoManagerGalleryService implements GalleryService {
   }
 
   @override
-  Future<int> deleteAssets(List<AssetEntity> assets) async {
+  Future<DeleteAssetsResult> deleteAssets(List<AssetEntity> assets) async {
     if (assets.isEmpty) {
-      return 0;
+      return const DeleteAssetsResult.empty();
     }
-    int deletedBytes = 0;
     try {
-      final List<Future<int?>> futures = assets.map(_fileSizeFor).toList();
+      final List<String> deletedIds = await _photoManager.deleteWithIds(
+        assets.map((e) => e.id).toList(),
+      );
+      if (deletedIds.isEmpty) {
+        return const DeleteAssetsResult.empty();
+      }
+      final Set<String> deletedIdSet = deletedIds.toSet();
+      final Iterable<AssetEntity> deletedAssets = assets.where(
+        (asset) => deletedIdSet.contains(asset.id),
+      );
+      final List<Future<int?>> futures =
+          deletedAssets.map(_fileSizeFor).toList();
       final List<int?> sizes = await Future.wait(futures);
-      deletedBytes = sizes.whereType<int>().fold(0, (sum, v) => sum + v);
-      await _photoManager.deleteWithIds(assets.map((e) => e.id).toList());
-    } catch (_) {}
-    return deletedBytes;
+      final int deletedBytes = sizes
+          .whereType<int>()
+          .fold(0, (sum, v) => sum + v);
+      return DeleteAssetsResult(
+        deletedIds: deletedIdSet,
+        deletedBytes: deletedBytes,
+      );
+    } catch (_) {
+      return const DeleteAssetsResult.empty();
+    }
   }
 
   Future<int?> _fileSizeFor(AssetEntity entity) async {

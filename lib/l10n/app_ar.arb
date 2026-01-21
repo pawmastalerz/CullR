@@ -13,15 +13,6 @@
   "tabDelete": "حذف",
   "tabKeep": "احتفاظ",
   "noPhotosKept": "لا توجد صور للاحتفاظ بها.",
-  "confirmDeleteTitle": "حذف الصور؟",
-  "confirmDeleteMessage": "{count, plural, one{هل أنت متأكد من حذف صورة واحدة؟} other{هل أنت متأكد من حذف {count} صور؟}}",
-  "@confirmDeleteMessage": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "cancelAction": "إلغاء",
   "deleteAction": "حذف",
   "highResOriginalTab": "الأصل",

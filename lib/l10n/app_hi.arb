@@ -13,15 +13,6 @@
   "tabDelete": "हटाएँ",
   "tabKeep": "रखें",
   "noPhotosKept": "रखने के लिए कोई फ़ोटो नहीं है।",
-  "confirmDeleteTitle": "फ़ोटो हटाएँ?",
-  "confirmDeleteMessage": "{count, plural, one{क्या आप वाकई {count} फ़ोटो हटाना चाहते हैं?} other{क्या आप वाकई {count} फ़ोटो हटाना चाहते हैं?}}",
-  "@confirmDeleteMessage": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "cancelAction": "रद्द करें",
   "deleteAction": "हटाएँ",
   "highResOriginalTab": "मूल",

@@ -13,15 +13,6 @@
   "tabDelete": "삭제",
   "tabKeep": "보관",
   "noPhotosKept": "보관할 사진이 없습니다.",
-  "confirmDeleteTitle": "사진을 삭제할까요?",
-  "confirmDeleteMessage": "{count, plural, one{{count}장의 사진을 삭제하시겠습니까?} other{{count}장의 사진을 삭제하시겠습니까?}}",
-  "@confirmDeleteMessage": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "cancelAction": "취소",
   "deleteAction": "삭제",
   "highResOriginalTab": "원본",

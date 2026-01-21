@@ -13,15 +13,6 @@
   "tabDelete": "Eliminar",
   "tabKeep": "Conservar",
   "noPhotosKept": "No hay fotos para conservar.",
-  "confirmDeleteTitle": "¿Eliminar fotos?",
-  "confirmDeleteMessage": "{count, plural, one{¿Seguro que quieres eliminar {count} foto?} other{¿Seguro que quieres eliminar {count} fotos?}}",
-  "@confirmDeleteMessage": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "cancelAction": "Cancelar",
   "deleteAction": "Eliminar",
   "highResOriginalTab": "Original",

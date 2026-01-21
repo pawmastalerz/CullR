@@ -50,20 +50,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get noPhotosKept => 'Saklanacak fotoğraf yok.';
 
   @override
-  String get confirmDeleteTitle => 'Fotoğraflar silinsin mi?';
-
-  @override
-  String confirmDeleteMessage(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count fotoğrafı silmek istediğinizden emin misiniz?',
-      one: '$count fotoğrafı silmek istediğinizden emin misiniz?',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get cancelAction => 'İptal';
 
   @override

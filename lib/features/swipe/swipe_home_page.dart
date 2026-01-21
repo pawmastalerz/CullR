@@ -9,6 +9,7 @@ import 'package:photo_manager/photo_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/l10n/locale_controller.dart';
+import '../../core/models/delete_assets_result.dart';
 import '../../core/services/gallery_service.dart';
 import '../../core/services/photo_manager_gallery_service.dart';
 import '../../core/widgets/app_modal_sheet.dart';

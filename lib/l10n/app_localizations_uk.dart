@@ -50,22 +50,6 @@ class AppLocalizationsUk extends AppLocalizations {
   String get noPhotosKept => 'Немає фотографій для збереження.';
 
   @override
-  String get confirmDeleteTitle => 'Видалити фотографії?';
-
-  @override
-  String confirmDeleteMessage(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: 'Ви впевнені, що хочете видалити $count фотографій?',
-      many: 'Ви впевнені, що хочете видалити $count фотографій?',
-      few: 'Ви впевнені, що хочете видалити $count фотографії?',
-      one: 'Ви впевнені, що хочете видалити $count фотографію?',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get cancelAction => 'Скасувати';
 
   @override

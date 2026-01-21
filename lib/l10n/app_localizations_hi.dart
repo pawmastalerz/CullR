@@ -50,20 +50,6 @@ class AppLocalizationsHi extends AppLocalizations {
   String get noPhotosKept => 'रखने के लिए कोई फ़ोटो नहीं है।';
 
   @override
-  String get confirmDeleteTitle => 'फ़ोटो हटाएँ?';
-
-  @override
-  String confirmDeleteMessage(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: 'क्या आप वाकई $count फ़ोटो हटाना चाहते हैं?',
-      one: 'क्या आप वाकई $count फ़ोटो हटाना चाहते हैं?',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get cancelAction => 'रद्द करें';
 
   @override

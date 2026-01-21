@@ -50,20 +50,6 @@ class AppLocalizationsSv extends AppLocalizations {
   String get noPhotosKept => 'Inga foton att behålla.';
 
   @override
-  String get confirmDeleteTitle => 'Ta bort foton?';
-
-  @override
-  String confirmDeleteMessage(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: 'Är du säker på att du vill ta bort $count foton?',
-      one: 'Är du säker på att du vill ta bort $count foto?',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get cancelAction => 'Avbryt';
 
   @override
