@@ -20,6 +20,7 @@ class SwipeDeck extends StatefulWidget {
     required this.openedFullResIds,
     required this.visibleCards,
     required this.showSwipeHint,
+    required this.canSwipe,
     required this.onSwipe,
     required this.onTap,
     required this.onMilestoneTap,
@@ -30,6 +31,7 @@ class SwipeDeck extends StatefulWidget {
   final Set<String> openedFullResIds;
   final int visibleCards;
   final bool showSwipeHint;
+  final bool Function() canSwipe;
   final ValueChanged<CardSwiperDirection> onSwipe;
   final ValueChanged<AssetEntity> onTap;
   final VoidCallback onMilestoneTap;
@@ -80,6 +82,9 @@ class SwipeDeckState extends State<SwipeDeck>
 
   void swipe(CardSwiperDirection direction) {
     if (_isAnimating || _cardSize.width == 0 || widget.assets.isEmpty) {
+      return;
+    }
+    if (!widget.canSwipe()) {
       return;
     }
     _startSwipe(direction);
@@ -187,6 +192,10 @@ class SwipeDeckState extends State<SwipeDeck>
     }
     final double threshold = _thresholdDistance();
     if (_dragOffset.dx.abs() >= threshold) {
+      if (!widget.canSwipe()) {
+        _runAnimation(Offset.zero, isSwipe: false);
+        return;
+      }
       final CardSwiperDirection direction = _dragOffset.dx < 0
           ? CardSwiperDirection.left
           : CardSwiperDirection.right;

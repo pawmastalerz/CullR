@@ -48,6 +48,19 @@ class SwipeHomeGalleryController {
   bool get loadingMore => _loadingMore;
   int get totalSwipeTarget => _totalSwipeTarget;
   bool get hasMilestoneCard => _buffer.any((card) => card.isMilestone);
+  bool get canSwipeNow {
+    return _buffer.isNotEmpty &&
+        (_buffer.length >= 2 || !_hasPotentialNextCard);
+  }
+
+  bool get _hasPotentialNextCard {
+    return _photoPool.isNotEmpty ||
+        _videoPool.isNotEmpty ||
+        _hasMoreVideos ||
+        _hasMoreOthers ||
+        _loadingMore ||
+        _filling;
+  }
 
   Future<GalleryLoadResult> loadGallery() async {
     _initialLoadHadAssets = false;

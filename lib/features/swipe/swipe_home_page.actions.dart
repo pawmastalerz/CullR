@@ -54,6 +54,10 @@ class _SwipeHomeActions {
   }
 
   void triggerSwipe(CardSwiperDirection direction) {
+    if (!_state._canSwipeNow) {
+      unawaited(_state._maybeLoadMore());
+      return;
+    }
     _state._deckKey.currentState?.swipe(direction);
   }
 

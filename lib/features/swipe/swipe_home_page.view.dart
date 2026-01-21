@@ -191,6 +191,7 @@ class _SwipeHomeView {
                     openedFullResIds: _state._openedFullResIds,
                     visibleCards: visibleCards,
                     showSwipeHint: _state._showSwipeHint,
+                    canSwipe: () => _state._canSwipeNow,
                     onSwipe: _state._actions.handleSwipe,
                     onTap: _state._actions.openFullScreen,
                     onMilestoneTap: _state._actions.openCoffeeLink,

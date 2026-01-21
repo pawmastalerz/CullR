@@ -84,6 +84,7 @@ class _SwipeHomePageState extends State<SwipeHomePage> {
   bool get _hasMoreVideos => _galleryController.hasMoreVideos;
   bool get _hasMoreOthers => _galleryController.hasMoreOthers;
   bool get _loadingMore => _galleryController.loadingMore;
+  bool get _canSwipeNow => _galleryController.canSwipeNow;
   PermissionState? get _permissionState => _galleryController.permissionState;
   List<SwipeCard> get _assets => _galleryController.buffer;
 
