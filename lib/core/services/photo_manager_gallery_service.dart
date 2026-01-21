@@ -171,19 +171,24 @@ class PhotoManagerGalleryService implements GalleryService {
       final List<String> deletedIds = await _photoManager.deleteWithIds(
         assets.map((e) => e.id).toList(),
       );
-      if (deletedIds.isEmpty) {
+      final Set<String> deletedIdSet = await _verifyDeletedIds(
+        assets: assets,
+        deletedIds: deletedIds.toSet(),
+      );
+      if (deletedIdSet.isEmpty) {
         return const DeleteAssetsResult.empty();
       }
-      final Set<String> deletedIdSet = deletedIds.toSet();
       final Iterable<AssetEntity> deletedAssets = assets.where(
         (asset) => deletedIdSet.contains(asset.id),
       );
-      final List<Future<int?>> futures =
-          deletedAssets.map(_fileSizeFor).toList();
-      final List<int?> sizes = await Future.wait(futures);
-      final int deletedBytes = sizes
-          .whereType<int>()
-          .fold(0, (sum, v) => sum + v);
+      int deletedBytes = 0;
+      try {
+        final List<Future<int?>> futures = deletedAssets
+            .map(_fileSizeFor)
+            .toList();
+        final List<int?> sizes = await Future.wait(futures);
+        deletedBytes = sizes.whereType<int>().fold(0, (sum, v) => sum + v);
+      } catch (_) {}
       return DeleteAssetsResult(
         deletedIds: deletedIdSet,
         deletedBytes: deletedBytes,
@@ -191,6 +196,35 @@ class PhotoManagerGalleryService implements GalleryService {
     } catch (_) {
       return const DeleteAssetsResult.empty();
     }
+  }
+
+  Future<Set<String>> _verifyDeletedIds({
+    required List<AssetEntity> assets,
+    required Set<String> deletedIds,
+  }) async {
+    if (deletedIds.length == assets.length || assets.isEmpty) {
+      return deletedIds;
+    }
+    final List<AssetEntity> remainingAssets = assets
+        .where((asset) => !deletedIds.contains(asset.id))
+        .toList();
+    if (remainingAssets.isEmpty) {
+      return deletedIds;
+    }
+    final Set<String> verifiedIds = {...deletedIds};
+    for (int attempt = 0; attempt < 2; attempt += 1) {
+      final List<Future<String?>> checks = remainingAssets.map((asset) async {
+        final bool exists = await asset.exists;
+        return exists ? null : asset.id;
+      }).toList();
+      final List<String?> verified = await Future.wait(checks);
+      verifiedIds.addAll(verified.whereType<String>());
+      if (verifiedIds.isNotEmpty) {
+        break;
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 150));
+    }
+    return verifiedIds;
   }
 
   Future<int?> _fileSizeFor(AssetEntity entity) async {

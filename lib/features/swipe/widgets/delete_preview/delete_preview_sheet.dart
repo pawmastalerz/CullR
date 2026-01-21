@@ -23,6 +23,7 @@ class DeletePreviewSheet extends StatefulWidget {
     required this.onDeleteAll,
     required this.showDeleteButton,
     required this.emptyText,
+    this.closeOnSuccess = false,
     this.footerLabel,
     this.footerColor,
     this.footerOnColor,
@@ -37,6 +38,7 @@ class DeletePreviewSheet extends StatefulWidget {
   final Future<bool> Function(List<AssetEntity> items) onDeleteAll;
   final bool showDeleteButton;
   final String emptyText;
+  final bool closeOnSuccess;
   final String? footerLabel;
   final Color? footerColor;
   final Color? footerOnColor;
@@ -137,7 +139,11 @@ class _DeletePreviewSheetState extends State<DeletePreviewSheet>
       return;
     }
     final bool deleted = await widget.onDeleteAll(target);
-    if (!deleted || !context.mounted) {
+    if (!deleted || !mounted) {
+      return;
+    }
+    if (widget.closeOnSuccess) {
+      Navigator.of(context).maybePop();
       return;
     }
     setState(() {

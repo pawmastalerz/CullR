@@ -137,6 +137,7 @@ class _SwipeHomeActions {
                         emptyText: AppLocalizations.of(context)!.noPhotosMarked,
                         onRemove: removeDeleteCandidate,
                         onDeleteAll: confirmDeleteAll,
+                        closeOnSuccess: true,
                       ),
                       _buildDeletePreviewSheet(
                         key: const ValueKey('keep-sheet'),
@@ -170,6 +171,7 @@ class _SwipeHomeActions {
     String? footerLabel,
     Color? footerColor,
     Color? footerOnColor,
+    bool closeOnSuccess = false,
   }) {
     return DeletePreviewSheet(
       key: key,
@@ -182,6 +184,7 @@ class _SwipeHomeActions {
       onDeleteAll: onDeleteAll,
       showDeleteButton: true,
       emptyText: emptyText,
+      closeOnSuccess: closeOnSuccess,
       footerLabel: footerLabel,
       footerColor: footerColor,
       footerOnColor: footerOnColor,
@@ -318,13 +321,21 @@ class _SwipeHomeActions {
   }
 
   Future<bool> deleteAssets(List<AssetEntity> items) async {
-    final DeleteAssetsResult result =
-        await _state._galleryService.deleteAssets(items);
+    final DeleteAssetsResult result = await _state._galleryService.deleteAssets(
+      items,
+    );
     if (!result.hasDeletions || !_state.mounted) {
       return false;
     }
     final Set<String> ids = result.deletedIds;
     final int deletedBytes = result.deletedBytes;
+    int decisionRemovals = 0;
+    for (final String id in ids) {
+      if (_state._decisionStore.isMarkedForDelete(id) ||
+          _state._decisionStore.isKept(id)) {
+        decisionRemovals += 1;
+      }
+    }
     if (!_state.mounted) {
       return false;
     }
@@ -334,6 +345,10 @@ class _SwipeHomeActions {
       _state._galleryController.applyDeletion(ids);
       _state._updateMilestoneAfterDelete();
       unawaited(_state._milestones.persistTotal(_state._deletedBytes));
+      _state._progressSwipeCount = math.max(
+        0,
+        _state._progressSwipeCount - decisionRemovals,
+      );
       _state._progressSwipeCount = math.min(
         _state._progressSwipeCount,
         _state._galleryController.totalSwipeTarget,

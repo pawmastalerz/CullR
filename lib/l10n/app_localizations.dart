@@ -206,14 +206,6 @@ abstract class AppLocalizations {
   /// **'No photos to keep.'**
   String get noPhotosKept;
 
-  ///
-  /// In en, this message translates to:
-  /// **'Delete photos?'**
-
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, one{Are you sure you want to delete {count} photo?} other{Are you sure you want to delete {count} photos?}}'**
-
   /// No description provided for @cancelAction.
   ///
   /// In en, this message translates to:

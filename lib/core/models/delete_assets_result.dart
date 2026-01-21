@@ -4,9 +4,7 @@ class DeleteAssetsResult {
     required this.deletedBytes,
   });
 
-  const DeleteAssetsResult.empty()
-      : deletedIds = const {},
-        deletedBytes = 0;
+  const DeleteAssetsResult.empty() : deletedIds = const {}, deletedBytes = 0;
 
   final Set<String> deletedIds;
   final int deletedBytes;
