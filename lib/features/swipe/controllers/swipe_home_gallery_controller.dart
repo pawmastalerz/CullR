@@ -127,6 +127,7 @@ class SwipeHomeGalleryController {
         }
         _buffer.add(SwipeCard.asset(asset: next, thumbnailBytes: bytes));
       }
+      _reconcileTargetIfExhausted();
     } finally {
       _filling = false;
     }
@@ -148,6 +149,19 @@ class SwipeHomeGalleryController {
       _media.evictThumbnail(removed.asset!.id);
     }
     return card;
+  }
+
+  void _reconcileTargetIfExhausted() {
+    if (_hasMoreVideos ||
+        _hasMoreOthers ||
+        _photoPool.isNotEmpty ||
+        _videoPool.isNotEmpty) {
+      return;
+    }
+    final int decidedCount = _decisionStore.totalDecisionCount;
+    final int remainingCount = _assetBufferCount();
+    final int adjustedTarget = decidedCount + remainingCount;
+    _totalSwipeTarget = math.min(_totalSwipeTarget, adjustedTarget);
   }
 
   SwipeCard? undoSwipe() {
