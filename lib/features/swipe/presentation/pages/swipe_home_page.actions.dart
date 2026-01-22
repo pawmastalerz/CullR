@@ -5,8 +5,8 @@ class _SwipeHomeActions {
 
   final _SwipeHomePageState _state;
 
-  List<AssetEntity> _orderedCandidates(List<AssetEntity> items) {
-    return List<AssetEntity>.from(items).reversed.toList();
+  List<MediaAsset> _orderedCandidates(List<MediaAsset> items) {
+    return List<MediaAsset>.from(items).reversed.toList();
   }
 
   bool handleSwipe(CardSwiperDirection direction) {
@@ -55,10 +55,10 @@ class _SwipeHomeActions {
       isScrollControlled: true,
       showDragHandle: false,
       builder: (context) {
-        final List<AssetEntity> deleteItems = _orderedCandidates(
+        final List<MediaAsset> deleteItems = _orderedCandidates(
           _state._viewModel.decisionStore.deleteCandidates,
         );
-        final List<AssetEntity> keepItems = _orderedCandidates(
+        final List<MediaAsset> keepItems = _orderedCandidates(
           _state._viewModel.decisionStore.keepCandidates,
         );
         return AppModalSheet(
@@ -117,10 +117,10 @@ class _SwipeHomeActions {
 
   Widget _buildDeletePreviewSheet({
     required Key key,
-    required List<AssetEntity> items,
+    required List<MediaAsset> items,
     required String emptyText,
-    required void Function(AssetEntity entity) onRemove,
-    required Future<bool> Function(List<AssetEntity> items) onDeleteAll,
+    required void Function(MediaAsset asset) onRemove,
+    required Future<bool> Function(List<MediaAsset> items) onDeleteAll,
     String? footerLabel,
     Color? footerColor,
     Color? footerOnColor,
@@ -144,15 +144,19 @@ class _SwipeHomeActions {
     );
   }
 
-  void openFullScreen(AssetEntity entity) {
-    final File? preloaded = _state._viewModel.media.preloadedFileFor(entity);
-    _state._viewModel.markOpenedFullRes(entity.id);
+  void openFullScreen(MediaAsset asset) {
+    final File? preloaded = _state._viewModel.media.preloadedFileFor(asset);
+    _state._viewModel.markOpenedFullRes(asset.id);
     Navigator.of(_state.context).push(
       PageRouteBuilder<void>(
         transitionDuration: const Duration(milliseconds: 420),
         reverseTransitionDuration: const Duration(milliseconds: 320),
-        pageBuilder: (_, _, _) =>
-            FullscreenAssetView(entity: entity, preloadedFile: preloaded),
+        pageBuilder: (_, _, _) => FullscreenAssetView(
+          asset: asset,
+          preloadedFile: preloaded,
+          galleryRepository: _state._viewModel.galleryRepository,
+          media: _state._viewModel.media,
+        ),
         transitionsBuilder: (_, animation, _, child) {
           final Animation<double> eased = CurvedAnimation(
             parent: animation,
@@ -220,26 +224,26 @@ class _SwipeHomeActions {
     await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
-  void removeDeleteCandidate(AssetEntity entity) {
-    _removeCandidate(entity, _state._viewModel.decisionStore.removeCandidate);
+  void removeDeleteCandidate(MediaAsset asset) {
+    _removeCandidate(asset, _state._viewModel.decisionStore.removeCandidate);
   }
 
-  void removeKeepCandidate(AssetEntity entity) {
+  void removeKeepCandidate(MediaAsset asset) {
     _removeCandidate(
-      entity,
+      asset,
       _state._viewModel.decisionStore.removeKeepCandidate,
     );
   }
 
   void _removeCandidate(
-    AssetEntity entity,
-    Future<void> Function(AssetEntity) remover,
+    MediaAsset asset,
+    Future<void> Function(MediaAsset) remover,
   ) {
-    unawaited(remover(entity));
+    unawaited(remover(asset));
     _state._viewModel.decrementSwipeProgressBy(1);
   }
 
-  Future<bool> confirmDeleteAll(List<AssetEntity> items) async {
+  Future<bool> confirmDeleteAll(List<MediaAsset> items) async {
     if (items.isEmpty) {
       return false;
     }
@@ -247,7 +251,7 @@ class _SwipeHomeActions {
     return deleted;
   }
 
-  Future<bool> confirmReevaluateKeeps(List<AssetEntity> items) async {
+  Future<bool> confirmReevaluateKeeps(List<MediaAsset> items) async {
     if (items.isEmpty) {
       return false;
     }
@@ -272,7 +276,7 @@ class _SwipeHomeActions {
     return true;
   }
 
-  Future<bool> deleteAssets(List<AssetEntity> items) async {
+  Future<bool> deleteAssets(List<MediaAsset> items) async {
     final bool deleted = await _state._viewModel.deleteAssets(items);
     return deleted;
   }

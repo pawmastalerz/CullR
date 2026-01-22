@@ -1,7 +1,7 @@
-import 'package:photo_manager/photo_manager.dart';
+import 'media_kind.dart';
 
-class AssetDetails {
-  const AssetDetails({
+class MediaDetails {
+  const MediaDetails({
     required this.id,
     required this.title,
     required this.path,
@@ -10,11 +10,12 @@ class AssetDetails {
     required this.height,
     required this.createdAt,
     required this.modifiedAt,
-    required this.type,
+    required this.kind,
     required this.subtype,
     required this.duration,
     required this.orientation,
-    required this.latLng,
+    required this.latitude,
+    required this.longitude,
     required this.mimeType,
   });
 
@@ -26,10 +27,11 @@ class AssetDetails {
   final int height;
   final DateTime createdAt;
   final DateTime modifiedAt;
-  final AssetType type;
+  final MediaKind kind;
   final int subtype;
   final int duration;
   final int orientation;
-  final LatLng? latLng;
+  final double? latitude;
+  final double? longitude;
   final String? mimeType;
 }

@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:photo_manager/photo_manager.dart';
 
-import 'package:cullr/core/models/asset_details.dart';
-import 'package:cullr/core/utils/asset_formatters.dart';
+import 'package:cullr/core/utils/formatters/asset_formatters.dart';
+import 'package:cullr/features/swipe/domain/entities/media_details.dart';
+import 'package:cullr/features/swipe/domain/entities/media_kind.dart';
 
 void main() {
   test('formatDuration pads minutes and seconds', () {
@@ -11,12 +11,12 @@ void main() {
   });
 
   test('assetTypeLabel title cases enum value', () {
-    expect(assetTypeLabel(AssetType.image), 'Image');
-    expect(assetTypeLabel(AssetType.video), 'Video');
+    expect(assetTypeLabel(MediaKind.photo), 'Photo');
+    expect(assetTypeLabel(MediaKind.video), 'Video');
   });
 
   test('formatFileType prefers title extension', () {
-    final AssetDetails details = AssetDetails(
+    final MediaDetails details = MediaDetails(
       id: '1',
       title: 'image.jpeg',
       path: '/tmp/ignore.png',
@@ -25,11 +25,12 @@ void main() {
       height: 0,
       createdAt: DateTime.fromMillisecondsSinceEpoch(0),
       modifiedAt: DateTime.fromMillisecondsSinceEpoch(0),
-      type: AssetType.image,
+      kind: MediaKind.photo,
       subtype: 0,
       duration: 0,
       orientation: 0,
-      latLng: null,
+      latitude: null,
+      longitude: null,
       mimeType: 'image/png',
     );
 
@@ -37,7 +38,7 @@ void main() {
   });
 
   test('formatFileType falls back to path extension', () {
-    final AssetDetails details = AssetDetails(
+    final MediaDetails details = MediaDetails(
       id: '1',
       title: '',
       path: '/tmp/video.mov',
@@ -46,11 +47,12 @@ void main() {
       height: 0,
       createdAt: DateTime.fromMillisecondsSinceEpoch(0),
       modifiedAt: DateTime.fromMillisecondsSinceEpoch(0),
-      type: AssetType.video,
+      kind: MediaKind.video,
       subtype: 0,
       duration: 0,
       orientation: 0,
-      latLng: null,
+      latitude: null,
+      longitude: null,
       mimeType: null,
     );
 
@@ -58,7 +60,7 @@ void main() {
   });
 
   test('formatFileType uses mime subtype when no extension', () {
-    final AssetDetails details = AssetDetails(
+    final MediaDetails details = MediaDetails(
       id: '1',
       title: '',
       path: null,
@@ -67,11 +69,12 @@ void main() {
       height: 0,
       createdAt: DateTime.fromMillisecondsSinceEpoch(0),
       modifiedAt: DateTime.fromMillisecondsSinceEpoch(0),
-      type: AssetType.image,
+      kind: MediaKind.photo,
       subtype: 0,
       duration: 0,
       orientation: 0,
-      latLng: null,
+      latitude: null,
+      longitude: null,
       mimeType: 'image/jpeg',
     );
 
@@ -79,7 +82,7 @@ void main() {
   });
 
   test('formatFileType returns null for unknown mime', () {
-    final AssetDetails details = AssetDetails(
+    final MediaDetails details = MediaDetails(
       id: '1',
       title: '',
       path: null,
@@ -88,11 +91,12 @@ void main() {
       height: 0,
       createdAt: DateTime.fromMillisecondsSinceEpoch(0),
       modifiedAt: DateTime.fromMillisecondsSinceEpoch(0),
-      type: AssetType.image,
+      kind: MediaKind.photo,
       subtype: 0,
       duration: 0,
       orientation: 0,
-      latLng: null,
+      latitude: null,
+      longitude: null,
       mimeType: 'invalid',
     );
 

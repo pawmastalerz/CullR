@@ -1,21 +1,26 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
-import 'package:photo_manager/photo_manager.dart';
 
 import 'package:cullr/core/storage/key_value_store.dart';
 import 'package:cullr/features/swipe/domain/services/swipe_decision_store.dart';
+import 'package:cullr/features/swipe/domain/entities/media_asset.dart';
+import 'package:cullr/features/swipe/domain/entities/media_kind.dart';
 import 'package:cullr/features/swipe/domain/entities/swipe_config.dart';
 
-class _MockAssetEntity extends Mock implements AssetEntity {}
-
-AssetEntity _assetWithId(String id) {
-  final _MockAssetEntity asset = _MockAssetEntity();
-  when(() => asset.id).thenReturn(id);
-  when(() => asset.type).thenReturn(AssetType.image);
-  return asset;
+MediaAsset _assetWithId(String id) {
+  return MediaAsset(
+    id: id,
+    kind: MediaKind.photo,
+    width: 0,
+    height: 0,
+    duration: 0,
+    orientation: 0,
+    subtype: 0,
+    createdAt: DateTime.fromMillisecondsSinceEpoch(0),
+    modifiedAt: DateTime.fromMillisecondsSinceEpoch(0),
+  );
 }
 
-AssetEntityLoader _loaderFrom(Map<String, AssetEntity> assets) {
+MediaAssetLoader _loaderFrom(Map<String, MediaAsset> assets) {
   return (String id) async => assets[id];
 }
 
@@ -85,7 +90,7 @@ void main() {
       config: _testConfig,
       store: _MemoryStore(),
     );
-    final AssetEntity asset = _assetWithId('a');
+    final MediaAsset asset = _assetWithId('a');
 
     await store.markForKeep(asset);
 
@@ -99,7 +104,7 @@ void main() {
       config: _testConfig,
       store: _MemoryStore(),
     );
-    final AssetEntity asset = _assetWithId('a');
+    final MediaAsset asset = _assetWithId('a');
 
     await store.markForKeep(asset);
     await store.markForDelete(asset);
@@ -114,7 +119,7 @@ void main() {
       config: _testConfig,
       store: _MemoryStore(),
     );
-    final AssetEntity asset = _assetWithId('a');
+    final MediaAsset asset = _assetWithId('a');
 
     await store.markForDelete(asset);
     await store.removeCandidate(asset);
@@ -128,7 +133,7 @@ void main() {
       config: _testConfig,
       store: _MemoryStore(),
     );
-    final AssetEntity asset = _assetWithId('a');
+    final MediaAsset asset = _assetWithId('a');
 
     store.registerDecision(asset);
     expect(store.undoCredits, 1);
@@ -141,10 +146,10 @@ void main() {
       config: _testConfig,
       store: _MemoryStore(),
     );
-    final AssetEntity assetA = _assetWithId('a');
-    final AssetEntity assetB = _assetWithId('b');
-    final AssetEntity assetC = _assetWithId('c');
-    final AssetEntity assetD = _assetWithId('d');
+    final MediaAsset assetA = _assetWithId('a');
+    final MediaAsset assetB = _assetWithId('b');
+    final MediaAsset assetC = _assetWithId('c');
+    final MediaAsset assetD = _assetWithId('d');
 
     expect(store.consumeUndo(), isFalse);
 
@@ -165,13 +170,13 @@ void main() {
     final KeyValueStore kvStore = _MemoryStore({
       'keep_ids': ['a', 'c'],
     });
-    final AssetEntity assetA = _assetWithId('a');
-    final AssetEntity assetB = _assetWithId('b');
-    final AssetEntity assetC = _assetWithId('c');
+    final MediaAsset assetA = _assetWithId('a');
+    final MediaAsset assetB = _assetWithId('b');
+    final MediaAsset assetC = _assetWithId('c');
     final SwipeDecisionStore store = SwipeDecisionStore(
       config: _testConfig,
       store: kvStore,
-      entityLoader: _loaderFrom({'a': assetA, 'b': assetB, 'c': assetC}),
+      assetLoader: _loaderFrom({'a': assetA, 'b': assetB, 'c': assetC}),
     );
 
     await store.loadDecisions();
@@ -185,7 +190,7 @@ void main() {
       config: _testConfig,
       store: _MemoryStore(),
     );
-    final AssetEntity asset = _assetWithId('a');
+    final MediaAsset asset = _assetWithId('a');
 
     await store.markForDelete(asset);
     await store.markForKeep(asset);
@@ -201,7 +206,7 @@ void main() {
       config: _testConfig,
       store: _MemoryStore(),
     );
-    final AssetEntity asset = _assetWithId('a');
+    final MediaAsset asset = _assetWithId('a');
 
     await store.markForKeep(asset);
     await store.markForDelete(asset);
@@ -217,7 +222,7 @@ void main() {
       config: _testConfig,
       store: _MemoryStore(),
     );
-    final AssetEntity asset = _assetWithId('a');
+    final MediaAsset asset = _assetWithId('a');
 
     await store.markForKeep(asset);
     await store.markForKeep(asset);
@@ -230,12 +235,12 @@ void main() {
     final KeyValueStore kvStore = _MemoryStore({
       'keep_ids': ['a', 'b'],
     });
-    final AssetEntity assetA = _assetWithId('a');
-    final AssetEntity assetB = _assetWithId('b');
+    final MediaAsset assetA = _assetWithId('a');
+    final MediaAsset assetB = _assetWithId('b');
     final SwipeDecisionStore store = SwipeDecisionStore(
       config: _testConfig,
       store: kvStore,
-      entityLoader: _loaderFrom({'a': assetA, 'b': assetB}),
+      assetLoader: _loaderFrom({'a': assetA, 'b': assetB}),
     );
 
     await store.loadDecisions();
@@ -244,7 +249,7 @@ void main() {
     final SwipeDecisionStore freshStore = SwipeDecisionStore(
       config: _testConfig,
       store: kvStore,
-      entityLoader: _loaderFrom({'a': assetA, 'b': assetB}),
+      assetLoader: _loaderFrom({'a': assetA, 'b': assetB}),
     );
     await freshStore.loadDecisions();
 
@@ -256,12 +261,12 @@ void main() {
     final KeyValueStore kvStore = _MemoryStore({
       'keep_ids': ['a', 'b'],
     });
-    final AssetEntity assetA = _assetWithId('a');
-    final AssetEntity assetB = _assetWithId('b');
+    final MediaAsset assetA = _assetWithId('a');
+    final MediaAsset assetB = _assetWithId('b');
     final SwipeDecisionStore store = SwipeDecisionStore(
       config: _testConfig,
       store: kvStore,
-      entityLoader: _loaderFrom({'a': assetA, 'b': assetB}),
+      assetLoader: _loaderFrom({'a': assetA, 'b': assetB}),
     );
 
     await store.loadDecisions();
@@ -270,7 +275,7 @@ void main() {
     final SwipeDecisionStore freshStore = SwipeDecisionStore(
       config: _testConfig,
       store: kvStore,
-      entityLoader: _loaderFrom({'a': assetA, 'b': assetB}),
+      assetLoader: _loaderFrom({'a': assetA, 'b': assetB}),
     );
     await freshStore.loadDecisions();
 
@@ -282,13 +287,13 @@ void main() {
     final KeyValueStore kvStore = _MemoryStore({
       'delete_ids': ['a', 'c'],
     });
-    final AssetEntity assetA = _assetWithId('a');
-    final AssetEntity assetB = _assetWithId('b');
-    final AssetEntity assetC = _assetWithId('c');
+    final MediaAsset assetA = _assetWithId('a');
+    final MediaAsset assetB = _assetWithId('b');
+    final MediaAsset assetC = _assetWithId('c');
     final SwipeDecisionStore store = SwipeDecisionStore(
       config: _testConfig,
       store: kvStore,
-      entityLoader: _loaderFrom({'a': assetA, 'b': assetB, 'c': assetC}),
+      assetLoader: _loaderFrom({'a': assetA, 'b': assetB, 'c': assetC}),
     );
 
     await store.loadDecisions();

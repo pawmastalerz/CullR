@@ -2,11 +2,11 @@ import 'dart:collection';
 import 'dart:math' as math;
 import 'dart:typed_data';
 
-import 'package:photo_manager/photo_manager.dart';
-
 import '../../../../core/services/logger_service.dart';
 import '../entities/gallery_permission.dart';
 import '../entities/gallery_load_result.dart';
+import '../entities/media_asset.dart';
+import '../entities/media_kind.dart';
 import '../entities/swipe_config.dart';
 import '../repositories/gallery_repository.dart';
 import '../repositories/media_repository.dart';
@@ -30,8 +30,8 @@ class SwipeHomeGalleryController {
   final SwipeConfig _config;
 
   final List<SwipeCard> _buffer = [];
-  final List<AssetEntity> _photoPool = [];
-  final List<AssetEntity> _videoPool = [];
+  final List<MediaAsset> _photoPool = [];
+  final List<MediaAsset> _videoPool = [];
   final List<SwipeCard> _undoWindow = [];
 
   GalleryPermission? _permissionState;
@@ -117,7 +117,7 @@ class SwipeHomeGalleryController {
           final GalleryLoadResult result = await _loadNextPage();
           _appendPools(result);
         }
-        final AssetEntity? next = _nextFromPools();
+        final MediaAsset? next = _nextFromPools();
         if (next == null) {
           break;
         }
@@ -240,11 +240,11 @@ class SwipeHomeGalleryController {
     }
   }
 
-  AssetEntity? _nextFromPools() {
+  MediaAsset? _nextFromPools() {
     final int targetVideos = _config.swipeBufferVideoTarget;
     final int targetPhotos = _config.swipeBufferPhotoTarget;
     final int currentVideos = _buffer
-        .where((card) => card.isAsset && card.asset!.type == AssetType.video)
+        .where((card) => card.isAsset && card.asset!.kind == MediaKind.video)
         .length;
     final int currentPhotos = _assetBufferCount() - currentVideos;
 

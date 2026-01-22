@@ -1,25 +1,25 @@
 import 'package:flutter/material.dart';
-import '../../../../core/models/asset_details.dart';
-import '../../../../core/utils/formatters.dart';
+import '../../../../core/utils/formatters/formatters.dart';
 import '../../../../styles/colors.dart';
 import '../../../../styles/spacing.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../domain/entities/media_details.dart';
 import 'metadata_models.dart';
 import 'metadata_widgets.dart';
 
 class MetadataView extends StatelessWidget {
   const MetadataView({super.key, required this.loadDetails});
 
-  final Future<AssetDetails> Function() loadDetails;
+  final Future<MediaDetails> Function() loadDetails;
 
   @override
   Widget build(BuildContext context) {
     final AppLocalizations strings = AppLocalizations.of(context)!;
     final String locale = Localizations.localeOf(context).toString();
-    return FutureBuilder<AssetDetails>(
+    return FutureBuilder<MediaDetails>(
       future: loadDetails(),
       builder: (context, snapshot) {
-        final AssetDetails? details = snapshot.data;
+        final MediaDetails? details = snapshot.data;
         if (details == null) {
           return const Center(
             child: CircularProgressIndicator(color: AppColors.accentBlue),
@@ -53,7 +53,7 @@ class MetadataView extends StatelessWidget {
           ),
           MetadataEntry(
             label: strings.metadataType,
-            value: assetTypeLabel(details.type),
+            value: assetTypeLabel(details.kind),
           ),
           MetadataEntry(
             label: strings.metadataSubtype,
@@ -73,9 +73,9 @@ class MetadataView extends StatelessWidget {
           ),
           MetadataEntry(
             label: strings.metadataLocation,
-            value: details.latLng == null
+            value: details.latitude == null || details.longitude == null
                 ? null
-                : '${details.latLng!.latitude.toStringAsFixed(5)}, ${details.latLng!.longitude.toStringAsFixed(5)}',
+                : '${details.latitude!.toStringAsFixed(5)}, ${details.longitude!.toStringAsFixed(5)}',
           ),
           MetadataEntry(label: strings.metadataPath, value: details.path),
           MetadataEntry(label: strings.metadataId, value: details.id),

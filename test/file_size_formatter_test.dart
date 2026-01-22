@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:cullr/core/utils/file_size_formatter.dart';
+import 'package:cullr/core/utils/formatters/file_size_formatter.dart';
 
 void main() {
   test('formatFileSize renders bytes', () {

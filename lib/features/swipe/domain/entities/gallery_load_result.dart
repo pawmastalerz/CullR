@@ -1,6 +1,5 @@
-import 'package:photo_manager/photo_manager.dart';
-
 import 'gallery_permission.dart';
+import 'media_asset.dart';
 
 class GalleryLoadResult {
   const GalleryLoadResult({
@@ -12,8 +11,8 @@ class GalleryLoadResult {
   });
 
   final GalleryPermission permission;
-  final List<AssetEntity> assets;
-  final List<AssetEntity> videos;
-  final List<AssetEntity> others;
+  final List<MediaAsset> assets;
+  final List<MediaAsset> videos;
+  final List<MediaAsset> others;
   final int totalAssets;
 }

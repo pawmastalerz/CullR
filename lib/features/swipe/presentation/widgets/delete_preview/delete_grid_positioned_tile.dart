@@ -2,17 +2,16 @@ import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:photo_manager/photo_manager.dart';
-
 import '../../../../../styles/colors.dart';
 import '../../../../../styles/spacing.dart';
+import '../../../domain/entities/media_asset.dart';
 import 'delete_grid_tile.dart';
 import 'poof_painter.dart';
 
 class DeleteGridPositionedTile extends StatelessWidget {
   const DeleteGridPositionedTile({
     super.key,
-    required this.entity,
+    required this.asset,
     required this.cachedBytes,
     required this.thumbnailFuture,
     required this.onRemove,
@@ -29,7 +28,7 @@ class DeleteGridPositionedTile extends StatelessWidget {
     required this.reflowDuration,
   });
 
-  final AssetEntity entity;
+  final MediaAsset asset;
   final Uint8List? cachedBytes;
   final Future<Uint8List?> thumbnailFuture;
   final VoidCallback onRemove;
@@ -85,7 +84,7 @@ class DeleteGridPositionedTile extends StatelessWidget {
                         child: CustomPaint(
                           painter: PoofPainter(
                             progress: value,
-                            seed: entity.id.hashCode,
+                            seed: asset.id.hashCode,
                             color: AppColors.poofTint,
                           ),
                         ),
@@ -97,7 +96,7 @@ class DeleteGridPositionedTile extends StatelessWidget {
           );
         },
         child: DeleteGridTile(
-          entity: entity,
+          asset: asset,
           cachedBytes: cachedBytes,
           thumbnailFuture: thumbnailFuture,
           onRemove: removing ? null : onRemove,

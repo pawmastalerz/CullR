@@ -7,7 +7,10 @@ import 'package:photo_manager/photo_manager.dart';
 import '../domain/entities/gallery_permission.dart';
 import '../domain/entities/delete_assets_result.dart';
 import '../domain/entities/gallery_load_result.dart';
+import '../domain/entities/media_asset.dart';
+import '../domain/entities/media_details.dart';
 import '../domain/repositories/gallery_repository.dart';
+import 'mappers/photo_manager_media_mapper.dart';
 
 abstract class PhotoManagerClient {
   Future<PermissionState> requestPermissionExtend();
@@ -128,13 +131,19 @@ class PhotoManagerGalleryRepository implements GalleryRepository {
 
     final List<AssetEntity> shuffledImages = List.of(images.assets)..shuffle();
     final List<AssetEntity> shuffledVideos = List.of(videos.assets)..shuffle();
-    final List<AssetEntity> assets = [...shuffledImages, ...shuffledVideos];
+    final List<MediaAsset> mappedImages = shuffledImages
+        .map(mapMediaAsset)
+        .toList();
+    final List<MediaAsset> mappedVideos = shuffledVideos
+        .map(mapMediaAsset)
+        .toList();
+    final List<MediaAsset> assets = [...mappedImages, ...mappedVideos];
 
     return GalleryLoadResult(
       permission: permission.permission,
       assets: assets,
-      videos: shuffledVideos,
-      others: shuffledImages,
+      videos: mappedVideos,
+      others: mappedImages,
       totalAssets: images.total + videos.total,
     );
   }
@@ -164,22 +173,26 @@ class PhotoManagerGalleryRepository implements GalleryRepository {
   }
 
   @override
-  Future<DeleteAssetsResult> deleteAssets(List<AssetEntity> assets) async {
+  Future<DeleteAssetsResult> deleteAssets(List<MediaAsset> assets) async {
     if (assets.isEmpty) {
       return const DeleteAssetsResult.empty();
     }
     try {
+      final List<AssetEntity> entities = await _loadEntitiesFor(assets);
+      if (entities.isEmpty) {
+        return const DeleteAssetsResult.empty();
+      }
       final List<String> deletedIds = await _photoManager.deleteWithIds(
-        assets.map((e) => e.id).toList(),
+        entities.map((e) => e.id).toList(),
       );
       final Set<String> deletedIdSet = await _verifyDeletedIds(
-        assets: assets,
+        assets: entities,
         deletedIds: deletedIds.toSet(),
       );
       if (deletedIdSet.isEmpty) {
         return const DeleteAssetsResult.empty();
       }
-      final Iterable<AssetEntity> deletedAssets = assets.where(
+      final Iterable<AssetEntity> deletedAssets = entities.where(
         (asset) => deletedIdSet.contains(asset.id),
       );
       int deletedBytes = 0;
@@ -197,6 +210,41 @@ class PhotoManagerGalleryRepository implements GalleryRepository {
     } catch (_) {
       return const DeleteAssetsResult.empty();
     }
+  }
+
+  @override
+  Future<MediaAsset?> loadAssetById(String id) async {
+    final AssetEntity? entity = await AssetEntity.fromId(id);
+    if (entity == null) {
+      return null;
+    }
+    return mapMediaAsset(entity);
+  }
+
+  @override
+  Future<MediaDetails> loadDetails(MediaAsset asset) async {
+    final AssetEntity? entity = await AssetEntity.fromId(asset.id);
+    if (entity == null) {
+      return MediaDetails(
+        id: asset.id,
+        title: asset.title ?? '',
+        path: null,
+        fileSizeBytes: null,
+        width: asset.width,
+        height: asset.height,
+        createdAt: asset.createdAt,
+        modifiedAt: asset.modifiedAt,
+        kind: asset.kind,
+        subtype: asset.subtype,
+        duration: asset.duration,
+        orientation: asset.orientation,
+        latitude: asset.latitude,
+        longitude: asset.longitude,
+        mimeType: asset.mimeType,
+      );
+    }
+    final File? file = await entity.originFile ?? await entity.file;
+    return mapMediaDetails(entity, file: file);
   }
 
   Future<Set<String>> _verifyDeletedIds({
@@ -284,9 +332,9 @@ class PhotoManagerGalleryRepository implements GalleryRepository {
   GalleryLoadResult _emptyResult(GalleryPermission permission) {
     return GalleryLoadResult(
       permission: permission,
-      assets: const <AssetEntity>[],
-      videos: const <AssetEntity>[],
-      others: const <AssetEntity>[],
+      assets: const <MediaAsset>[],
+      videos: const <MediaAsset>[],
+      others: const <MediaAsset>[],
       totalAssets: 0,
     );
   }
@@ -314,6 +362,14 @@ class PhotoManagerGalleryRepository implements GalleryRepository {
       size: size,
     );
     return _AlbumLoadResult(total: total, assets: assets);
+  }
+
+  Future<List<AssetEntity>> _loadEntitiesFor(List<MediaAsset> assets) async {
+    final List<Future<AssetEntity?>> futures = assets
+        .map((asset) => AssetEntity.fromId(asset.id))
+        .toList();
+    final List<AssetEntity?> results = await Future.wait(futures);
+    return results.whereType<AssetEntity>().toList();
   }
 }
 

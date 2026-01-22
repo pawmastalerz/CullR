@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:cullr/core/utils/async_lru_cache.dart';
+import 'package:cullr/core/utils/cache/async_lru_cache.dart';
 
 void main() {
   test('getOrLoad coalesces inflight requests', () async {

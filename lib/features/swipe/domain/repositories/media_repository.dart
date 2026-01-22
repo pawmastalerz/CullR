@@ -1,22 +1,23 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:photo_manager/photo_manager.dart';
+import '../entities/media_asset.dart';
 
 abstract class MediaRepository {
-  Future<Uint8List?> thumbnailFor(AssetEntity entity);
+  Future<Uint8List?> thumbnailFor(MediaAsset asset);
   Map<String, Uint8List> thumbnailSnapshot();
   void evictThumbnail(String id);
   String? cachedFileSizeLabel(String id);
-  Future<int?> fileSizeBytesFor(AssetEntity entity);
-  Future<String?> fileSizeLabelFor(AssetEntity entity);
-  bool isAnimatedAsset(AssetEntity entity);
-  Future<Uint8List?> animatedBytesFor(AssetEntity entity);
-  File? preloadedFileFor(AssetEntity entity);
-  Future<File?> cacheFullResFor(List<AssetEntity> assets, int index);
+  Future<int?> fileSizeBytesFor(MediaAsset asset);
+  Future<String?> fileSizeLabelFor(MediaAsset asset);
+  bool isAnimatedAsset(MediaAsset asset);
+  Future<Uint8List?> animatedBytesFor(MediaAsset asset);
+  File? preloadedFileFor(MediaAsset asset);
+  Future<File?> cacheFullResFor(List<MediaAsset> assets, int index);
   Future<void> preloadFullRes({
-    required List<AssetEntity> assets,
+    required List<MediaAsset> assets,
     required int index,
   });
+  Future<File?> originalFileFor(MediaAsset asset);
   void reset();
 }

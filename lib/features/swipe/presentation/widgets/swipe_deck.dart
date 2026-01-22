@@ -3,13 +3,13 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
-import 'package:photo_manager/photo_manager.dart';
-
 import '../../../../styles/spacing.dart';
 import 'asset_card.dart';
 import 'milestone_card.dart';
 import 'swipe_overlay.dart';
 import '../../domain/repositories/media_repository.dart';
+import '../../domain/entities/media_asset.dart';
+import '../../domain/entities/media_kind.dart';
 import '../../models/swipe_card.dart';
 
 class SwipeDeck extends StatefulWidget {
@@ -33,7 +33,7 @@ class SwipeDeck extends StatefulWidget {
   final bool showSwipeHint;
   final bool Function() canSwipe;
   final ValueChanged<CardSwiperDirection> onSwipe;
-  final ValueChanged<AssetEntity> onTap;
+  final ValueChanged<MediaAsset> onTap;
   final VoidCallback onMilestoneTap;
 
   @override
@@ -264,7 +264,7 @@ class SwipeDeckState extends State<SwipeDeck>
             .toDouble();
         for (int i = visibleCards - 1; i >= 0; i--) {
           final SwipeCard card = widget.assets[i];
-          final AssetEntity? asset = card.asset;
+          final MediaAsset? asset = card.asset;
           final bool isTop = i == 0;
           final int horizontalPercent = isTop ? _dragPercent.round() : 0;
           final double keepGlowProgress = isTop && horizontalPercent > 0
@@ -282,7 +282,7 @@ class SwipeDeckState extends State<SwipeDeck>
                   fit: StackFit.expand,
                   children: [
                     AssetCard(
-                      entity: asset!,
+                      asset: asset!,
                       thumbnailFuture: Future<Uint8List?>.value(
                         card.thumbnailBytes,
                       ),
@@ -292,7 +292,7 @@ class SwipeDeckState extends State<SwipeDeck>
                       ),
                       sizeText: widget.media.cachedFileSizeLabel(asset.id),
                       sizeFuture: widget.media.fileSizeLabelFor(asset),
-                      isVideo: asset.type == AssetType.video,
+                      isVideo: asset.kind == MediaKind.video,
                       isAnimated: isTop && widget.media.isAnimatedAsset(asset),
                       animatedBytesFuture:
                           isTop && widget.media.isAnimatedAsset(asset)

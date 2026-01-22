@@ -1,16 +1,16 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:photo_manager/photo_manager.dart';
-
 import '../../../../../styles/colors.dart';
 import '../../../../../styles/spacing.dart';
+import '../../../domain/entities/media_asset.dart';
+import '../../../domain/entities/media_kind.dart';
 import '../play_badge.dart';
 
 class DeleteGridTile extends StatelessWidget {
   const DeleteGridTile({
     super.key,
-    required this.entity,
+    required this.asset,
     required this.cachedBytes,
     required this.thumbnailFuture,
     required this.onRemove,
@@ -20,7 +20,7 @@ class DeleteGridTile extends StatelessWidget {
     required this.selected,
   });
 
-  final AssetEntity entity;
+  final MediaAsset asset;
   final Uint8List? cachedBytes;
   final Future<Uint8List?> thumbnailFuture;
   final VoidCallback? onRemove;
@@ -51,7 +51,7 @@ class DeleteGridTile extends StatelessWidget {
     final Widget control = showCheckbox
         ? _SelectionCheckbox(selected: selected)
         : _RemoveButton(onRemove: onRemove);
-    final bool isVideo = entity.type == AssetType.video;
+    final bool isVideo = asset.kind == MediaKind.video;
     return ClipRRect(
       borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
       child: Material(

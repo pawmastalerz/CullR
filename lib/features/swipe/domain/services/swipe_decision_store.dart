@@ -1,32 +1,31 @@
-import 'package:photo_manager/photo_manager.dart';
-
 import '../../../../core/storage/key_value_store.dart';
 import '../../../../core/storage/shared_preferences_store.dart';
+import '../entities/media_asset.dart';
 import '../entities/swipe_config.dart';
 
-typedef AssetEntityLoader = Future<AssetEntity?> Function(String id);
+typedef MediaAssetLoader = Future<MediaAsset?> Function(String id);
 
 class SwipeDecisionStore {
   SwipeDecisionStore({
     required SwipeConfig config,
     KeyValueStore? store,
-    AssetEntityLoader? entityLoader,
+    MediaAssetLoader? assetLoader,
   }) : _config = config,
        _store = store ?? SharedPreferencesStore(),
-       _entityLoader = entityLoader ?? AssetEntity.fromId;
+       _assetLoader = assetLoader;
 
   final SwipeConfig _config;
   final KeyValueStore _store;
-  final AssetEntityLoader _entityLoader;
+  final MediaAssetLoader? _assetLoader;
   final _DecisionBucket _deleteBucket = _DecisionBucket();
   final _DecisionBucket _keepBucket = _DecisionBucket();
-  final List<AssetEntity> _recentDecisions = [];
+  final List<MediaAsset> _recentDecisions = [];
   Future<void> _persistQueue = Future<void>.value();
   static const String _keepStorageKey = 'keep_ids';
   static const String _deleteStorageKey = 'delete_ids';
 
-  List<AssetEntity> get deleteCandidates => _deleteBucket.items;
-  List<AssetEntity> get keepCandidates => _keepBucket.items;
+  List<MediaAsset> get deleteCandidates => _deleteBucket.items;
+  List<MediaAsset> get keepCandidates => _keepBucket.items;
 
   int get undoCredits => _recentDecisions.length;
   int get keepCount => _keepBucket.count;
@@ -50,13 +49,16 @@ class SwipeDecisionStore {
   }
 
   Future<void> loadDecisions() async {
+    if (_assetLoader == null) {
+      return;
+    }
     final List<String> keepIds =
         await _store.getStringList(_keepStorageKey) ?? [];
     final List<String> deleteIds =
         await _store.getStringList(_deleteStorageKey) ?? [];
-    final List<AssetEntity> keepItems = await _loadEntitiesForIds(keepIds);
+    final List<MediaAsset> keepItems = await _loadAssetsForIds(keepIds);
     final Set<String> keepItemIds = keepItems.map((item) => item.id).toSet();
-    final List<AssetEntity> deleteItems = (await _loadEntitiesForIds(
+    final List<MediaAsset> deleteItems = (await _loadAssetsForIds(
       deleteIds,
     )).where((item) => !keepItemIds.contains(item.id)).toList();
 
@@ -76,8 +78,8 @@ class SwipeDecisionStore {
     }
   }
 
-  void registerDecision(AssetEntity entity) {
-    _recentDecisions.add(entity);
+  void registerDecision(MediaAsset asset) {
+    _recentDecisions.add(asset);
     if (_recentDecisions.length > _config.swipeUndoLimit) {
       _recentDecisions.removeAt(0);
     }
@@ -91,9 +93,9 @@ class SwipeDecisionStore {
     return true;
   }
 
-  Future<void> markForDelete(AssetEntity entity) {
-    final bool removedKeep = _keepBucket.removeById(entity.id);
-    final bool addedDelete = _deleteBucket.add(entity);
+  Future<void> markForDelete(MediaAsset asset) {
+    final bool removedKeep = _keepBucket.removeById(asset.id);
+    final bool addedDelete = _deleteBucket.add(asset);
     return _persistChanges(
       keepChanged: removedKeep,
       deleteChanged: addedDelete,
@@ -105,14 +107,14 @@ class SwipeDecisionStore {
     return removed ? _persistDeletes() : Future<void>.value();
   }
 
-  Future<void> removeCandidate(AssetEntity entity) {
-    final bool removed = _deleteBucket.removeById(entity.id);
+  Future<void> removeCandidate(MediaAsset asset) {
+    final bool removed = _deleteBucket.removeById(asset.id);
     return removed ? _persistDeletes() : Future<void>.value();
   }
 
-  Future<void> markForKeep(AssetEntity entity) {
-    final bool removedDelete = _deleteBucket.removeById(entity.id);
-    final bool added = _keepBucket.add(entity);
+  Future<void> markForKeep(MediaAsset asset) {
+    final bool removedDelete = _deleteBucket.removeById(asset.id);
+    final bool added = _keepBucket.add(asset);
     return _persistChanges(keepChanged: added, deleteChanged: removedDelete);
   }
 
@@ -121,8 +123,8 @@ class SwipeDecisionStore {
     return removed ? _persistKeeps() : Future<void>.value();
   }
 
-  Future<void> removeKeepCandidate(AssetEntity entity) {
-    return unmarkKeepById(entity.id);
+  Future<void> removeKeepCandidate(MediaAsset asset) {
+    return unmarkKeepById(asset.id);
   }
 
   Future<void> clearKeeps() {
@@ -167,10 +169,14 @@ class SwipeDecisionStore {
     return _persistQueue;
   }
 
-  Future<List<AssetEntity>> _loadEntitiesForIds(Iterable<String> ids) async {
-    final List<Future<AssetEntity?>> futures = ids.map(_entityLoader).toList();
-    final List<AssetEntity?> results = await Future.wait(futures);
-    return results.whereType<AssetEntity>().toList();
+  Future<List<MediaAsset>> _loadAssetsForIds(Iterable<String> ids) async {
+    final MediaAssetLoader? loader = _assetLoader;
+    if (loader == null) {
+      return <MediaAsset>[];
+    }
+    final List<Future<MediaAsset?>> futures = ids.map(loader).toList();
+    final List<MediaAsset?> results = await Future.wait(futures);
+    return results.whereType<MediaAsset>().toList();
   }
 
   bool _idsMatch(Set<String> ids, List<String> stored) {
@@ -187,20 +193,20 @@ class SwipeDecisionStore {
 }
 
 class _DecisionBucket {
-  final List<AssetEntity> _items = [];
+  final List<MediaAsset> _items = [];
   final Set<String> _ids = {};
 
-  List<AssetEntity> get items => List.unmodifiable(_items);
+  List<MediaAsset> get items => List.unmodifiable(_items);
   Iterable<String> get ids => _ids;
   int get count => _ids.length;
   bool get hasItems => _items.isNotEmpty;
   bool containsId(String id) => _ids.contains(id);
 
-  bool add(AssetEntity entity) {
-    if (!_ids.add(entity.id)) {
+  bool add(MediaAsset asset) {
+    if (!_ids.add(asset.id)) {
       return false;
     }
-    _items.add(entity);
+    _items.add(asset);
     return true;
   }
 
@@ -208,17 +214,17 @@ class _DecisionBucket {
     if (!_ids.remove(id)) {
       return false;
     }
-    _items.removeWhere((entity) => entity.id == id);
+    _items.removeWhere((asset) => asset.id == id);
     return true;
   }
 
-  void replaceItems(Iterable<AssetEntity> items) {
+  void replaceItems(Iterable<MediaAsset> items) {
     _items
       ..clear()
       ..addAll(items);
     _ids
       ..clear()
-      ..addAll(items.map((entity) => entity.id));
+      ..addAll(items.map((asset) => asset.id));
   }
 
   void clear() {

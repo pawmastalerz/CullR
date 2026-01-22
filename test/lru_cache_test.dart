@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:cullr/core/utils/lru_cache.dart';
+import 'package:cullr/core/utils/cache/lru_cache.dart';
 
 void main() {
   test('evicts least-recently-used item', () {

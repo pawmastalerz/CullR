@@ -5,6 +5,7 @@ import 'package:permission_handler/permission_handler.dart'
 import 'package:photo_manager/photo_manager.dart';
 
 import 'package:cullr/features/swipe/data/photo_manager_gallery_repository.dart';
+import 'package:cullr/features/swipe/domain/entities/media_asset.dart';
 
 class _FakePhotoManagerClient implements PhotoManagerClient {
   PermissionState permissionState = PermissionState.authorized;
@@ -81,6 +82,37 @@ class _MockAssetPathEntity extends Mock implements AssetPathEntity {}
 
 class _MockAssetEntity extends Mock implements AssetEntity {}
 
+void _stubAssetEntityBasics(
+  _MockAssetEntity entity, {
+  required String id,
+  required AssetType type,
+  String? title,
+  String? mimeType,
+  int width = 120,
+  int height = 80,
+  int duration = 0,
+  int orientation = 0,
+  int subtype = 0,
+  DateTime? createdAt,
+  DateTime? modifiedAt,
+}) {
+  when(() => entity.id).thenReturn(id);
+  when(() => entity.type).thenReturn(type);
+  when(() => entity.width).thenReturn(width);
+  when(() => entity.height).thenReturn(height);
+  when(() => entity.duration).thenReturn(duration);
+  when(() => entity.orientation).thenReturn(orientation);
+  when(() => entity.subtype).thenReturn(subtype);
+  when(
+    () => entity.createDateTime,
+  ).thenReturn(createdAt ?? DateTime(2024, 1, 1));
+  when(
+    () => entity.modifiedDateTime,
+  ).thenReturn(modifiedAt ?? DateTime(2024, 1, 2));
+  when(() => entity.title).thenReturn(title);
+  when(() => entity.mimeType).thenReturn(mimeType);
+}
+
 void main() {
   test('loadGallery returns empty when permission is denied', () async {
     final _FakePhotoManagerClient photoManager = _FakePhotoManagerClient()
@@ -117,6 +149,25 @@ void main() {
     final _MockAssetEntity imageA = _MockAssetEntity();
     final _MockAssetEntity imageB = _MockAssetEntity();
     final _MockAssetEntity videoA = _MockAssetEntity();
+    _stubAssetEntityBasics(
+      imageA,
+      id: 'image-a',
+      type: AssetType.image,
+      mimeType: 'image/jpeg',
+    );
+    _stubAssetEntityBasics(
+      imageB,
+      id: 'image-b',
+      type: AssetType.image,
+      mimeType: 'image/jpeg',
+    );
+    _stubAssetEntityBasics(
+      videoA,
+      id: 'video-a',
+      type: AssetType.video,
+      mimeType: 'video/mp4',
+      duration: 12,
+    );
 
     photoManager.permissionState = PermissionState.authorized;
     photoManager.imagePaths = [imagePath];
@@ -145,8 +196,14 @@ void main() {
     );
 
     expect(result.totalAssets, 3);
-    expect(result.videos, contains(videoA));
-    expect(result.others, containsAll([imageA, imageB]));
+    expect(
+      result.videos.map((MediaAsset asset) => asset.id),
+      contains('video-a'),
+    );
+    expect(
+      result.others.map((MediaAsset asset) => asset.id),
+      containsAll(['image-a', 'image-b']),
+    );
     expect(result.assets.length, 3);
   });
 

@@ -118,7 +118,7 @@ class _SwipeHomeView {
       );
     }
     final SwipeCard currentCard = _state._assets.first;
-    final AssetEntity? currentAsset = currentCard.isAsset
+    final MediaAsset? currentAsset = currentCard.isAsset
         ? currentCard.asset
         : null;
     final double progressValue = _state._viewModel.swipeProgressValue();
@@ -202,7 +202,7 @@ class _SwipeHomeView {
                     Positioned.fill(
                       child: AbsorbPointer(
                         child: SwipeHintOverlay(
-                          entity: currentAsset,
+                          asset: currentAsset,
                           thumbnailFuture: Future.value(
                             currentCard.thumbnailBytes,
                           ),
@@ -213,7 +213,7 @@ class _SwipeHomeView {
                           sizeFuture: _state._viewModel.media.fileSizeLabelFor(
                             currentAsset,
                           ),
-                          isVideo: currentAsset.type == AssetType.video,
+                          isVideo: currentAsset.kind == MediaKind.video,
                           readyFuture: _state._viewModel.initialPreloadFuture,
                           onCompleted: _state._actions.dismissSwipeHint,
                         ),

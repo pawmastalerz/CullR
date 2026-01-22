@@ -3,25 +3,30 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:photo_manager/photo_manager.dart';
-
 import '../../../../styles/colors.dart';
 import '../../../../styles/spacing.dart';
 import '../../../../l10n/app_localizations.dart';
-import '../../../../core/models/asset_details.dart';
-import '../../../../core/utils/asset_utils.dart';
 import '../../../../core/widgets/close_circle_button.dart';
+import '../../domain/entities/media_asset.dart';
+import '../../domain/entities/media_details.dart';
+import '../../domain/entities/media_kind.dart';
+import '../../domain/repositories/gallery_repository.dart';
+import '../../domain/repositories/media_repository.dart';
 import 'high_res_viewer.dart';
 import 'metadata_view.dart';
 
 class FullscreenAssetView extends StatefulWidget {
   const FullscreenAssetView({
     super.key,
-    required this.entity,
+    required this.asset,
+    required this.galleryRepository,
+    required this.media,
     this.preloadedFile,
   });
 
-  final AssetEntity entity;
+  final MediaAsset asset;
+  final GalleryRepository galleryRepository;
+  final MediaRepository media;
   final File? preloadedFile;
 
   @override
@@ -38,38 +43,19 @@ class _FullscreenAssetViewState extends State<FullscreenAssetView> {
   }
 
   Future<File?> _loadFile() async {
-    final File? origin = await widget.entity.originFile;
-    return origin ?? await widget.entity.file;
+    return widget.media.originalFileFor(widget.asset);
   }
 
   bool _isVideoAsset() {
-    return widget.entity.type == AssetType.video;
+    return widget.asset.kind == MediaKind.video;
   }
 
   Future<Uint8List?> _loadAnimatedBytes() {
-    return widget.entity.originBytes;
+    return widget.media.animatedBytesFor(widget.asset);
   }
 
-  Future<AssetDetails> _loadDetails() async {
-    final File? file = widget.preloadedFile ?? await _loadFile();
-    final int? fileSizeBytes = file == null ? null : await file.length();
-    final String title = widget.entity.title ?? await widget.entity.titleAsync;
-    return AssetDetails(
-      id: widget.entity.id,
-      title: title,
-      path: file?.path,
-      fileSizeBytes: fileSizeBytes,
-      width: widget.entity.width,
-      height: widget.entity.height,
-      createdAt: widget.entity.createDateTime,
-      modifiedAt: widget.entity.modifiedDateTime,
-      type: widget.entity.type,
-      subtype: widget.entity.subtype,
-      duration: widget.entity.duration,
-      orientation: widget.entity.orientation,
-      latLng: widget.entity.latLng,
-      mimeType: widget.entity.mimeType,
-    );
+  Future<MediaDetails> _loadDetails() async {
+    return widget.galleryRepository.loadDetails(widget.asset);
   }
 
   @override
@@ -117,7 +103,9 @@ class _FullscreenAssetViewState extends State<FullscreenAssetView> {
                         HighResViewer(
                           preloadedFile: widget.preloadedFile,
                           loadFile: _loadFile,
-                          isAnimated: isAnimatedAsset(widget.entity),
+                          isAnimated: widget.media.isAnimatedAsset(
+                            widget.asset,
+                          ),
                           loadAnimatedBytes: _loadAnimatedBytes,
                           isVideo: _isVideoAsset(),
                           onInteraction: (isActive) {

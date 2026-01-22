@@ -1,15 +1,14 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:photo_manager/photo_manager.dart';
-
 import 'asset_card.dart';
 import 'swipe_overlay.dart';
+import '../../domain/entities/media_asset.dart';
 
 class SwipeHintOverlay extends StatefulWidget {
   const SwipeHintOverlay({
     super.key,
-    required this.entity,
+    required this.asset,
     required this.thumbnailFuture,
     required this.cachedBytes,
     required this.sizeText,
@@ -19,7 +18,7 @@ class SwipeHintOverlay extends StatefulWidget {
     required this.onCompleted,
   });
 
-  final AssetEntity entity;
+  final MediaAsset asset;
   final Future<Uint8List?> thumbnailFuture;
   final Uint8List? cachedBytes;
   final String? sizeText;
@@ -132,7 +131,7 @@ class _SwipeHintOverlayState extends State<SwipeHintOverlay>
                     fit: StackFit.expand,
                     children: [
                       AssetCard(
-                        entity: widget.entity,
+                        asset: widget.asset,
                         thumbnailFuture: widget.thumbnailFuture,
                         cachedBytes: widget.cachedBytes,
                         showSizeBadge: true,
@@ -146,7 +145,7 @@ class _SwipeHintOverlayState extends State<SwipeHintOverlay>
                       ),
                       SwipeOverlay(
                         horizontalOffsetPercent: percent,
-                        labelSeed: widget.entity.id,
+                        labelSeed: widget.asset.id,
                       ),
                     ],
                   ),

@@ -3,9 +3,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
-import 'package:photo_manager/photo_manager.dart';
-
 import '../../domain/entities/delete_assets_result.dart';
+import '../../domain/entities/media_asset.dart';
 import '../../domain/services/swipe_decision_store.dart';
 import '../../domain/services/swipe_home_gallery_controller.dart';
 import '../../domain/services/swipe_milestone_controller.dart';
@@ -25,7 +24,12 @@ class SwipeHomeViewModel extends ChangeNotifier {
     SwipeMilestoneController? milestoneController,
   }) : _galleryRepository = galleryRepository,
        _config = config,
-       _decisionStore = decisionStore ?? SwipeDecisionStore(config: config),
+       _decisionStore =
+           decisionStore ??
+           SwipeDecisionStore(
+             config: config,
+             assetLoader: galleryRepository.loadAssetById,
+           ),
        _media = mediaRepository ?? SwipeHomeMediaCache(config: config),
        _milestones =
            milestoneController ??
@@ -136,7 +140,7 @@ class SwipeHomeViewModel extends ChangeNotifier {
       notifyListeners();
       return SwipeOutcome.milestone(openCoffee: openCoffee);
     }
-    final AssetEntity asset = card.asset!;
+    final MediaAsset asset = card.asset!;
     _decisionStore.registerDecision(asset);
     dismissSwipeHint();
     _incrementSwipeProgress();
@@ -166,7 +170,7 @@ class SwipeHomeViewModel extends ChangeNotifier {
     if (!_decisionStore.consumeUndo()) {
       return null;
     }
-    final AssetEntity asset = card.asset!;
+    final MediaAsset asset = card.asset!;
     final CardSwiperDirection direction = _swipeHistory.removeLast();
     _decrementSwipeProgress();
     if (direction.isCloseTo(CardSwiperDirection.left)) {
@@ -178,7 +182,7 @@ class SwipeHomeViewModel extends ChangeNotifier {
     return UndoResult(direction: direction, assetId: asset.id);
   }
 
-  Future<bool> deleteAssets(List<AssetEntity> items) async {
+  Future<bool> deleteAssets(List<MediaAsset> items) async {
     final DeleteAssetsResult result = await _galleryRepository.deleteAssets(
       items,
     );
@@ -205,12 +209,12 @@ class SwipeHomeViewModel extends ChangeNotifier {
     );
     _openedFullResIds.removeAll(ids);
     _decisionStore.clearUndo();
-    for (final AssetEntity entity in items) {
-      if (!ids.contains(entity.id)) {
+    for (final MediaAsset asset in items) {
+      if (!ids.contains(asset.id)) {
         continue;
       }
-      unawaited(_decisionStore.removeCandidate(entity));
-      unawaited(_decisionStore.removeKeepCandidate(entity));
+      unawaited(_decisionStore.removeCandidate(asset));
+      unawaited(_decisionStore.removeKeepCandidate(asset));
     }
     notifyListeners();
     unawaited(_maybeLoadMore());
@@ -259,7 +263,7 @@ class SwipeHomeViewModel extends ChangeNotifier {
   }
 
   Future<void> _preloadTopAsset() {
-    final List<AssetEntity> assets = this.assets
+    final List<MediaAsset> assets = this.assets
         .where((card) => card.isAsset)
         .map((card) => card.asset!)
         .toList();

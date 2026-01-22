@@ -1,17 +1,16 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:photo_manager/photo_manager.dart';
-
 import '../../../../styles/colors.dart';
 import '../../../../styles/spacing.dart';
 import '../../../../styles/typography.dart';
+import '../../domain/entities/media_asset.dart';
 import 'play_badge.dart';
 
 class AssetCard extends StatelessWidget {
   const AssetCard({
     super.key,
-    required this.entity,
+    required this.asset,
     required this.thumbnailFuture,
     required this.cachedBytes,
     required this.showSizeBadge,
@@ -24,7 +23,7 @@ class AssetCard extends StatelessWidget {
     this.deleteGlowProgress = 0,
   });
 
-  final AssetEntity entity;
+  final MediaAsset asset;
   final Future<Uint8List?> thumbnailFuture;
   final Uint8List? cachedBytes;
   final bool showSizeBadge;
@@ -78,7 +77,7 @@ class AssetCard extends StatelessWidget {
             fit: StackFit.expand,
             children: [
               AssetThumbnail(
-                key: ValueKey(entity.id),
+                key: ValueKey(asset.id),
                 future: thumbnailFuture,
                 cachedBytes: cachedBytes,
                 isAnimated: isAnimated,

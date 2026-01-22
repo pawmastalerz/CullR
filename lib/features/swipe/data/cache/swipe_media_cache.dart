@@ -3,30 +3,36 @@ import 'dart:typed_data';
 
 import 'package:photo_manager/photo_manager.dart';
 
-import '../../../../core/utils/async_lru_cache.dart';
-import '../../../../core/utils/asset_utils.dart' as asset_utils;
-import '../../../../core/utils/file_size_formatter.dart';
-import '../../../../core/utils/lru_cache.dart';
+import '../../../../core/utils/cache/async_lru_cache.dart';
+import '../../domain/utils/asset_utils.dart' as asset_utils;
+import '../../../../core/utils/formatters/file_size_formatter.dart';
+import '../../../../core/utils/cache/lru_cache.dart';
+import '../../domain/entities/media_asset.dart';
 import '../../domain/entities/swipe_config.dart';
 import '../../domain/repositories/media_repository.dart';
 import 'thumbnail_cache.dart';
 
 class SwipeHomeMediaCache implements MediaRepository {
-  SwipeHomeMediaCache({required SwipeConfig config})
-    : _thumbnailCache = ThumbnailCache(
-        capacity: config.thumbnailBytesCacheLimit,
-      ),
-      _fileSizeCache = AsyncLruCache<String, String>(
-        capacity: config.fileSizeLabelCacheLimit,
-      ),
-      _fileSizeBytesCache = AsyncLruCache<String, int>(
-        capacity: config.fileSizeBytesCacheLimit,
-      ),
-      _animatedBytesCache = AsyncLruCache<String, Uint8List>(
-        capacity: config.animatedBytesCacheLimit,
-      ),
-      _fullResCache = LruCache<String, File>(config.fullResHistoryLimit);
+  SwipeHomeMediaCache({
+    required SwipeConfig config,
+    AssetEntityLoader? assetLoader,
+  }) : _assetLoader = assetLoader ?? AssetEntity.fromId,
+       _thumbnailCache = ThumbnailCache(
+         capacity: config.thumbnailBytesCacheLimit,
+         loader: assetLoader ?? AssetEntity.fromId,
+       ),
+       _fileSizeCache = AsyncLruCache<String, String>(
+         capacity: config.fileSizeLabelCacheLimit,
+       ),
+       _fileSizeBytesCache = AsyncLruCache<String, int>(
+         capacity: config.fileSizeBytesCacheLimit,
+       ),
+       _animatedBytesCache = AsyncLruCache<String, Uint8List>(
+         capacity: config.animatedBytesCacheLimit,
+       ),
+       _fullResCache = LruCache<String, File>(config.fullResHistoryLimit);
 
+  final AssetEntityLoader _assetLoader;
   final ThumbnailCache _thumbnailCache;
   final AsyncLruCache<String, String> _fileSizeCache;
   final AsyncLruCache<String, int> _fileSizeBytesCache;
@@ -47,8 +53,8 @@ class SwipeHomeMediaCache implements MediaRepository {
   }
 
   @override
-  Future<Uint8List?> thumbnailFor(AssetEntity entity) {
-    return _thumbnailCache.load(entity);
+  Future<Uint8List?> thumbnailFor(MediaAsset asset) {
+    return _thumbnailCache.load(asset.id);
   }
 
   @override
@@ -63,9 +69,9 @@ class SwipeHomeMediaCache implements MediaRepository {
   String? cachedFileSizeLabel(String id) => _fileSizeCache.get(id);
 
   @override
-  Future<int?> fileSizeBytesFor(AssetEntity entity) {
-    return _fileSizeBytesCache.getOrLoad(entity.id, () async {
-      final File? file = await entity.originFile ?? await entity.file;
+  Future<int?> fileSizeBytesFor(MediaAsset asset) {
+    return _fileSizeBytesCache.getOrLoad(asset.id, () async {
+      final File? file = await _fileFor(asset.id);
       if (file == null) {
         return null;
       }
@@ -74,9 +80,9 @@ class SwipeHomeMediaCache implements MediaRepository {
   }
 
   @override
-  Future<String?> fileSizeLabelFor(AssetEntity entity) {
-    return _fileSizeCache.getOrLoad(entity.id, () async {
-      final int? bytes = await fileSizeBytesFor(entity);
+  Future<String?> fileSizeLabelFor(MediaAsset asset) {
+    return _fileSizeCache.getOrLoad(asset.id, () async {
+      final int? bytes = await fileSizeBytesFor(asset);
       if (bytes == null) {
         return null;
       }
@@ -85,43 +91,46 @@ class SwipeHomeMediaCache implements MediaRepository {
   }
 
   @override
-  bool isAnimatedAsset(AssetEntity entity) {
-    return asset_utils.isAnimatedAsset(entity);
+  bool isAnimatedAsset(MediaAsset asset) {
+    return asset_utils.isAnimatedAsset(asset);
   }
 
   @override
-  Future<Uint8List?> animatedBytesFor(AssetEntity entity) {
-    return _animatedBytesCache.getOrLoad(entity.id, () => entity.originBytes);
+  Future<Uint8List?> animatedBytesFor(MediaAsset asset) {
+    return _animatedBytesCache.getOrLoad(asset.id, () async {
+      final AssetEntity? entity = await _assetLoader(asset.id);
+      return entity?.originBytes;
+    });
   }
 
   @override
-  File? preloadedFileFor(AssetEntity entity) {
-    if (_fullResId == entity.id) {
+  File? preloadedFileFor(MediaAsset asset) {
+    if (_fullResId == asset.id) {
       return _fullResFile;
     }
-    return _fullResCache.get(entity.id);
+    return _fullResCache.get(asset.id);
   }
 
   @override
-  Future<File?> cacheFullResFor(List<AssetEntity> assets, int index) async {
+  Future<File?> cacheFullResFor(List<MediaAsset> assets, int index) async {
     if (index < 0 || index >= assets.length) {
       return null;
     }
-    final AssetEntity entity = assets[index];
-    final File? cached = _fullResCache.get(entity.id);
+    final MediaAsset asset = assets[index];
+    final File? cached = _fullResCache.get(asset.id);
     if (cached != null) {
       return cached;
     }
-    final File? file = await entity.originFile ?? await entity.file;
+    final File? file = await _fileFor(asset.id);
     if (file != null) {
-      _fullResCache.set(entity.id, file);
+      _fullResCache.set(asset.id, file);
     }
     return file;
   }
 
   @override
   Future<void> preloadFullRes({
-    required List<AssetEntity> assets,
+    required List<MediaAsset> assets,
     required int index,
   }) async {
     if (index < 0 || index >= assets.length) {
@@ -129,12 +138,29 @@ class SwipeHomeMediaCache implements MediaRepository {
       _fullResFile = null;
       return;
     }
-    final AssetEntity entity = assets[index];
-    _fullResId = entity.id;
-    _fullResFile = _fullResCache.get(entity.id);
+    final MediaAsset asset = assets[index];
+    _fullResId = asset.id;
+    _fullResFile = _fullResCache.get(asset.id);
     final File? file = await cacheFullResFor(assets, index);
-    if (_fullResId == entity.id && file != null) {
+    if (_fullResId == asset.id && file != null) {
       _fullResFile = file;
     }
+  }
+
+  @override
+  Future<File?> originalFileFor(MediaAsset asset) async {
+    final File? cached = preloadedFileFor(asset);
+    if (cached != null) {
+      return cached;
+    }
+    return _fileFor(asset.id);
+  }
+
+  Future<File?> _fileFor(String id) async {
+    final AssetEntity? entity = await _assetLoader(id);
+    if (entity == null) {
+      return null;
+    }
+    return await entity.originFile ?? await entity.file;
   }
 }

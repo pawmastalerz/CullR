@@ -1,13 +1,12 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:photo_manager/photo_manager.dart';
-
-import '../../../../../core/utils/formatters.dart';
+import '../../../../../core/utils/formatters/formatters.dart';
 import '../../../../../styles/colors.dart';
 import '../../../../../styles/spacing.dart';
 import '../../../../../styles/typography.dart';
 import '../../../../../l10n/app_localizations.dart';
+import '../../../domain/entities/media_asset.dart';
 import 'delete_grid_positioned_tile.dart';
 import 'total_size_row.dart';
 
@@ -29,13 +28,13 @@ class DeletePreviewSheet extends StatefulWidget {
     this.footerOnColor,
   });
 
-  final List<AssetEntity> items;
+  final List<MediaAsset> items;
   final Map<String, Uint8List> cachedBytes;
-  final Future<Uint8List?> Function(AssetEntity entity) thumbnailFutureFor;
-  final Future<int?> Function(AssetEntity entity) sizeBytesFutureFor;
-  final void Function(AssetEntity entity) onOpen;
-  final void Function(AssetEntity entity) onRemove;
-  final Future<bool> Function(List<AssetEntity> items) onDeleteAll;
+  final Future<Uint8List?> Function(MediaAsset asset) thumbnailFutureFor;
+  final Future<int?> Function(MediaAsset asset) sizeBytesFutureFor;
+  final void Function(MediaAsset asset) onOpen;
+  final void Function(MediaAsset asset) onRemove;
+  final Future<bool> Function(List<MediaAsset> items) onDeleteAll;
   final bool showDeleteButton;
   final String emptyText;
   final bool closeOnSuccess;
@@ -49,7 +48,7 @@ class DeletePreviewSheet extends StatefulWidget {
 
 class _DeletePreviewSheetState extends State<DeletePreviewSheet>
     with AutomaticKeepAliveClientMixin {
-  late List<AssetEntity> _items;
+  late List<MediaAsset> _items;
   final Set<String> _removingIds = {};
   final Set<String> _selectedIds = {};
   bool _multiSelect = false;
@@ -62,7 +61,7 @@ class _DeletePreviewSheetState extends State<DeletePreviewSheet>
   @override
   void initState() {
     super.initState();
-    _items = List<AssetEntity>.from(widget.items);
+    _items = List<MediaAsset>.from(widget.items);
     _totalFuture = _buildTotalFuture();
   }
 
@@ -73,7 +72,7 @@ class _DeletePreviewSheetState extends State<DeletePreviewSheet>
       return;
     }
     setState(() {
-      _items = List<AssetEntity>.from(widget.items);
+      _items = List<MediaAsset>.from(widget.items);
       final Set<String> itemIds = _items.map((item) => item.id).toSet();
       _removingIds.removeWhere((id) => !itemIds.contains(id));
       _selectedIds.removeWhere((id) => !itemIds.contains(id));
@@ -88,10 +87,10 @@ class _DeletePreviewSheetState extends State<DeletePreviewSheet>
     if (index < 0 || index >= _items.length) {
       return;
     }
-    final AssetEntity entity = _items[index];
+    final MediaAsset asset = _items[index];
     setState(() {
-      _removingIds.add(entity.id);
-      _selectedIds.remove(entity.id);
+      _removingIds.add(asset.id);
+      _selectedIds.remove(asset.id);
     });
     Future.delayed(_fadeDuration, () {
       if (!mounted) {
@@ -99,9 +98,9 @@ class _DeletePreviewSheetState extends State<DeletePreviewSheet>
       }
       setState(() {
         _items.removeAt(index);
-        _removingIds.remove(entity.id);
+        _removingIds.remove(asset.id);
       });
-      widget.onRemove(entity);
+      widget.onRemove(asset);
       _totalFuture = _buildTotalFuture();
     });
   }
@@ -132,8 +131,8 @@ class _DeletePreviewSheetState extends State<DeletePreviewSheet>
     if (_items.isEmpty) {
       return;
     }
-    final List<AssetEntity> target = _selectedIds.isEmpty
-        ? List<AssetEntity>.from(_items)
+    final List<MediaAsset> target = _selectedIds.isEmpty
+        ? List<MediaAsset>.from(_items)
         : _items.where((item) => _selectedIds.contains(item.id)).toList();
     if (target.isEmpty) {
       return;
@@ -162,7 +161,7 @@ class _DeletePreviewSheetState extends State<DeletePreviewSheet>
     });
   }
 
-  bool _sameItems(List<AssetEntity> left, List<AssetEntity> right) {
+  bool _sameItems(List<MediaAsset> left, List<MediaAsset> right) {
     if (left.length != right.length) {
       return false;
     }
@@ -174,7 +173,7 @@ class _DeletePreviewSheetState extends State<DeletePreviewSheet>
     return true;
   }
 
-  List<AssetEntity> _itemsForTotal() {
+  List<MediaAsset> _itemsForTotal() {
     if (_selectedIds.isEmpty) {
       return _items;
     }
@@ -182,7 +181,7 @@ class _DeletePreviewSheetState extends State<DeletePreviewSheet>
   }
 
   Future<String?> _buildTotalFuture() async {
-    final List<AssetEntity> items = _itemsForTotal();
+    final List<MediaAsset> items = _itemsForTotal();
     if (items.isEmpty) {
       return formatFileSize(0);
     }
@@ -241,7 +240,7 @@ class _DeletePreviewSheetState extends State<DeletePreviewSheet>
                               )
                                 DeleteGridPositionedTile(
                                   key: ValueKey(_items[index].id),
-                                  entity: _items[index],
+                                  asset: _items[index],
                                   cachedBytes:
                                       widget.cachedBytes[_items[index].id],
                                   thumbnailFuture: widget.thumbnailFutureFor(

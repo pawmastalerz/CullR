@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:photo_manager/photo_manager.dart';
+import '../domain/entities/media_asset.dart';
 
 enum SwipeCardKind { asset, milestone }
 
@@ -13,7 +13,7 @@ class SwipeCard {
   });
 
   factory SwipeCard.asset({
-    required AssetEntity asset,
+    required MediaAsset asset,
     required Uint8List thumbnailBytes,
   }) {
     return SwipeCard._(
@@ -31,7 +31,7 @@ class SwipeCard {
   }
 
   final SwipeCardKind kind;
-  final AssetEntity? asset;
+  final MediaAsset? asset;
   final Uint8List? thumbnailBytes;
   final int? clearedBytes;
 

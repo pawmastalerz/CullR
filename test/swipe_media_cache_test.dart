@@ -6,6 +6,8 @@ import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 import 'package:cullr/features/swipe/data/cache/swipe_media_cache.dart';
+import 'package:cullr/features/swipe/domain/entities/media_asset.dart';
+import 'package:cullr/features/swipe/domain/entities/media_kind.dart';
 import 'package:cullr/features/swipe/domain/entities/swipe_config.dart';
 
 class _MockAssetEntity extends Mock implements AssetEntity {}
@@ -41,9 +43,23 @@ void main() {
     when(() => asset.originFile).thenAnswer((_) async => file);
     when(() => asset.file).thenAnswer((_) async => file);
 
-    final SwipeHomeMediaCache cache = SwipeHomeMediaCache(config: _testConfig);
-    final Future<int?> first = cache.fileSizeBytesFor(asset);
-    final Future<int?> second = cache.fileSizeBytesFor(asset);
+    final MediaAsset mediaAsset = MediaAsset(
+      id: 'asset-a',
+      kind: MediaKind.photo,
+      width: 0,
+      height: 0,
+      duration: 0,
+      orientation: 0,
+      subtype: 0,
+      createdAt: DateTime.fromMillisecondsSinceEpoch(0),
+      modifiedAt: DateTime.fromMillisecondsSinceEpoch(0),
+    );
+    final SwipeHomeMediaCache cache = SwipeHomeMediaCache(
+      config: _testConfig,
+      assetLoader: (id) async => id == mediaAsset.id ? asset : null,
+    );
+    final Future<int?> first = cache.fileSizeBytesFor(mediaAsset);
+    final Future<int?> second = cache.fileSizeBytesFor(mediaAsset);
 
     expect(identical(first, second), isTrue);
     expect(await first, 5);
@@ -56,9 +72,23 @@ void main() {
       () => asset.originBytes,
     ).thenAnswer((_) async => Uint8List.fromList([1, 2, 3]));
 
-    final SwipeHomeMediaCache cache = SwipeHomeMediaCache(config: _testConfig);
-    final Uint8List? first = await cache.animatedBytesFor(asset);
-    final Uint8List? second = await cache.animatedBytesFor(asset);
+    final MediaAsset mediaAsset = MediaAsset(
+      id: 'asset-b',
+      kind: MediaKind.photo,
+      width: 0,
+      height: 0,
+      duration: 0,
+      orientation: 0,
+      subtype: 0,
+      createdAt: DateTime.fromMillisecondsSinceEpoch(0),
+      modifiedAt: DateTime.fromMillisecondsSinceEpoch(0),
+    );
+    final SwipeHomeMediaCache cache = SwipeHomeMediaCache(
+      config: _testConfig,
+      assetLoader: (id) async => id == mediaAsset.id ? asset : null,
+    );
+    final Uint8List? first = await cache.animatedBytesFor(mediaAsset);
+    final Uint8List? second = await cache.animatedBytesFor(mediaAsset);
 
     expect(first, isNotNull);
     expect(second, isNotNull);
@@ -71,8 +101,14 @@ void main() {
       await tempDir.delete(recursive: true);
     });
 
-    final SwipeHomeMediaCache cache = SwipeHomeMediaCache(config: _testConfig);
     final List<_MockAssetEntity> assets = [];
+    final List<MediaAsset> mediaAssets = [];
+    final SwipeHomeMediaCache cache = SwipeHomeMediaCache(
+      config: _testConfig,
+      assetLoader: (id) async {
+        return assets.firstWhere((element) => element.id == id);
+      },
+    );
 
     for (int i = 0; i < 6; i++) {
       final File file = File('${tempDir.path}/file_$i.dat');
@@ -82,10 +118,23 @@ void main() {
       when(() => asset.originFile).thenAnswer((_) async => file);
       when(() => asset.file).thenAnswer((_) async => file);
       assets.add(asset);
-      await cache.cacheFullResFor(assets, i);
+      mediaAssets.add(
+        MediaAsset(
+          id: 'asset-$i',
+          kind: MediaKind.photo,
+          width: 0,
+          height: 0,
+          duration: 0,
+          orientation: 0,
+          subtype: 0,
+          createdAt: DateTime.fromMillisecondsSinceEpoch(0),
+          modifiedAt: DateTime.fromMillisecondsSinceEpoch(0),
+        ),
+      );
+      await cache.cacheFullResFor(mediaAssets, i);
     }
 
-    expect(cache.preloadedFileFor(assets.first), isNull);
-    expect(cache.preloadedFileFor(assets.last), isNotNull);
+    expect(cache.preloadedFileFor(mediaAssets.first), isNull);
+    expect(cache.preloadedFileFor(mediaAssets.last), isNotNull);
   });
 }

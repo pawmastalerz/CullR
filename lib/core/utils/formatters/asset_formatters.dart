@@ -1,7 +1,6 @@
 import 'package:intl/intl.dart';
-import 'package:photo_manager/photo_manager.dart';
-
-import '../models/asset_details.dart';
+import '../../../features/swipe/domain/entities/media_details.dart';
+import '../../../features/swipe/domain/entities/media_kind.dart';
 
 String formatDate(DateTime date, String locale) {
   final DateFormat formatter = DateFormat.yMMMd(locale).add_Hm();
@@ -14,15 +13,18 @@ String formatDuration(Duration duration) {
   return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
 }
 
-String assetTypeLabel(AssetType type) {
-  final String raw = type.toString().split('.').last;
-  if (raw.isEmpty) {
-    return '—';
+String assetTypeLabel(MediaKind kind) {
+  switch (kind) {
+    case MediaKind.photo:
+      return 'Photo';
+    case MediaKind.video:
+      return 'Video';
+    case MediaKind.other:
+      return 'Other';
   }
-  return '${raw[0].toUpperCase()}${raw.substring(1)}';
 }
 
-String? formatFileType(AssetDetails details) {
+String? formatFileType(MediaDetails details) {
   final String? name = details.title.isNotEmpty ? details.title : null;
   final String? path = details.path;
   final String? ext = _extractExtension(name) ?? _extractExtension(path);
