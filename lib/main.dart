@@ -4,7 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/app_localizations.dart';
 
 import 'core/l10n/locale_controller.dart';
-import 'features/swipe/swipe_home_page.dart';
+import 'features/swipe/presentation/pages/swipe_home_page.dart';
 import 'styles/colors.dart';
 import 'styles/typography.dart';
 

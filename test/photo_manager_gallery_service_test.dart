@@ -4,7 +4,7 @@ import 'package:permission_handler/permission_handler.dart'
     as permission_handler;
 import 'package:photo_manager/photo_manager.dart';
 
-import 'package:cullr/core/services/photo_manager_gallery_service.dart';
+import 'package:cullr/features/swipe/data/photo_manager_gallery_repository.dart';
 
 class _FakePhotoManagerClient implements PhotoManagerClient {
   PermissionState permissionState = PermissionState.authorized;
@@ -87,7 +87,7 @@ void main() {
       ..permissionState = PermissionState.denied;
     final _FakePermissionClient permissionClient = _FakePermissionClient();
 
-    final PhotoManagerGalleryService service = PhotoManagerGalleryService(
+    final PhotoManagerGalleryRepository service = PhotoManagerGalleryRepository(
       photoManager: photoManager,
       permissionClient: permissionClient,
       isAndroid: false,
@@ -130,7 +130,7 @@ void main() {
       () => videoPath.getAssetListPaged(page: 0, size: 10),
     ).thenAnswer((_) async => [videoA]);
 
-    final PhotoManagerGalleryService service = PhotoManagerGalleryService(
+    final PhotoManagerGalleryRepository service = PhotoManagerGalleryRepository(
       photoManager: photoManager,
       permissionClient: permissionClient,
       isAndroid: false,
@@ -158,12 +158,13 @@ void main() {
         ..photosStatusValue = permission_handler.PermissionStatus.granted
         ..videosStatusValue = permission_handler.PermissionStatus.denied;
 
-      final PhotoManagerGalleryService service = PhotoManagerGalleryService(
-        photoManager: photoManager,
-        permissionClient: permissionClient,
-        isAndroid: true,
-        isIOS: false,
-      );
+      final PhotoManagerGalleryRepository service =
+          PhotoManagerGalleryRepository(
+            photoManager: photoManager,
+            permissionClient: permissionClient,
+            isAndroid: true,
+            isIOS: false,
+          );
 
       final bool shouldReload = await service.openGallerySettings(null);
 

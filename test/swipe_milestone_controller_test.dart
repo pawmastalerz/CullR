@@ -1,19 +1,57 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:cullr/features/swipe/controllers/swipe_milestone_controller.dart';
+import 'package:cullr/core/storage/key_value_store.dart';
+import 'package:cullr/features/swipe/domain/services/swipe_milestone_controller.dart';
+
+class _MemoryStore implements KeyValueStore {
+  _MemoryStore([Map<String, Object?>? initial])
+    : _data = initial ?? <String, Object?>{};
+
+  final Map<String, Object?> _data;
+
+  @override
+  Future<List<String>?> getStringList(String key) async {
+    final Object? value = _data[key];
+    if (value is List<String>) {
+      return List<String>.from(value);
+    }
+    return null;
+  }
+
+  @override
+  Future<void> setStringList(String key, List<String> value) async {
+    _data[key] = List<String>.from(value);
+  }
+
+  @override
+  Future<int?> getInt(String key) async {
+    final Object? value = _data[key];
+    return value is int ? value : null;
+  }
+
+  @override
+  Future<void> setInt(String key, int value) async {
+    _data[key] = value;
+  }
+
+  @override
+  Future<String?> getString(String key) async {
+    final Object? value = _data[key];
+    return value is String ? value : null;
+  }
+
+  @override
+  Future<void> setString(String key, String value) async {
+    _data[key] = value;
+  }
+}
 
 void main() {
-  TestWidgetsFlutterBinding.ensureInitialized();
-
-  setUp(() {
-    SharedPreferences.setMockInitialValues({});
-  });
-
   test('handleDeletion triggers only when threshold crossed', () {
     final SwipeMilestoneController controller = SwipeMilestoneController(
       thresholdBytes: 100,
       minInterval: Duration.zero,
+      store: _MemoryStore(),
     );
 
     expect(
@@ -33,6 +71,7 @@ void main() {
     final SwipeMilestoneController controller = SwipeMilestoneController(
       thresholdBytes: 100,
       minInterval: Duration.zero,
+      store: _MemoryStore(),
     );
 
     expect(
@@ -62,6 +101,7 @@ void main() {
     final SwipeMilestoneController controller = SwipeMilestoneController(
       thresholdBytes: 100,
       minInterval: Duration.zero,
+      store: _MemoryStore(),
     );
 
     expect(
@@ -79,6 +119,7 @@ void main() {
     final SwipeMilestoneController controller = SwipeMilestoneController(
       thresholdBytes: 100,
       minInterval: const Duration(minutes: 10),
+      store: _MemoryStore(),
     );
 
     final int? first = controller.handleDeletion(
@@ -102,6 +143,7 @@ void main() {
     final SwipeMilestoneController controller = SwipeMilestoneController(
       thresholdBytes: 100,
       minInterval: Duration.zero,
+      store: _MemoryStore(),
     );
 
     expect(
@@ -126,6 +168,7 @@ void main() {
       thresholdBytes: 100,
       minInterval: Duration.zero,
       debugShow: true,
+      store: _MemoryStore(),
     );
 
     expect(controller.debugMilestone(hasMilestoneCard: false), 100);
@@ -133,9 +176,11 @@ void main() {
   });
 
   test('persisted totals are restored across sessions', () async {
+    final KeyValueStore store = _MemoryStore();
     final SwipeMilestoneController controller = SwipeMilestoneController(
       thresholdBytes: 100,
       minInterval: Duration.zero,
+      store: store,
     );
 
     await controller.persistTotal(250);
@@ -143,6 +188,7 @@ void main() {
     final SwipeMilestoneController fresh = SwipeMilestoneController(
       thresholdBytes: 100,
       minInterval: Duration.zero,
+      store: store,
     );
     final int restored = await fresh.loadTotalDeletedBytes();
     expect(restored, 250);
@@ -152,6 +198,7 @@ void main() {
     final SwipeMilestoneController controller = SwipeMilestoneController(
       thresholdBytes: 100,
       minInterval: Duration.zero,
+      store: _MemoryStore(),
     );
     final int huge = 9 * 1024 * 1024 * 1024;
 

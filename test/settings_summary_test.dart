@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:cullr/l10n/app_localizations.dart';
-import 'package:cullr/features/swipe/widgets/settings_summary.dart';
+import 'package:cullr/features/swipe/presentation/widgets/settings_summary.dart';
 
 void main() {
   testWidgets('SettingsSummary renders localized labels and values', (

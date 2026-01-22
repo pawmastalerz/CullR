@@ -1,9 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager/photo_manager.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:cullr/features/swipe/controllers/swipe_decision_store.dart';
+import 'package:cullr/core/storage/key_value_store.dart';
+import 'package:cullr/features/swipe/domain/services/swipe_decision_store.dart';
+import 'package:cullr/features/swipe/domain/entities/swipe_config.dart';
 
 class _MockAssetEntity extends Mock implements AssetEntity {}
 
@@ -18,15 +19,72 @@ AssetEntityLoader _loaderFrom(Map<String, AssetEntity> assets) {
   return (String id) async => assets[id];
 }
 
+const SwipeConfig _testConfig = SwipeConfig(
+  galleryVideoBatchSize: 2,
+  galleryOtherBatchSize: 2,
+  swipeBufferSize: 4,
+  swipeBufferPhotoTarget: 3,
+  swipeBufferVideoTarget: 1,
+  swipeVisibleCards: 2,
+  swipeUndoLimit: 3,
+  fullResHistoryLimit: 2,
+  thumbnailBytesCacheLimit: 10,
+  fileSizeLabelCacheLimit: 10,
+  fileSizeBytesCacheLimit: 10,
+  animatedBytesCacheLimit: 10,
+  deleteMilestoneBytes: 100,
+  deleteMilestoneMinInterval: Duration.zero,
+);
+
+class _MemoryStore implements KeyValueStore {
+  _MemoryStore([Map<String, Object?>? initial])
+    : _data = initial ?? <String, Object?>{};
+
+  final Map<String, Object?> _data;
+
+  @override
+  Future<List<String>?> getStringList(String key) async {
+    final Object? value = _data[key];
+    if (value is List<String>) {
+      return List<String>.from(value);
+    }
+    return null;
+  }
+
+  @override
+  Future<void> setStringList(String key, List<String> value) async {
+    _data[key] = List<String>.from(value);
+  }
+
+  @override
+  Future<int?> getInt(String key) async {
+    final Object? value = _data[key];
+    return value is int ? value : null;
+  }
+
+  @override
+  Future<void> setInt(String key, int value) async {
+    _data[key] = value;
+  }
+
+  @override
+  Future<String?> getString(String key) async {
+    final Object? value = _data[key];
+    return value is String ? value : null;
+  }
+
+  @override
+  Future<void> setString(String key, String value) async {
+    _data[key] = value;
+  }
+}
+
 void main() {
-  TestWidgetsFlutterBinding.ensureInitialized();
-
-  setUp(() {
-    SharedPreferences.setMockInitialValues({});
-  });
-
   test('markForKeep stores keep candidate and id', () async {
-    final SwipeDecisionStore store = SwipeDecisionStore();
+    final SwipeDecisionStore store = SwipeDecisionStore(
+      config: _testConfig,
+      store: _MemoryStore(),
+    );
     final AssetEntity asset = _assetWithId('a');
 
     await store.markForKeep(asset);
@@ -37,7 +95,10 @@ void main() {
   });
 
   test('markForDelete stores delete candidate and clears keep', () async {
-    final SwipeDecisionStore store = SwipeDecisionStore();
+    final SwipeDecisionStore store = SwipeDecisionStore(
+      config: _testConfig,
+      store: _MemoryStore(),
+    );
     final AssetEntity asset = _assetWithId('a');
 
     await store.markForKeep(asset);
@@ -49,7 +110,10 @@ void main() {
   });
 
   test('removeCandidate clears delete candidate', () async {
-    final SwipeDecisionStore store = SwipeDecisionStore();
+    final SwipeDecisionStore store = SwipeDecisionStore(
+      config: _testConfig,
+      store: _MemoryStore(),
+    );
     final AssetEntity asset = _assetWithId('a');
 
     await store.markForDelete(asset);
@@ -60,7 +124,10 @@ void main() {
   });
 
   test('registerDecision and undo credits', () {
-    final SwipeDecisionStore store = SwipeDecisionStore();
+    final SwipeDecisionStore store = SwipeDecisionStore(
+      config: _testConfig,
+      store: _MemoryStore(),
+    );
     final AssetEntity asset = _assetWithId('a');
 
     store.registerDecision(asset);
@@ -70,7 +137,10 @@ void main() {
   });
 
   test('consumeUndo returns false when empty and caps credits', () {
-    final SwipeDecisionStore store = SwipeDecisionStore();
+    final SwipeDecisionStore store = SwipeDecisionStore(
+      config: _testConfig,
+      store: _MemoryStore(),
+    );
     final AssetEntity assetA = _assetWithId('a');
     final AssetEntity assetB = _assetWithId('b');
     final AssetEntity assetC = _assetWithId('c');
@@ -92,13 +162,15 @@ void main() {
   });
 
   test('loadDecisions restores keep ids', () async {
-    SharedPreferences.setMockInitialValues({
+    final KeyValueStore kvStore = _MemoryStore({
       'keep_ids': ['a', 'c'],
     });
     final AssetEntity assetA = _assetWithId('a');
     final AssetEntity assetB = _assetWithId('b');
     final AssetEntity assetC = _assetWithId('c');
     final SwipeDecisionStore store = SwipeDecisionStore(
+      config: _testConfig,
+      store: kvStore,
       entityLoader: _loaderFrom({'a': assetA, 'b': assetB, 'c': assetC}),
     );
 
@@ -109,7 +181,10 @@ void main() {
   });
 
   test('markForDelete then markForKeep reclassifies candidate', () async {
-    final SwipeDecisionStore store = SwipeDecisionStore();
+    final SwipeDecisionStore store = SwipeDecisionStore(
+      config: _testConfig,
+      store: _MemoryStore(),
+    );
     final AssetEntity asset = _assetWithId('a');
 
     await store.markForDelete(asset);
@@ -122,7 +197,10 @@ void main() {
   });
 
   test('markForKeep then markForDelete reclassifies candidate', () async {
-    final SwipeDecisionStore store = SwipeDecisionStore();
+    final SwipeDecisionStore store = SwipeDecisionStore(
+      config: _testConfig,
+      store: _MemoryStore(),
+    );
     final AssetEntity asset = _assetWithId('a');
 
     await store.markForKeep(asset);
@@ -135,7 +213,10 @@ void main() {
   });
 
   test('markForKeep is idempotent for candidates list', () async {
-    final SwipeDecisionStore store = SwipeDecisionStore();
+    final SwipeDecisionStore store = SwipeDecisionStore(
+      config: _testConfig,
+      store: _MemoryStore(),
+    );
     final AssetEntity asset = _assetWithId('a');
 
     await store.markForKeep(asset);
@@ -146,12 +227,14 @@ void main() {
   });
 
   test('clearKeeps persists and clears stored ids', () async {
-    SharedPreferences.setMockInitialValues({
+    final KeyValueStore kvStore = _MemoryStore({
       'keep_ids': ['a', 'b'],
     });
     final AssetEntity assetA = _assetWithId('a');
     final AssetEntity assetB = _assetWithId('b');
     final SwipeDecisionStore store = SwipeDecisionStore(
+      config: _testConfig,
+      store: kvStore,
       entityLoader: _loaderFrom({'a': assetA, 'b': assetB}),
     );
 
@@ -159,6 +242,8 @@ void main() {
     await store.clearKeeps();
 
     final SwipeDecisionStore freshStore = SwipeDecisionStore(
+      config: _testConfig,
+      store: kvStore,
       entityLoader: _loaderFrom({'a': assetA, 'b': assetB}),
     );
     await freshStore.loadDecisions();
@@ -168,12 +253,14 @@ void main() {
   });
 
   test('unmarkKeepById persists removal', () async {
-    SharedPreferences.setMockInitialValues({
+    final KeyValueStore kvStore = _MemoryStore({
       'keep_ids': ['a', 'b'],
     });
     final AssetEntity assetA = _assetWithId('a');
     final AssetEntity assetB = _assetWithId('b');
     final SwipeDecisionStore store = SwipeDecisionStore(
+      config: _testConfig,
+      store: kvStore,
       entityLoader: _loaderFrom({'a': assetA, 'b': assetB}),
     );
 
@@ -181,6 +268,8 @@ void main() {
     await store.unmarkKeepById('a');
 
     final SwipeDecisionStore freshStore = SwipeDecisionStore(
+      config: _testConfig,
+      store: kvStore,
       entityLoader: _loaderFrom({'a': assetA, 'b': assetB}),
     );
     await freshStore.loadDecisions();
@@ -190,13 +279,15 @@ void main() {
   });
 
   test('loadDecisions restores delete ids', () async {
-    SharedPreferences.setMockInitialValues({
+    final KeyValueStore kvStore = _MemoryStore({
       'delete_ids': ['a', 'c'],
     });
     final AssetEntity assetA = _assetWithId('a');
     final AssetEntity assetB = _assetWithId('b');
     final AssetEntity assetC = _assetWithId('c');
     final SwipeDecisionStore store = SwipeDecisionStore(
+      config: _testConfig,
+      store: kvStore,
       entityLoader: _loaderFrom({'a': assetA, 'b': assetB, 'c': assetC}),
     );
 

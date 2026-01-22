@@ -5,9 +5,27 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:photo_manager/photo_manager.dart';
 
-import 'package:cullr/features/swipe/controllers/swipe_media_cache.dart';
+import 'package:cullr/features/swipe/data/cache/swipe_media_cache.dart';
+import 'package:cullr/features/swipe/domain/entities/swipe_config.dart';
 
 class _MockAssetEntity extends Mock implements AssetEntity {}
+
+const SwipeConfig _testConfig = SwipeConfig(
+  galleryVideoBatchSize: 2,
+  galleryOtherBatchSize: 2,
+  swipeBufferSize: 4,
+  swipeBufferPhotoTarget: 3,
+  swipeBufferVideoTarget: 1,
+  swipeVisibleCards: 2,
+  swipeUndoLimit: 3,
+  fullResHistoryLimit: 4,
+  thumbnailBytesCacheLimit: 10,
+  fileSizeLabelCacheLimit: 10,
+  fileSizeBytesCacheLimit: 10,
+  animatedBytesCacheLimit: 10,
+  deleteMilestoneBytes: 100,
+  deleteMilestoneMinInterval: Duration.zero,
+);
 
 void main() {
   test('fileSizeBytesFutureFor coalesces inflight requests', () async {
@@ -23,9 +41,9 @@ void main() {
     when(() => asset.originFile).thenAnswer((_) async => file);
     when(() => asset.file).thenAnswer((_) async => file);
 
-    final SwipeHomeMediaCache cache = SwipeHomeMediaCache();
-    final Future<int?> first = cache.fileSizeBytesFutureFor(asset);
-    final Future<int?> second = cache.fileSizeBytesFutureFor(asset);
+    final SwipeHomeMediaCache cache = SwipeHomeMediaCache(config: _testConfig);
+    final Future<int?> first = cache.fileSizeBytesFor(asset);
+    final Future<int?> second = cache.fileSizeBytesFor(asset);
 
     expect(identical(first, second), isTrue);
     expect(await first, 5);
@@ -38,9 +56,9 @@ void main() {
       () => asset.originBytes,
     ).thenAnswer((_) async => Uint8List.fromList([1, 2, 3]));
 
-    final SwipeHomeMediaCache cache = SwipeHomeMediaCache();
-    final Uint8List? first = await cache.animatedBytesFutureFor(asset);
-    final Uint8List? second = await cache.animatedBytesFutureFor(asset);
+    final SwipeHomeMediaCache cache = SwipeHomeMediaCache(config: _testConfig);
+    final Uint8List? first = await cache.animatedBytesFor(asset);
+    final Uint8List? second = await cache.animatedBytesFor(asset);
 
     expect(first, isNotNull);
     expect(second, isNotNull);
@@ -53,7 +71,7 @@ void main() {
       await tempDir.delete(recursive: true);
     });
 
-    final SwipeHomeMediaCache cache = SwipeHomeMediaCache();
+    final SwipeHomeMediaCache cache = SwipeHomeMediaCache(config: _testConfig);
     final List<_MockAssetEntity> assets = [];
 
     for (int i = 0; i < 6; i++) {
