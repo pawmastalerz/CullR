@@ -269,10 +269,7 @@ class _SwipeHomeActions {
     if (!_state.mounted) {
       return false;
     }
-    final int clearedCount = _state._viewModel.decisionStore.keepCount;
-    await _state._viewModel.decisionStore.clearKeeps();
-    _state._viewModel.decisionStore.clearUndo();
-    _state._viewModel.decrementSwipeProgressBy(clearedCount);
+    await _state._viewModel.requeueKeeps(items);
     return true;
   }
 

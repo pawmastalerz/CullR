@@ -132,4 +132,29 @@ void main() {
     expect(session.deletedBytes, 12);
     expect(store.isMarkedForDelete(id), isFalse);
   });
+
+  test('requeueKeeps puts assets back in the deck', () async {
+    final String id = 'p4';
+    final FakeGalleryRepository repo = FakeGalleryRepository(
+      pages: [_singleAssetResult(id)],
+      assetsById: {id: testAsset(id)},
+    );
+    final SwipeDecisionStore store = SwipeDecisionStore(
+      config: _config,
+      store: MemoryStore(),
+      assetLoader: repo.loadAssetById,
+    );
+    final SwipeSession session = _buildSession(repo: repo, store: store);
+
+    await session.initialize();
+    session.handleSwipe(CardSwiperDirection.right);
+    expect(store.isKept(id), isTrue);
+
+    await session.requeueKeeps([testAsset(id)]);
+
+    final bool containsId = session.assets
+        .where((card) => card.isAsset)
+        .any((card) => card.asset!.id == id);
+    expect(containsId, isTrue);
+  });
 }

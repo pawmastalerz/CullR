@@ -64,6 +64,9 @@ class SwipeHomeViewModel extends ChangeNotifier {
   Future<bool> deleteAssets(List<MediaAsset> items) =>
       _session.deleteAssets(items);
 
+  Future<void> requeueKeeps(List<MediaAsset> items) =>
+      _session.requeueKeeps(items);
+
   void markOpenedFullRes(String id) => _session.markOpenedFullRes(id);
 
   int remainingToSwipe() => _session.remainingToSwipe();

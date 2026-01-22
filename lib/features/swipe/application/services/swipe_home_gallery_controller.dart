@@ -175,6 +175,26 @@ class SwipeHomeGalleryController {
     return card;
   }
 
+  Future<void> requeueAssets(List<MediaAsset> assets) async {
+    if (assets.isEmpty) {
+      return;
+    }
+    final Set<String> targetIds = assets.map((asset) => asset.id).toSet();
+    _undoWindow.removeWhere(
+      (card) => card.isAsset && targetIds.contains(card.asset!.id),
+    );
+    final Set<String> existingIds = {
+      ..._assetPool.map((asset) => asset.id),
+      ..._buffer.where((card) => card.isAsset).map((card) => card.asset!.id),
+    };
+    for (final MediaAsset asset in assets) {
+      if (existingIds.add(asset.id)) {
+        _assetPool.add(asset);
+      }
+    }
+    await fillBuffer();
+  }
+
   void applyDeletion(Set<String> ids) {
     _totalSwipeTarget = math.max(0, _totalSwipeTarget - ids.length);
     _removeAssetsById(ids);

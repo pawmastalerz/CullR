@@ -144,4 +144,35 @@ void main() {
     expect(bufferIds, isNot(contains('p1')));
     expect(media.evicted, contains('p1'));
   });
+
+  test('requeueAssets restores assets into the buffer', () async {
+    final GalleryLoadResult page = _loadResult(photoIds: ['p1'], videoIds: []);
+    final FakeGalleryRepository repo = FakeGalleryRepository(
+      pages: [page],
+      assetsById: {'p1': testAsset('p1')},
+    );
+    final SwipeDecisionStore store = SwipeDecisionStore(
+      config: _config,
+      store: MemoryStore(),
+      assetLoader: repo.loadAssetById,
+    );
+    final SwipeHomeGalleryController controller = SwipeHomeGalleryController(
+      galleryRepository: repo,
+      decisionStore: store,
+      mediaRepository: FakeMediaRepository(),
+      config: _config,
+    );
+
+    await controller.loadGallery();
+    controller.popForSwipe();
+    expect(controller.buffer, isEmpty);
+
+    await controller.requeueAssets([testAsset('p1')]);
+
+    final List<String> bufferIds = controller.buffer
+        .where((SwipeCard card) => card.isAsset)
+        .map((SwipeCard card) => card.asset!.id)
+        .toList();
+    expect(bufferIds, contains('p1'));
+  });
 }

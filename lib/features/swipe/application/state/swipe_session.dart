@@ -222,6 +222,18 @@ class SwipeSession extends ChangeNotifier {
     return true;
   }
 
+  Future<void> requeueKeeps(List<MediaAsset> items) async {
+    if (items.isEmpty) {
+      return;
+    }
+    await _decisionStore.clearKeeps();
+    _decisionStore.clearUndo();
+    _progressSwipeCount = math.max(0, _progressSwipeCount - items.length);
+    await _galleryController.requeueAssets(items);
+    notifyListeners();
+    unawaited(_maybeLoadMore());
+  }
+
   void markOpenedFullRes(String id) {
     _openedFullResIds.add(id);
     notifyListeners();
