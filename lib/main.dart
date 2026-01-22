@@ -3,7 +3,9 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'l10n/app_localizations.dart';
 
+import 'core/di/app_composition.dart';
 import 'core/l10n/locale_controller.dart';
+import 'features/swipe/application/state/swipe_session.dart';
 import 'features/swipe/presentation/pages/swipe_home_page.dart';
 import 'styles/colors.dart';
 import 'styles/typography.dart';
@@ -11,13 +13,16 @@ import 'styles/typography.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final Locale? savedLocale = await LocaleController.loadSavedLocale();
-  runApp(MyApp(initialLocale: savedLocale));
+  final AppComposition composition = AppComposition();
+  final SwipeSession swipeSession = composition.buildSwipeSession();
+  runApp(MyApp(initialLocale: savedLocale, swipeSession: swipeSession));
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({super.key, this.initialLocale});
+  const MyApp({super.key, this.initialLocale, required this.swipeSession});
 
   final Locale? initialLocale;
+  final SwipeSession swipeSession;
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -30,6 +35,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void dispose() {
+    widget.swipeSession.dispose();
     _localeController.dispose();
     super.dispose();
   }
@@ -85,7 +91,10 @@ class _MyAppState extends State<MyApp> {
             iconTheme: const IconThemeData(color: AppColors.textPrimary),
             dividerColor: AppColors.borderSubtle,
           ),
-          home: SwipeHomePage(localeController: _localeController),
+          home: SwipeHomePage(
+            localeController: _localeController,
+            session: widget.swipeSession,
+          ),
         );
       },
     );

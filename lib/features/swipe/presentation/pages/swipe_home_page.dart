@@ -9,19 +9,16 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/l10n/locale_controller.dart';
 import '../../../../core/widgets/app_modal_sheet.dart';
-import '../../../../core/config/app_config.dart';
 import '../../../../core/utils/formatters/formatters.dart';
 import '../../../../styles/colors.dart';
 import '../../../../styles/spacing.dart';
 import '../../../../styles/typography.dart';
 import '../../../../l10n/app_localizations.dart';
-import '../../data/photo_manager_gallery_repository.dart';
 import '../../domain/entities/gallery_permission.dart';
 import '../../domain/entities/media_asset.dart';
 import '../../domain/entities/media_kind.dart';
-import '../../domain/entities/swipe_config.dart';
-import '../../domain/repositories/gallery_repository.dart';
-import '../../models/swipe_card.dart';
+import '../../application/models/swipe_card.dart';
+import '../../application/state/swipe_session.dart';
 import '../state/swipe_home_view_model.dart';
 import '../widgets/action_bar.dart';
 import '../widgets/delete_preview/delete_preview_sheet.dart';
@@ -36,13 +33,13 @@ part 'swipe_home_page.actions.dart';
 part 'swipe_home_page.view.dart';
 
 class SwipeHomePage extends StatefulWidget {
-  SwipeHomePage({
+  const SwipeHomePage({
     super.key,
     required this.localeController,
-    GalleryRepository? galleryRepository,
-  }) : galleryRepository = galleryRepository ?? PhotoManagerGalleryRepository();
+    required this.session,
+  });
 
-  final GalleryRepository galleryRepository;
+  final SwipeSession session;
   final LocaleController localeController;
 
   @override
@@ -53,23 +50,8 @@ class _SwipeHomePageState extends State<SwipeHomePage> {
   final GlobalKey<SwipeDeckState> _deckKey = GlobalKey<SwipeDeckState>();
   late final _SwipeHomeActions _actions = _SwipeHomeActions(this);
   late final _SwipeHomeView _view = _SwipeHomeView(this);
-  late final SwipeConfig _config = SwipeConfig(
-    galleryVideoBatchSize: AppConfig.galleryVideoBatchSize,
-    galleryOtherBatchSize: AppConfig.galleryOtherBatchSize,
-    swipeBufferSize: AppConfig.swipeBufferSize,
-    swipeVisibleCards: AppConfig.swipeVisibleCards,
-    swipeUndoLimit: AppConfig.swipeUndoLimit,
-    fullResHistoryLimit: AppConfig.fullResHistoryLimit,
-    thumbnailBytesCacheLimit: AppConfig.thumbnailBytesCacheLimit,
-    fileSizeLabelCacheLimit: AppConfig.fileSizeLabelCacheLimit,
-    fileSizeBytesCacheLimit: AppConfig.fileSizeBytesCacheLimit,
-    animatedBytesCacheLimit: AppConfig.animatedBytesCacheLimit,
-    deleteMilestoneBytes: AppConfig.deleteMilestoneBytes,
-    deleteMilestoneMinInterval: AppConfig.deleteMilestoneMinInterval,
-  );
   late final SwipeHomeViewModel _viewModel = SwipeHomeViewModel(
-    galleryRepository: widget.galleryRepository,
-    config: _config,
+    session: widget.session,
   );
   int get _totalSwipeTarget => _viewModel.totalSwipeTarget;
   bool get _initialLoadHadAssets => _viewModel.initialLoadHadAssets;

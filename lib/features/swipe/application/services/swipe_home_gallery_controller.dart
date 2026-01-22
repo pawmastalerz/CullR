@@ -3,14 +3,14 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 
 import '../../../../core/services/logger_service.dart';
-import '../entities/gallery_permission.dart';
-import '../entities/gallery_load_result.dart';
-import '../entities/media_asset.dart';
-import '../entities/swipe_config.dart';
-import '../repositories/gallery_repository.dart';
-import '../repositories/media_repository.dart';
-import 'swipe_decision_store.dart';
-import '../../models/swipe_card.dart';
+import '../../domain/entities/gallery_permission.dart';
+import '../../domain/entities/gallery_load_result.dart';
+import '../../domain/entities/media_asset.dart';
+import '../../domain/entities/swipe_config.dart';
+import '../../domain/repositories/gallery_repository.dart';
+import '../../domain/repositories/media_repository.dart';
+import '../../domain/services/swipe_decision_store.dart';
+import '../models/swipe_card.dart';
 
 class SwipeHomeGalleryController {
   SwipeHomeGalleryController({
@@ -153,9 +153,7 @@ class SwipeHomeGalleryController {
   }
 
   void _reconcileTargetIfExhausted() {
-    if (_hasMoreVideos ||
-        _hasMoreOthers ||
-        _assetPool.isNotEmpty) {
+    if (_hasMoreVideos || _hasMoreOthers || _assetPool.isNotEmpty) {
       return;
     }
     final int decidedCount = _decisionStore.totalDecisionCount;
@@ -230,10 +228,7 @@ class SwipeHomeGalleryController {
     if (result.videos.isEmpty && result.others.isEmpty) {
       return;
     }
-    final List<MediaAsset> incoming = [
-      ...result.videos,
-      ...result.others,
-    ];
+    final List<MediaAsset> incoming = [...result.videos, ...result.others];
     incoming.shuffle(_random);
     _assetPool.addAll(incoming);
   }

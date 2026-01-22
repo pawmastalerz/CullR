@@ -126,7 +126,7 @@ class _SwipeHomeView {
     final int remaining = _state._viewModel.remainingToSwipe();
     final double maxCardWidth = _state._maxCardWidth(context);
     final int visibleCards = math.min(
-      _state._config.swipeVisibleCards,
+      _state._viewModel.config.swipeVisibleCards,
       _state._assets.length,
     );
 

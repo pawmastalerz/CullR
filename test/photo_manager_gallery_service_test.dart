@@ -4,6 +4,7 @@ import 'package:permission_handler/permission_handler.dart'
     as permission_handler;
 import 'package:photo_manager/photo_manager.dart';
 
+import 'package:cullr/features/swipe/data/clients/photo_manager_clients.dart';
 import 'package:cullr/features/swipe/data/photo_manager_gallery_repository.dart';
 import 'package:cullr/features/swipe/domain/entities/media_asset.dart';
 

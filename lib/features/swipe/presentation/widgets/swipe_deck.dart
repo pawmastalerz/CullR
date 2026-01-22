@@ -10,7 +10,7 @@ import 'swipe_overlay.dart';
 import '../../domain/repositories/media_repository.dart';
 import '../../domain/entities/media_asset.dart';
 import '../../domain/entities/media_kind.dart';
-import '../../models/swipe_card.dart';
+import '../../application/models/swipe_card.dart';
 
 class SwipeDeck extends StatefulWidget {
   const SwipeDeck({

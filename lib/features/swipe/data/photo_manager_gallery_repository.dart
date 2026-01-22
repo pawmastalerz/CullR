@@ -1,108 +1,71 @@
 import 'dart:io';
 
-import 'package:permission_handler/permission_handler.dart'
-    as permission_handler;
 import 'package:photo_manager/photo_manager.dart';
 
-import '../domain/entities/gallery_permission.dart';
 import '../domain/entities/delete_assets_result.dart';
 import '../domain/entities/gallery_load_result.dart';
+import '../domain/entities/gallery_permission.dart';
 import '../domain/entities/media_asset.dart';
 import '../domain/entities/media_details.dart';
 import '../domain/repositories/gallery_repository.dart';
+import 'clients/photo_manager_clients.dart';
+import 'datasources/photo_library_data_source.dart';
 import 'mappers/photo_manager_media_mapper.dart';
-
-abstract class PhotoManagerClient {
-  Future<PermissionState> requestPermissionExtend();
-  Future<List<AssetPathEntity>> getAssetPathList({
-    required RequestType type,
-    required bool hasAll,
-  });
-  Future<void> presentLimited({required RequestType type});
-  Future<void> openSetting();
-  Future<List<String>> deleteWithIds(List<String> ids);
-}
-
-class DefaultPhotoManagerClient implements PhotoManagerClient {
-  @override
-  Future<PermissionState> requestPermissionExtend() {
-    return PhotoManager.requestPermissionExtend();
-  }
-
-  @override
-  Future<List<AssetPathEntity>> getAssetPathList({
-    required RequestType type,
-    required bool hasAll,
-  }) {
-    return PhotoManager.getAssetPathList(type: type, hasAll: hasAll);
-  }
-
-  @override
-  Future<void> presentLimited({required RequestType type}) {
-    return PhotoManager.presentLimited(type: type);
-  }
-
-  @override
-  Future<void> openSetting() {
-    return PhotoManager.openSetting();
-  }
-
-  @override
-  Future<List<String>> deleteWithIds(List<String> ids) {
-    return PhotoManager.editor.deleteWithIds(ids);
-  }
-}
-
-abstract class PermissionClient {
-  Future<permission_handler.PermissionStatus> requestPhotos();
-  Future<permission_handler.PermissionStatus> requestVideos();
-  Future<permission_handler.PermissionStatus> photosStatus();
-  Future<permission_handler.PermissionStatus> videosStatus();
-  Future<void> openAppSettings();
-}
-
-class DefaultPermissionClient implements PermissionClient {
-  @override
-  Future<permission_handler.PermissionStatus> requestPhotos() {
-    return permission_handler.Permission.photos.request();
-  }
-
-  @override
-  Future<permission_handler.PermissionStatus> requestVideos() {
-    return permission_handler.Permission.videos.request();
-  }
-
-  @override
-  Future<permission_handler.PermissionStatus> photosStatus() {
-    return permission_handler.Permission.photos.status;
-  }
-
-  @override
-  Future<permission_handler.PermissionStatus> videosStatus() {
-    return permission_handler.Permission.videos.status;
-  }
-
-  @override
-  Future<void> openAppSettings() {
-    return permission_handler.openAppSettings();
-  }
-}
+import 'services/gallery_permission_service.dart';
 
 class PhotoManagerGalleryRepository implements GalleryRepository {
   PhotoManagerGalleryRepository({
     PhotoManagerClient? photoManager,
     PermissionClient? permissionClient,
+    PhotoLibraryDataSource? libraryDataSource,
+    GalleryPermissionService? permissionService,
     bool? isAndroid,
     bool? isIOS,
-  }) : _photoManager = photoManager ?? DefaultPhotoManagerClient(),
-       _permissionClient = permissionClient ?? DefaultPermissionClient(),
-       _isAndroid = isAndroid ?? Platform.isAndroid,
-       _isIOS = isIOS ?? Platform.isIOS;
+  }) : _library = _resolveLibrary(libraryDataSource, photoManager),
+       _permissionService = _resolvePermissionService(
+         permissionService,
+         photoManager,
+         permissionClient,
+         isAndroid,
+         isIOS,
+       );
 
-  final PhotoManagerClient _photoManager;
-  final PermissionClient _permissionClient;
-  final bool _isAndroid;
-  final bool _isIOS;
+  final PhotoLibraryDataSource _library;
+  final GalleryPermissionService _permissionService;
+
+  static PhotoLibraryDataSource _resolveLibrary(
+    PhotoLibraryDataSource? library,
+    PhotoManagerClient? photoManager,
+  ) {
+    if (library != null) {
+      return library;
+    }
+    final PhotoManagerClient effective =
+        photoManager ?? DefaultPhotoManagerClient();
+    return PhotoManagerDataSource(photoManager: effective);
+  }
+
+  static GalleryPermissionService _resolvePermissionService(
+    GalleryPermissionService? service,
+    PhotoManagerClient? photoManager,
+    PermissionClient? permissionClient,
+    bool? isAndroid,
+    bool? isIOS,
+  ) {
+    if (service != null) {
+      return service;
+    }
+    final PhotoManagerClient effectivePhotoManager =
+        photoManager ?? DefaultPhotoManagerClient();
+    final PermissionClient effectivePermissionClient =
+        permissionClient ?? DefaultPermissionClient();
+    return PhotoManagerPermissionService(
+      photoManager: effectivePhotoManager,
+      permissionClient: effectivePermissionClient,
+      isAndroid: isAndroid,
+      isIOS: isIOS,
+    );
+  }
 
   @override
   Future<GalleryLoadResult> loadGallery({
@@ -111,23 +74,26 @@ class PhotoManagerGalleryRepository implements GalleryRepository {
     required int videoCount,
     required int otherCount,
   }) async {
-    final _PermissionContext permission = await _resolvePermissions();
+    final GalleryPermissionContext permission = await _permissionService
+        .resolvePermissions();
     if (!permission.canLoad) {
       return _emptyResult(permission.permission);
     }
 
-    final _AlbumLoadResult images = await _loadAlbum(
-      type: RequestType.image,
-      page: otherPage,
-      size: otherCount,
-      canLoad: permission.canLoadPhotos,
-    );
-    final _AlbumLoadResult videos = await _loadAlbum(
-      type: RequestType.video,
-      page: videoPage,
-      size: videoCount,
-      canLoad: permission.canLoadVideos,
-    );
+    final AlbumLoadResult images = permission.canLoadPhotos
+        ? await _library.loadAlbum(
+            type: RequestType.image,
+            page: otherPage,
+            size: otherCount,
+          )
+        : const AlbumLoadResult.empty();
+    final AlbumLoadResult videos = permission.canLoadVideos
+        ? await _library.loadAlbum(
+            type: RequestType.video,
+            page: videoPage,
+            size: videoCount,
+          )
+        : const AlbumLoadResult.empty();
 
     final List<AssetEntity> shuffledImages = List.of(images.assets)..shuffle();
     final List<AssetEntity> shuffledVideos = List.of(videos.assets)..shuffle();
@@ -149,27 +115,8 @@ class PhotoManagerGalleryRepository implements GalleryRepository {
   }
 
   @override
-  Future<bool> openGallerySettings(GalleryPermission? currentState) async {
-    if (_isIOS && currentState == GalleryPermission.limited) {
-      await _photoManager.presentLimited(type: RequestType.image);
-      return true;
-    }
-
-    if (_isAndroid) {
-      final permission_handler.PermissionStatus photosStatus =
-          await _permissionClient.requestPhotos();
-      final permission_handler.PermissionStatus videosStatus =
-          await _permissionClient.requestVideos();
-      if (photosStatus.isGranted && videosStatus.isGranted) {
-        return true;
-      }
-
-      await _permissionClient.openAppSettings();
-      return false;
-    }
-
-    await _photoManager.openSetting();
-    return false;
+  Future<bool> openGallerySettings(GalleryPermission? currentState) {
+    return _permissionService.openGallerySettings(currentState);
   }
 
   @override
@@ -178,11 +125,11 @@ class PhotoManagerGalleryRepository implements GalleryRepository {
       return const DeleteAssetsResult.empty();
     }
     try {
-      final List<AssetEntity> entities = await _loadEntitiesFor(assets);
+      final List<AssetEntity> entities = await _library.loadEntitiesFor(assets);
       if (entities.isEmpty) {
         return const DeleteAssetsResult.empty();
       }
-      final List<String> deletedIds = await _photoManager.deleteWithIds(
+      final List<String> deletedIds = await _library.deleteWithIds(
         entities.map((e) => e.id).toList(),
       );
       final Set<String> deletedIdSet = await _verifyDeletedIds(
@@ -214,7 +161,7 @@ class PhotoManagerGalleryRepository implements GalleryRepository {
 
   @override
   Future<MediaAsset?> loadAssetById(String id) async {
-    final AssetEntity? entity = await AssetEntity.fromId(id);
+    final AssetEntity? entity = await _library.loadEntityById(id);
     if (entity == null) {
       return null;
     }
@@ -223,7 +170,7 @@ class PhotoManagerGalleryRepository implements GalleryRepository {
 
   @override
   Future<MediaDetails> loadDetails(MediaAsset asset) async {
-    final AssetEntity? entity = await AssetEntity.fromId(asset.id);
+    final AssetEntity? entity = await _library.loadEntityById(asset.id);
     if (entity == null) {
       return MediaDetails(
         id: asset.id,
@@ -243,7 +190,7 @@ class PhotoManagerGalleryRepository implements GalleryRepository {
         mimeType: asset.mimeType,
       );
     }
-    final File? file = await entity.originFile ?? await entity.file;
+    final File? file = await _library.loadFileFor(entity);
     return mapMediaDetails(entity, file: file);
   }
 
@@ -277,56 +224,11 @@ class PhotoManagerGalleryRepository implements GalleryRepository {
   }
 
   Future<int?> _fileSizeFor(AssetEntity entity) async {
-    final File? file = await entity.originFile ?? await entity.file;
+    final File? file = await _library.loadFileFor(entity);
     if (file == null) {
       return null;
     }
     return file.length();
-  }
-
-  Future<_PermissionContext> _resolvePermissions() async {
-    final PermissionState permissionState = await _photoManager
-        .requestPermissionExtend();
-    if (_isAndroid) {
-      final permission_handler.PermissionStatus photosStatus =
-          await _permissionClient.photosStatus();
-      final permission_handler.PermissionStatus videosStatus =
-          await _permissionClient.videosStatus();
-      final bool canLoadPhotos = photosStatus.isGranted;
-      final bool canLoadVideos = videosStatus.isGranted;
-      if (!canLoadPhotos && !canLoadVideos) {
-        return _PermissionContext.denied(_mapPermission(permissionState));
-      }
-      final PermissionState effectiveState =
-          permissionState == PermissionState.authorized ||
-              permissionState == PermissionState.limited
-          ? permissionState
-          : PermissionState.authorized;
-      return _PermissionContext.allowed(
-        permission: _mapPermission(effectiveState),
-        canLoadPhotos: canLoadPhotos,
-        canLoadVideos: canLoadVideos,
-      );
-    }
-    if (permissionState != PermissionState.authorized &&
-        permissionState != PermissionState.limited) {
-      return _PermissionContext.denied(_mapPermission(permissionState));
-    }
-    return _PermissionContext.allowed(
-      permission: _mapPermission(permissionState),
-      canLoadPhotos: true,
-      canLoadVideos: true,
-    );
-  }
-
-  GalleryPermission _mapPermission(PermissionState state) {
-    if (state == PermissionState.limited) {
-      return GalleryPermission.limited;
-    }
-    if (state == PermissionState.authorized) {
-      return GalleryPermission.authorized;
-    }
-    return GalleryPermission.denied;
   }
 
   GalleryLoadResult _emptyResult(GalleryPermission permission) {
@@ -338,79 +240,4 @@ class PhotoManagerGalleryRepository implements GalleryRepository {
       totalAssets: 0,
     );
   }
-
-  Future<_AlbumLoadResult> _loadAlbum({
-    required RequestType type,
-    required int page,
-    required int size,
-    required bool canLoad,
-  }) async {
-    if (!canLoad) {
-      return const _AlbumLoadResult.empty();
-    }
-    final List<AssetPathEntity> paths = await _photoManager.getAssetPathList(
-      type: type,
-      hasAll: true,
-    );
-    final AssetPathEntity? album = paths.isNotEmpty ? paths.first : null;
-    if (album == null) {
-      return const _AlbumLoadResult.empty();
-    }
-    final int total = await album.assetCountAsync;
-    final List<AssetEntity> assets = await album.getAssetListPaged(
-      page: page,
-      size: size,
-    );
-    return _AlbumLoadResult(total: total, assets: assets);
-  }
-
-  Future<List<AssetEntity>> _loadEntitiesFor(List<MediaAsset> assets) async {
-    final List<Future<AssetEntity?>> futures = assets
-        .map((asset) => AssetEntity.fromId(asset.id))
-        .toList();
-    final List<AssetEntity?> results = await Future.wait(futures);
-    return results.whereType<AssetEntity>().toList();
-  }
-}
-
-class _AlbumLoadResult {
-  const _AlbumLoadResult({required this.total, required this.assets});
-
-  const _AlbumLoadResult.empty() : total = 0, assets = const <AssetEntity>[];
-
-  final int total;
-  final List<AssetEntity> assets;
-}
-
-class _PermissionContext {
-  const _PermissionContext({
-    required this.permission,
-    required this.canLoadPhotos,
-    required this.canLoadVideos,
-    required this.canLoad,
-  });
-
-  const _PermissionContext.allowed({
-    required GalleryPermission permission,
-    required bool canLoadPhotos,
-    required bool canLoadVideos,
-  }) : this(
-         permission: permission,
-         canLoadPhotos: canLoadPhotos,
-         canLoadVideos: canLoadVideos,
-         canLoad: canLoadPhotos || canLoadVideos,
-       );
-
-  const _PermissionContext.denied(GalleryPermission permission)
-    : this(
-        permission: permission,
-        canLoadPhotos: false,
-        canLoadVideos: false,
-        canLoad: false,
-      );
-
-  final GalleryPermission permission;
-  final bool canLoadPhotos;
-  final bool canLoadVideos;
-  final bool canLoad;
 }

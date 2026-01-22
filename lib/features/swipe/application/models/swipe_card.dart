@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import '../domain/entities/media_asset.dart';
+import '../../domain/entities/media_asset.dart';
 
 enum SwipeCardKind { asset, milestone }
 
