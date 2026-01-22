@@ -6,7 +6,6 @@ import '../../../../core/services/logger_service.dart';
 import '../entities/gallery_permission.dart';
 import '../entities/gallery_load_result.dart';
 import '../entities/media_asset.dart';
-import '../entities/media_kind.dart';
 import '../entities/swipe_config.dart';
 import '../repositories/gallery_repository.dart';
 import '../repositories/media_repository.dart';
@@ -30,8 +29,8 @@ class SwipeHomeGalleryController {
   final SwipeConfig _config;
 
   final List<SwipeCard> _buffer = [];
-  final List<MediaAsset> _photoPool = [];
-  final List<MediaAsset> _videoPool = [];
+  final List<MediaAsset> _assetPool = [];
+  final math.Random _random = math.Random();
   final List<SwipeCard> _undoWindow = [];
 
   GalleryPermission? _permissionState;
@@ -58,8 +57,7 @@ class SwipeHomeGalleryController {
   }
 
   bool get _hasPotentialNextCard {
-    return _photoPool.isNotEmpty ||
-        _videoPool.isNotEmpty ||
+    return _assetPool.isNotEmpty ||
         _hasMoreVideos ||
         _hasMoreOthers ||
         _loadingMore ||
@@ -69,8 +67,7 @@ class SwipeHomeGalleryController {
   Future<GalleryLoadResult> loadGallery() async {
     _initialLoadHadAssets = false;
     _buffer.clear();
-    _photoPool.clear();
-    _videoPool.clear();
+    _assetPool.clear();
     _undoWindow.clear();
     _decisionStore.reset();
     _media.reset();
@@ -110,7 +107,7 @@ class SwipeHomeGalleryController {
     _filling = true;
     try {
       while (_assetBufferCount() < _config.swipeBufferSize) {
-        if (_photoPool.isEmpty && _videoPool.isEmpty) {
+        if (_assetPool.isEmpty) {
           if (!_hasMoreVideos && !_hasMoreOthers) {
             break;
           }
@@ -158,8 +155,7 @@ class SwipeHomeGalleryController {
   void _reconcileTargetIfExhausted() {
     if (_hasMoreVideos ||
         _hasMoreOthers ||
-        _photoPool.isNotEmpty ||
-        _videoPool.isNotEmpty) {
+        _assetPool.isNotEmpty) {
       return;
     }
     final int decidedCount = _decisionStore.totalDecisionCount;
@@ -195,8 +191,7 @@ class SwipeHomeGalleryController {
 
   void _removeAssetsById(Set<String> ids) {
     _buffer.removeWhere((card) => card.isAsset && ids.contains(card.asset!.id));
-    _photoPool.removeWhere((asset) => ids.contains(asset.id));
-    _videoPool.removeWhere((asset) => ids.contains(asset.id));
+    _assetPool.removeWhere((asset) => ids.contains(asset.id));
     _undoWindow.removeWhere(
       (card) => card.isAsset && ids.contains(card.asset!.id),
     );
@@ -232,40 +227,23 @@ class SwipeHomeGalleryController {
   }
 
   void _appendPools(GalleryLoadResult result) {
-    if (result.videos.isNotEmpty) {
-      _videoPool.addAll(result.videos);
+    if (result.videos.isEmpty && result.others.isEmpty) {
+      return;
     }
-    if (result.others.isNotEmpty) {
-      _photoPool.addAll(result.others);
-    }
+    final List<MediaAsset> incoming = [
+      ...result.videos,
+      ...result.others,
+    ];
+    incoming.shuffle(_random);
+    _assetPool.addAll(incoming);
   }
 
   MediaAsset? _nextFromPools() {
-    final int targetVideos = _config.swipeBufferVideoTarget;
-    final int targetPhotos = _config.swipeBufferPhotoTarget;
-    final int currentVideos = _buffer
-        .where((card) => card.isAsset && card.asset!.kind == MediaKind.video)
-        .length;
-    final int currentPhotos = _assetBufferCount() - currentVideos;
-
-    final bool needVideo =
-        currentVideos < targetVideos && _videoPool.isNotEmpty;
-    final bool needPhoto =
-        currentPhotos < targetPhotos && _photoPool.isNotEmpty;
-
-    if (needVideo) {
-      return _videoPool.removeAt(0);
+    if (_assetPool.isEmpty) {
+      return null;
     }
-    if (needPhoto) {
-      return _photoPool.removeAt(0);
-    }
-    if (_photoPool.isNotEmpty) {
-      return _photoPool.removeAt(0);
-    }
-    if (_videoPool.isNotEmpty) {
-      return _videoPool.removeAt(0);
-    }
-    return null;
+    final int index = _random.nextInt(_assetPool.length);
+    return _assetPool.removeAt(index);
   }
 
   void _logBatch(GalleryLoadResult result) {

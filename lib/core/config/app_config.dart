@@ -5,10 +5,6 @@ class AppConfig {
   static const int galleryOtherBatchSize = 48;
   // Total number of cards kept in the swipe buffer.
   static const int swipeBufferSize = 10;
-  // Target number of photos in the swipe buffer mix.
-  static const int swipeBufferPhotoTarget = 8;
-  // Target number of videos in the swipe buffer mix.
-  static const int swipeBufferVideoTarget = 2;
   // Number of cards visually stacked at once.
   static const int swipeVisibleCards = 3;
   // Maximum number of swipes that can be undone.

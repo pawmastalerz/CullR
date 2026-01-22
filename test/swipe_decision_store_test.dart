@@ -28,8 +28,6 @@ const SwipeConfig _testConfig = SwipeConfig(
   galleryVideoBatchSize: 2,
   galleryOtherBatchSize: 2,
   swipeBufferSize: 4,
-  swipeBufferPhotoTarget: 3,
-  swipeBufferVideoTarget: 1,
   swipeVisibleCards: 2,
   swipeUndoLimit: 3,
   fullResHistoryLimit: 2,

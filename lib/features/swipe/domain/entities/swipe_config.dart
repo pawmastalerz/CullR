@@ -3,8 +3,6 @@ class SwipeConfig {
     required this.galleryVideoBatchSize,
     required this.galleryOtherBatchSize,
     required this.swipeBufferSize,
-    required this.swipeBufferPhotoTarget,
-    required this.swipeBufferVideoTarget,
     required this.swipeVisibleCards,
     required this.swipeUndoLimit,
     required this.fullResHistoryLimit,
@@ -19,8 +17,6 @@ class SwipeConfig {
   final int galleryVideoBatchSize;
   final int galleryOtherBatchSize;
   final int swipeBufferSize;
-  final int swipeBufferPhotoTarget;
-  final int swipeBufferVideoTarget;
   final int swipeVisibleCards;
   final int swipeUndoLimit;
   final int fullResHistoryLimit;

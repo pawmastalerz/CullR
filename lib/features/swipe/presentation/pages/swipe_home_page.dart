@@ -57,8 +57,6 @@ class _SwipeHomePageState extends State<SwipeHomePage> {
     galleryVideoBatchSize: AppConfig.galleryVideoBatchSize,
     galleryOtherBatchSize: AppConfig.galleryOtherBatchSize,
     swipeBufferSize: AppConfig.swipeBufferSize,
-    swipeBufferPhotoTarget: AppConfig.swipeBufferPhotoTarget,
-    swipeBufferVideoTarget: AppConfig.swipeBufferVideoTarget,
     swipeVisibleCards: AppConfig.swipeVisibleCards,
     swipeUndoLimit: AppConfig.swipeUndoLimit,
     fullResHistoryLimit: AppConfig.fullResHistoryLimit,
