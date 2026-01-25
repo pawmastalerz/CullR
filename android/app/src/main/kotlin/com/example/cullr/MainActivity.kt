@@ -1,4 +1,4 @@
-package com.example.cullr
+package pl.cullr.app
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -14,5 +14,5 @@ echo No connected adb devices found.
 exit /b 1
 
 :found
-adb -s %DEVICE_ID% shell pm clear com.example.cullr >nul 2>&1
+adb -s %DEVICE_ID% shell pm clear pl.cullr.app >nul 2>&1
 flutter run -d %DEVICE_ID%

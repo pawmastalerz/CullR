@@ -220,7 +220,7 @@ class _SwipeHomeActions {
   }
 
   Future<void> openCoffeeLink() async {
-    final Uri uri = Uri.parse('https://buymeacoffee.com/cullr');
+    final Uri uri = Uri.parse('https://buymeacoffee.com/pureto');
     await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
