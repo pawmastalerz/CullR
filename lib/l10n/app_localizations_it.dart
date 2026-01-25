@@ -121,6 +121,8 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get totalSizeLabel => 'Dimensione totale';
+
+  @override
   String get unknownDate => 'Sconosciuto';
 
   @override

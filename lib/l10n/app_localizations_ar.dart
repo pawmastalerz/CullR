@@ -118,6 +118,8 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get totalSizeLabel => 'الحجم الإجمالي';
+
+  @override
   String get unknownDate => 'غير معروف';
 
   @override

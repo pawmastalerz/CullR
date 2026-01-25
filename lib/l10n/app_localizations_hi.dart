@@ -119,6 +119,8 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get totalSizeLabel => 'कुल आकार';
+
+  @override
   String get unknownDate => 'अज्ञात';
 
   @override

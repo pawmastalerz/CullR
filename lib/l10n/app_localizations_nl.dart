@@ -119,6 +119,8 @@ class AppLocalizationsNl extends AppLocalizations {
 
   @override
   String get totalSizeLabel => 'Totale grootte';
+
+  @override
   String get unknownDate => 'Onbekend';
 
   @override

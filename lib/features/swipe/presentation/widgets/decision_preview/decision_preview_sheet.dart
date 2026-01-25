@@ -281,8 +281,9 @@ class _DecisionPreviewSheetState extends State<DecisionPreviewSheet>
       return const SizedBox.shrink();
     }
     final int rowCount = (items.length + _columns - 1) ~/ _columns;
-    final double gridHeight =
-        rowCount == 0 ? 0 : (rowCount * tileSize) + ((rowCount - 1) * _spacing);
+    final double gridHeight = rowCount == 0
+        ? 0
+        : (rowCount * tileSize) + ((rowCount - 1) * _spacing);
     return SizedBox(
       height: gridHeight,
       child: Stack(

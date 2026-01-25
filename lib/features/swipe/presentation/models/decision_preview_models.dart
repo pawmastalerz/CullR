@@ -1,10 +1,7 @@
 import '../../domain/entities/media_asset.dart';
 
 class DecisionDateGroup {
-  const DecisionDateGroup({
-    required this.label,
-    required this.items,
-  });
+  const DecisionDateGroup({required this.label, required this.items});
 
   final String label;
   final List<MediaAsset> items;

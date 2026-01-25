@@ -119,6 +119,8 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get totalSizeLabel => 'Tamanho total';
+
+  @override
   String get unknownDate => 'Desconhecido';
 
   @override

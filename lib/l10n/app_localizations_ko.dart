@@ -118,6 +118,8 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get totalSizeLabel => '총 크기';
+
+  @override
   String get unknownDate => '알 수 없음';
 
   @override

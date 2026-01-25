@@ -119,6 +119,8 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get totalSizeLabel => 'Ukuran total';
+
+  @override
   String get unknownDate => 'Tidak diketahui';
 
   @override
