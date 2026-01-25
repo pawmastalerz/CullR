@@ -21,7 +21,7 @@ import '../../application/models/swipe_card.dart';
 import '../../application/state/swipe_session.dart';
 import '../state/swipe_home_view_model.dart';
 import '../widgets/action_bar.dart';
-import '../widgets/delete_preview/delete_preview_sheet.dart';
+import '../widgets/decision_preview/decision_preview_sheet.dart';
 import '../widgets/fullscreen_asset_view.dart';
 import '../widgets/language_picker.dart';
 import '../widgets/permission_state_view.dart';

@@ -48,7 +48,7 @@ class _SwipeHomeActions {
     return true;
   }
 
-  void openDeletePreview() {
+  void openDecisionPreview() {
     showModalBottomSheet<void>(
       context: _state.context,
       backgroundColor: AppColors.transparent,
@@ -84,7 +84,7 @@ class _SwipeHomeActions {
                 Expanded(
                   child: TabBarView(
                     children: [
-                      _buildDeletePreviewSheet(
+                      _buildDecisionPreviewSheet(
                         key: const ValueKey('delete-sheet'),
                         items: deleteItems,
                         emptyText: AppLocalizations.of(context)!.noPhotosMarked,
@@ -92,7 +92,7 @@ class _SwipeHomeActions {
                         onDeleteAll: confirmDeleteAll,
                         closeOnSuccess: true,
                       ),
-                      _buildDeletePreviewSheet(
+                      _buildDecisionPreviewSheet(
                         key: const ValueKey('keep-sheet'),
                         items: keepItems,
                         emptyText: AppLocalizations.of(context)!.noPhotosKept,
@@ -115,7 +115,7 @@ class _SwipeHomeActions {
     );
   }
 
-  Widget _buildDeletePreviewSheet({
+  Widget _buildDecisionPreviewSheet({
     required Key key,
     required List<MediaAsset> items,
     required String emptyText,
@@ -126,7 +126,7 @@ class _SwipeHomeActions {
     Color? footerOnColor,
     bool closeOnSuccess = false,
   }) {
-    return DeletePreviewSheet(
+    return DecisionPreviewSheet(
       key: key,
       items: items,
       cachedBytes: _state._viewModel.media.thumbnailSnapshot(),

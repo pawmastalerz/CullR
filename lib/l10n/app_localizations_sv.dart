@@ -119,6 +119,7 @@ class AppLocalizationsSv extends AppLocalizations {
 
   @override
   String get totalSizeLabel => 'Total storlek';
+  String get unknownDate => 'Okänd';
 
   @override
   String get languageLabel => 'Språk';

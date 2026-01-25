@@ -331,6 +331,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Total size'**
   String get totalSizeLabel;
+  /// No description provided for @unknownDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get unknownDate;
+
 
   /// No description provided for @languageLabel.
   ///

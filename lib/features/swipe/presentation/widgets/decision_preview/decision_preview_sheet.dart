@@ -1,17 +1,19 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../../../../../core/utils/formatters/formatters.dart';
 import '../../../../../styles/colors.dart';
 import '../../../../../styles/spacing.dart';
 import '../../../../../styles/typography.dart';
 import '../../../../../l10n/app_localizations.dart';
 import '../../../domain/entities/media_asset.dart';
-import 'delete_grid_positioned_tile.dart';
-import 'total_size_row.dart';
+import '../../models/decision_preview_models.dart';
+import 'decision_grid_positioned_tile.dart';
+import 'decision_total_size_row.dart';
 
-class DeletePreviewSheet extends StatefulWidget {
-  const DeletePreviewSheet({
+class DecisionPreviewSheet extends StatefulWidget {
+  const DecisionPreviewSheet({
     super.key,
     required this.items,
     required this.cachedBytes,
@@ -43,10 +45,10 @@ class DeletePreviewSheet extends StatefulWidget {
   final Color? footerOnColor;
 
   @override
-  State<DeletePreviewSheet> createState() => _DeletePreviewSheetState();
+  State<DecisionPreviewSheet> createState() => _DecisionPreviewSheetState();
 }
 
-class _DeletePreviewSheetState extends State<DeletePreviewSheet>
+class _DecisionPreviewSheetState extends State<DecisionPreviewSheet>
     with AutomaticKeepAliveClientMixin {
   late List<MediaAsset> _items;
   final Set<String> _removingIds = {};
@@ -66,7 +68,7 @@ class _DeletePreviewSheetState extends State<DeletePreviewSheet>
   }
 
   @override
-  void didUpdateWidget(covariant DeletePreviewSheet oldWidget) {
+  void didUpdateWidget(covariant DecisionPreviewSheet oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (_sameItems(oldWidget.items, widget.items)) {
       return;
@@ -83,11 +85,11 @@ class _DeletePreviewSheetState extends State<DeletePreviewSheet>
     });
   }
 
-  void _removeAt(int index) {
-    if (index < 0 || index >= _items.length) {
+  void _removeAsset(MediaAsset asset) {
+    final int index = _items.indexWhere((item) => item.id == asset.id);
+    if (index == -1) {
       return;
     }
-    final MediaAsset asset = _items[index];
     setState(() {
       _removingIds.add(asset.id);
       _selectedIds.remove(asset.id);
@@ -193,9 +195,128 @@ class _DeletePreviewSheetState extends State<DeletePreviewSheet>
     return formatFileSize(total);
   }
 
+  List<DecisionDateGroup> _groupedItems(BuildContext context) {
+    if (_items.isEmpty) {
+      return const <DecisionDateGroup>[];
+    }
+    final String locale = Localizations.localeOf(context).toLanguageTag();
+    final DateFormat formatter = DateFormat.yMMMd(locale);
+    final List<DecisionDatedAsset> dated = [];
+    final List<MediaAsset> unknown = [];
+
+    for (final MediaAsset asset in _items) {
+      final DateTime? date = _assetDate(asset);
+      if (date == null) {
+        unknown.add(asset);
+        continue;
+      }
+      final DateTime local = date.toLocal();
+      final DateTime key = DateTime(local.year, local.month, local.day);
+      dated.add(DecisionDatedAsset(asset: asset, date: local, key: key));
+    }
+
+    dated.sort((a, b) {
+      final int keyCompare = b.key.compareTo(a.key);
+      if (keyCompare != 0) {
+        return keyCompare;
+      }
+      return b.date.compareTo(a.date);
+    });
+
+    final List<DecisionDateGroup> groups = [];
+    DateTime? currentKey;
+    List<MediaAsset>? currentItems;
+    for (final DecisionDatedAsset entry in dated) {
+      if (currentKey == null || currentKey != entry.key) {
+        if (currentItems != null) {
+          groups.add(
+            DecisionDateGroup(
+              label: formatter.format(currentKey!),
+              items: currentItems,
+            ),
+          );
+        }
+        currentKey = entry.key;
+        currentItems = <MediaAsset>[];
+      }
+      currentItems!.add(entry.asset);
+    }
+    if (currentItems != null && currentKey != null) {
+      groups.add(
+        DecisionDateGroup(
+          label: formatter.format(currentKey),
+          items: currentItems,
+        ),
+      );
+    }
+
+    if (unknown.isNotEmpty) {
+      groups.add(
+        DecisionDateGroup(
+          label: AppLocalizations.of(context)!.unknownDate,
+          items: unknown,
+        ),
+      );
+    }
+    return groups;
+  }
+
+  DateTime? _assetDate(MediaAsset asset) {
+    if (!_isEpoch(asset.createdAt)) {
+      return asset.createdAt;
+    }
+    if (!_isEpoch(asset.modifiedAt)) {
+      return asset.modifiedAt;
+    }
+    return null;
+  }
+
+  bool _isEpoch(DateTime value) => value.millisecondsSinceEpoch == 0;
+
+  Widget _buildGroupGrid({
+    required List<MediaAsset> items,
+    required double tileSize,
+  }) {
+    if (items.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    final int rowCount = (items.length + _columns - 1) ~/ _columns;
+    final double gridHeight =
+        rowCount == 0 ? 0 : (rowCount * tileSize) + ((rowCount - 1) * _spacing);
+    return SizedBox(
+      height: gridHeight,
+      child: Stack(
+        children: [
+          for (int index = 0; index < items.length; index++)
+            DecisionGridPositionedTile(
+              key: ValueKey(items[index].id),
+              asset: items[index],
+              cachedBytes: widget.cachedBytes[items[index].id],
+              thumbnailFuture: widget.thumbnailFutureFor(items[index]),
+              onRemove: () => _removeAsset(items[index]),
+              onTap: _multiSelect
+                  ? () => _toggleSelected(items[index].id)
+                  : () => widget.onOpen(items[index]),
+              onLongPress: () => _enableMultiSelect(items[index].id),
+              showCheckbox: _multiSelect,
+              selected: _selectedIds.contains(items[index].id),
+              removing: _removingIds.contains(items[index].id),
+              tileSize: tileSize,
+              spacing: _spacing,
+              columns: _columns,
+              index: index,
+              fadeDuration: _fadeDuration,
+              reflowDuration: _reflowDuration,
+            ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    final List<DecisionDateGroup> groups = _groupedItems(context);
     return Column(
       children: [
         Padding(
@@ -205,7 +326,7 @@ class _DeletePreviewSheetState extends State<DeletePreviewSheet>
             AppSpacing.lg,
             AppSpacing.sm,
           ),
-          child: TotalSizeRow(totalFuture: _totalFuture),
+          child: DecisionTotalSizeRow(totalFuture: _totalFuture),
         ),
         Expanded(
           child: _items.isEmpty
@@ -223,51 +344,23 @@ class _DeletePreviewSheetState extends State<DeletePreviewSheet>
                       final double tileSize =
                           (constraints.maxWidth - (_spacing * (_columns - 1))) /
                           _columns;
-                      final int rowCount =
-                          (_items.length + _columns - 1) ~/ _columns;
-                      final double gridHeight = rowCount == 0
-                          ? 0
-                          : (rowCount * tileSize) + ((rowCount - 1) * _spacing);
                       return SingleChildScrollView(
-                        child: SizedBox(
-                          height: gridHeight,
-                          child: Stack(
-                            children: [
-                              for (
-                                int index = 0;
-                                index < _items.length;
-                                index++
-                              )
-                                DeleteGridPositionedTile(
-                                  key: ValueKey(_items[index].id),
-                                  asset: _items[index],
-                                  cachedBytes:
-                                      widget.cachedBytes[_items[index].id],
-                                  thumbnailFuture: widget.thumbnailFutureFor(
-                                    _items[index],
-                                  ),
-                                  onRemove: () => _removeAt(index),
-                                  onTap: _multiSelect
-                                      ? () => _toggleSelected(_items[index].id)
-                                      : () => widget.onOpen(_items[index]),
-                                  onLongPress: () =>
-                                      _enableMultiSelect(_items[index].id),
-                                  showCheckbox: _multiSelect,
-                                  selected: _selectedIds.contains(
-                                    _items[index].id,
-                                  ),
-                                  removing: _removingIds.contains(
-                                    _items[index].id,
-                                  ),
-                                  tileSize: tileSize,
-                                  spacing: _spacing,
-                                  columns: _columns,
-                                  index: index,
-                                  fadeDuration: _fadeDuration,
-                                  reflowDuration: _reflowDuration,
-                                ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            for (final DecisionDateGroup group in groups) ...[
+                              Text(
+                                group.label,
+                                style: AppTypography.textTheme.titleSmall,
+                              ),
+                              const SizedBox(height: AppSpacing.sm),
+                              _buildGroupGrid(
+                                items: group.items,
+                                tileSize: tileSize,
+                              ),
+                              const SizedBox(height: AppSpacing.lg),
                             ],
-                          ),
+                          ],
                         ),
                       );
                     },

@@ -120,6 +120,7 @@ class AppLocalizationsFi extends AppLocalizations {
 
   @override
   String get totalSizeLabel => 'Kokonaiskoko';
+  String get unknownDate => 'Tuntematon';
 
   @override
   String get languageLabel => 'Kieli';

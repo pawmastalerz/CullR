@@ -122,6 +122,7 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String get totalSizeLabel => 'Загальний розмір';
+  String get unknownDate => 'Невідомо';
 
   @override
   String get languageLabel => 'Мова';

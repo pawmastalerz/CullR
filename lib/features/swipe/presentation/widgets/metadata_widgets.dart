@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../styles/colors.dart';
 import '../../../../styles/spacing.dart';
 import '../../../../styles/typography.dart';
-import 'metadata_models.dart';
+import '../models/metadata_entry.dart';
 
 class MetadataTile extends StatelessWidget {
   const MetadataTile({super.key, required this.entry});

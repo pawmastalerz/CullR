@@ -121,6 +121,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get totalSizeLabel => 'Łączny rozmiar';
+  String get unknownDate => 'Nieznane';
 
   @override
   String get languageLabel => 'Język';

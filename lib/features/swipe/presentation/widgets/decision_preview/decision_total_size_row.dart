@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../../../l10n/app_localizations.dart';
 import '../../../../../styles/typography.dart';
 
-class TotalSizeRow extends StatelessWidget {
-  const TotalSizeRow({super.key, required this.totalFuture});
+class DecisionTotalSizeRow extends StatelessWidget {
+  const DecisionTotalSizeRow({super.key, required this.totalFuture});
 
   final Future<String?> totalFuture;
 

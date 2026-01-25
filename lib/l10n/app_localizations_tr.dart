@@ -120,6 +120,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get totalSizeLabel => 'Toplam boyut';
+  String get unknownDate => 'Bilinmiyor';
 
   @override
   String get languageLabel => 'Dil';

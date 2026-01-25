@@ -4,7 +4,7 @@ import '../../../../styles/colors.dart';
 import '../../../../styles/spacing.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../domain/entities/media_details.dart';
-import 'metadata_models.dart';
+import '../models/metadata_entry.dart';
 import 'metadata_widgets.dart';
 
 class MetadataView extends StatelessWidget {

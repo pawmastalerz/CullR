@@ -41,6 +41,7 @@
   },
   "reEvaluateKeepAction": "Re-analyze",
   "totalSizeLabel": "Total size",
+  "unknownDate": "Unknown",
   "languageLabel": "Language",
   "settingsSummaryTitle": "Cleanup statistics",
   "settingsSummarySwipes": "Swipes",

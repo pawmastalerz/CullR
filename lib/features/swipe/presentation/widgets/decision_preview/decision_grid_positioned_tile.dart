@@ -5,11 +5,11 @@ import 'package:flutter/material.dart';
 import '../../../../../styles/colors.dart';
 import '../../../../../styles/spacing.dart';
 import '../../../domain/entities/media_asset.dart';
-import 'delete_grid_tile.dart';
+import 'decision_grid_tile.dart';
 import 'poof_painter.dart';
 
-class DeleteGridPositionedTile extends StatelessWidget {
-  const DeleteGridPositionedTile({
+class DecisionGridPositionedTile extends StatelessWidget {
+  const DecisionGridPositionedTile({
     super.key,
     required this.asset,
     required this.cachedBytes,
@@ -95,7 +95,7 @@ class DeleteGridPositionedTile extends StatelessWidget {
             ),
           );
         },
-        child: DeleteGridTile(
+        child: DecisionGridTile(
           asset: asset,
           cachedBytes: cachedBytes,
           thumbnailFuture: thumbnailFuture,

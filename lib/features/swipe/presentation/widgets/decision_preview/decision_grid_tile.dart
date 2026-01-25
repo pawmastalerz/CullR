@@ -7,8 +7,8 @@ import '../../../domain/entities/media_asset.dart';
 import '../../../domain/entities/media_kind.dart';
 import '../play_badge.dart';
 
-class DeleteGridTile extends StatelessWidget {
-  const DeleteGridTile({
+class DecisionGridTile extends StatelessWidget {
+  const DecisionGridTile({
     super.key,
     required this.asset,
     required this.cachedBytes,

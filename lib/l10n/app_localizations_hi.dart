@@ -119,6 +119,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get totalSizeLabel => 'कुल आकार';
+  String get unknownDate => 'अज्ञात';
 
   @override
   String get languageLabel => 'भाषा';

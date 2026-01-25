@@ -118,6 +118,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get totalSizeLabel => '合計サイズ';
+  String get unknownDate => '不明';
 
   @override
   String get languageLabel => '言語';
