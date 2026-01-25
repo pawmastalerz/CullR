@@ -57,10 +57,7 @@ class ActionRow extends StatelessWidget {
         ),
         const SizedBox(width: AppSpacing.lg),
         Expanded(
-          child: StatusButton(
-            onPressed: onStatus,
-            animate: statusAnimate,
-          ),
+          child: StatusButton(onPressed: onStatus, animate: statusAnimate),
         ),
         const SizedBox(width: AppSpacing.lg),
         Expanded(

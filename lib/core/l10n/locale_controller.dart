@@ -37,8 +37,11 @@ class LocaleController extends ChangeNotifier {
     final Locale fallback = _fallbackLocale(supportedLocales);
     final Locale platformLocale =
         deviceLocale ?? WidgetsBinding.instance.platformDispatcher.locale;
-    final Locale resolved =
-        _resolveDeviceLocale(platformLocale, supportedLocales, fallback);
+    final Locale resolved = _resolveDeviceLocale(
+      platformLocale,
+      supportedLocales,
+      fallback,
+    );
     await effectiveStore.setString(_storageKey, _encodeLocale(resolved));
     return resolved;
   }

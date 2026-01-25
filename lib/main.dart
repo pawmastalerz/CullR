@@ -21,7 +21,11 @@ Future<void> main() async {
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({super.key, required this.initialLocale, required this.swipeSession});
+  const MyApp({
+    super.key,
+    required this.initialLocale,
+    required this.swipeSession,
+  });
 
   final Locale initialLocale;
   final SwipeSession swipeSession;
