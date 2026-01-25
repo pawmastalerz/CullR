@@ -63,7 +63,6 @@ class SwipeSession extends ChangeNotifier {
   int _progressSwipeCount = 0;
   int _deletedCount = 0;
   int _deletedBytes = 0;
-  int _statusGlowTick = 0;
   Future<void> _initialPreloadFuture = Future<void>.value();
 
   MediaRepository get media => _media;
@@ -78,7 +77,6 @@ class SwipeSession extends ChangeNotifier {
   int get progressSwipeCount => _progressSwipeCount;
   int get deletedCount => _deletedCount;
   int get deletedBytes => _deletedBytes;
-  int get statusGlowTick => _statusGlowTick;
   Future<void> get initialPreloadFuture => _initialPreloadFuture;
   Set<String> get openedFullResIds => _openedFullResIds;
 
@@ -286,7 +284,6 @@ class SwipeSession extends ChangeNotifier {
   void _incrementSwipeProgress() {
     _swipeCount += 1;
     _progressSwipeCount += 1;
-    _statusGlowTick += 1;
   }
 
   void _decrementSwipeProgress() {

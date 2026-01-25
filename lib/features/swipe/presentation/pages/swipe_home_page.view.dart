@@ -58,7 +58,7 @@ class _SwipeHomeView {
               _state._actions.triggerSwipe(CardSwiperDirection.left),
           onKeep: () => _state._actions.triggerSwipe(CardSwiperDirection.right),
           onStatus: _state._actions.openDecisionPreview,
-          statusGlowTrigger: _state._viewModel.statusGlowTick,
+          statusAnimate: _state._viewModel.hasDeleteCandidates,
           retryEnabled: _state._viewModel.decisionStore.undoCredits > 0,
         ),
       ),

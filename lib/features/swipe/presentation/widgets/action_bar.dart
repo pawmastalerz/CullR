@@ -28,7 +28,7 @@ class ActionRow extends StatelessWidget {
     required this.onDelete,
     required this.onKeep,
     required this.onStatus,
-    required this.statusGlowTrigger,
+    required this.statusAnimate,
     required this.retryEnabled,
   });
 
@@ -36,7 +36,7 @@ class ActionRow extends StatelessWidget {
   final VoidCallback onDelete;
   final VoidCallback onKeep;
   final VoidCallback onStatus;
-  final int statusGlowTrigger;
+  final bool statusAnimate;
   final bool retryEnabled;
 
   @override
@@ -59,7 +59,7 @@ class ActionRow extends StatelessWidget {
         Expanded(
           child: StatusButton(
             onPressed: onStatus,
-            glowTrigger: statusGlowTrigger,
+            animate: statusAnimate,
           ),
         ),
         const SizedBox(width: AppSpacing.lg),
@@ -122,11 +122,11 @@ class StatusButton extends StatefulWidget {
   const StatusButton({
     super.key,
     required this.onPressed,
-    required this.glowTrigger,
+    required this.animate,
   });
 
   final VoidCallback onPressed;
-  final int glowTrigger;
+  final bool animate;
 
   @override
   State<StatusButton> createState() => _StatusButtonState();
@@ -134,84 +134,97 @@ class StatusButton extends StatefulWidget {
 
 class _StatusButtonState extends State<StatusButton>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _glowController = AnimationController(
+  late final AnimationController _controller = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 420),
+    duration: const Duration(milliseconds: 1000),
   );
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.animate) {
+      _controller.repeat(reverse: true);
+    }
+  }
 
   @override
   void didUpdateWidget(covariant StatusButton oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.glowTrigger != widget.glowTrigger) {
-      _glowController.forward(from: 0);
+    if (oldWidget.animate == widget.animate) {
+      return;
+    }
+    if (widget.animate) {
+      _controller.repeat(reverse: true);
+    } else {
+      _controller.stop();
+      _controller.value = 0;
     }
   }
 
   @override
   void dispose() {
-    _glowController.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: _glowController,
-      builder: (context, _) {
-        final double intensity = _glowController.value;
-        final double t = Curves.easeOut.transform(intensity);
-        final double spread = 2 + (8 * t);
-        final double blur = 6 + (16 * t);
-        final double opacity = ((1 - t) * intensity).clamp(0.0, 1.0);
-        return Container(
-          decoration: BoxDecoration(
-            color: AppColors.selectionBlue,
-            shape: BoxShape.circle,
-            boxShadow: opacity == 0
-                ? const []
-                : [
-                    BoxShadow(
-                      color: AppColors.selectionBlue.withValues(
-                        alpha: 0.9 * opacity,
+      animation: _controller,
+      builder: (context, child) {
+        final double t = Curves.easeInOut.transform(_controller.value);
+        final double scale = 1.0 + (0.06 * t);
+        final double glow = 0.35 + (0.45 * t);
+        return Transform.scale(
+          scale: widget.animate ? scale : 1.0,
+          child: Container(
+            decoration: BoxDecoration(
+              color: AppColors.selectionBlue,
+              shape: BoxShape.circle,
+              boxShadow: widget.animate
+                  ? [
+                      BoxShadow(
+                        color: AppColors.selectionBlue.withValues(
+                          alpha: 0.55 * glow,
+                        ),
+                        blurRadius: 14 + (20 * glow),
+                        spreadRadius: 1 + (6 * glow),
                       ),
-                      blurRadius: blur,
-                      spreadRadius: spread,
-                    ),
-                    BoxShadow(
-                      color: AppColors.selectionBlue.withValues(
-                        alpha: 0.45 * opacity,
+                      BoxShadow(
+                        color: AppColors.selectionBlue.withValues(
+                          alpha: 0.25 * glow,
+                        ),
+                        blurRadius: 28 + (36 * glow),
+                        spreadRadius: 2 + (8 * glow),
                       ),
-                      blurRadius: blur * 1.6,
-                      spreadRadius: spread * 1.2,
-                    ),
-                  ],
-          ),
-          child: SizedBox(
-            width: AppSpacing.buttonSize,
-            height: AppSpacing.buttonSize,
-            child: TextButton(
-              onPressed: widget.onPressed,
-              style: TextButton.styleFrom(
-                backgroundColor: AppColors.transparent,
-                foregroundColor: AppColors.iconPrimary,
-                shape: const CircleBorder(),
-                minimumSize: const Size(
-                  AppSpacing.buttonSize,
-                  AppSpacing.buttonSize,
-                ),
-                maximumSize: const Size(
-                  AppSpacing.buttonSize,
-                  AppSpacing.buttonSize,
-                ),
-              ),
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 200),
-                child: Icon(Icons.grid_view, size: AppSpacing.iconXl),
-              ),
+                    ]
+                  : const [],
             ),
+            child: child,
           ),
         );
       },
+      child: SizedBox(
+        width: AppSpacing.buttonSize,
+        height: AppSpacing.buttonSize,
+        child: TextButton(
+          onPressed: widget.onPressed,
+          style: TextButton.styleFrom(
+            backgroundColor: AppColors.transparent,
+            foregroundColor: AppColors.iconPrimary,
+            shape: const CircleBorder(),
+            minimumSize: const Size(
+              AppSpacing.buttonSize,
+              AppSpacing.buttonSize,
+            ),
+            maximumSize: const Size(
+              AppSpacing.buttonSize,
+              AppSpacing.buttonSize,
+            ),
+          ),
+          child: const Icon(Icons.grid_view, size: AppSpacing.iconXl),
+        ),
+      ),
     );
   }
 }

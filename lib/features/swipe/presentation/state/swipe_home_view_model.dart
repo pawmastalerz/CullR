@@ -20,6 +20,7 @@ class SwipeHomeViewModel extends ChangeNotifier {
 
   MediaRepository get media => _session.media;
   SwipeDecisionStore get decisionStore => _session.decisionStore;
+  bool get hasDeleteCandidates => _session.decisionStore.hasDeleteCandidates;
   SwipeSession get session => _session;
   GalleryRepository get galleryRepository => _session.galleryRepository;
   SwipeConfig get config => _session.config;
@@ -29,7 +30,6 @@ class SwipeHomeViewModel extends ChangeNotifier {
   int get progressSwipeCount => _session.progressSwipeCount;
   int get deletedCount => _session.deletedCount;
   int get deletedBytes => _session.deletedBytes;
-  int get statusGlowTick => _session.statusGlowTick;
   bool get showSwipeHint => _showSwipeHint;
   Future<void> get initialPreloadFuture => _session.initialPreloadFuture;
   Set<String> get openedFullResIds => _session.openedFullResIds;
