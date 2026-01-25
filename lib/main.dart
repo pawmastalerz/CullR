@@ -12,16 +12,18 @@ import 'styles/typography.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final Locale? savedLocale = await LocaleController.loadSavedLocale();
+  final Locale savedLocale = await LocaleController.resolveInitialLocale(
+    AppLocalizations.supportedLocales,
+  );
   final AppComposition composition = AppComposition();
   final SwipeSession swipeSession = composition.buildSwipeSession();
   runApp(MyApp(initialLocale: savedLocale, swipeSession: swipeSession));
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({super.key, this.initialLocale, required this.swipeSession});
+  const MyApp({super.key, required this.initialLocale, required this.swipeSession});
 
-  final Locale? initialLocale;
+  final Locale initialLocale;
   final SwipeSession swipeSession;
 
   @override

@@ -23,6 +23,26 @@ class LocaleController extends ChangeNotifier {
     return _decodeLocale(code);
   }
 
+  static Future<Locale> resolveInitialLocale(
+    List<Locale> supportedLocales, {
+    KeyValueStore? store,
+    Locale? deviceLocale,
+  }) async {
+    final KeyValueStore effectiveStore = store ?? SharedPreferencesStore();
+    final String? code = await effectiveStore.getString(_storageKey);
+    if (code != null && code.isNotEmpty) {
+      return _decodeLocale(code);
+    }
+
+    final Locale fallback = _fallbackLocale(supportedLocales);
+    final Locale platformLocale =
+        deviceLocale ?? WidgetsBinding.instance.platformDispatcher.locale;
+    final Locale resolved =
+        _resolveDeviceLocale(platformLocale, supportedLocales, fallback);
+    await effectiveStore.setString(_storageKey, _encodeLocale(resolved));
+    return resolved;
+  }
+
   Future<void> setLocale(Locale locale) async {
     if (_isSameLocale(_locale, locale)) {
       return;
@@ -53,5 +73,33 @@ class LocaleController extends ChangeNotifier {
       return Locale(parts[0], parts[1]);
     }
     return Locale(parts[0]);
+  }
+
+  static Locale _resolveDeviceLocale(
+    Locale deviceLocale,
+    List<Locale> supportedLocales,
+    Locale fallback,
+  ) {
+    for (final supported in supportedLocales) {
+      if (supported.languageCode == deviceLocale.languageCode &&
+          supported.countryCode == deviceLocale.countryCode) {
+        return supported;
+      }
+    }
+    for (final supported in supportedLocales) {
+      if (supported.languageCode == deviceLocale.languageCode) {
+        return supported;
+      }
+    }
+    return fallback;
+  }
+
+  static Locale _fallbackLocale(List<Locale> supportedLocales) {
+    for (final supported in supportedLocales) {
+      if (supported.languageCode == 'en') {
+        return supported;
+      }
+    }
+    return supportedLocales.first;
   }
 }
