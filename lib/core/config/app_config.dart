@@ -1,4 +1,12 @@
 class AppConfig {
+  static const bool mockGalleryEnabled = bool.fromEnvironment(
+    'MOCK_GALLERY',
+    defaultValue: false,
+  );
+  static const int mockGalleryLimit = int.fromEnvironment(
+    'MOCK_GALLERY_LIMIT',
+    defaultValue: 100,
+  );
   // Number of videos to request per gallery page.
   static const int galleryVideoBatchSize = 12;
   // Number of non-video assets to request per gallery page.
